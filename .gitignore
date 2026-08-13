@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+
+# Artefatos de build do deploy
+_deploy/

@@ -1,0 +1,42 @@
+name: Publish Website
+
+# Deploy SELETIVO para o WordPress.com (cetrus.com.br).
+# Publica APENAS o código próprio da Sanar em wp-content/mu-plugins/.
+# Nada mais do repositório entra no artefato, então um deploy jamais
+# sobrescreve/regride plugins de terceiros ou o tema no site.
+#
+# O WordPress.com consome o artefato chamado "wpcom" e faz merge do seu
+# conteúdo no diretório de destino configurado na conexão (raiz: /).
+# Como o artefato preserva a estrutura wp-content/..., os arquivos caem em
+# /srv/htdocs/wp-content/mu-plugins/.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # permite acionar o deploy manualmente (GitHub / WordPress.com)
+
+jobs:
+  Publish-Website:
+    name: Publish-Website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar apenas o código próprio (mu-plugins)
+        run: |
+          set -euo pipefail
+          mkdir -p _deploy/wp-content/mu-plugins
+          cp -R wp-content/mu-plugins/. _deploy/wp-content/mu-plugins/
+
+          echo "Conteúdo que será publicado:"
+          find _deploy -type f | sort
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpcom
+          path: |
+            _deploy
+            !**/.git*
+          retention-days: 1

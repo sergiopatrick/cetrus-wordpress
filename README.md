@@ -19,15 +19,33 @@ Espelha o mesmo modelo já usado no `sanarmed-wordpress`.
 
 ## Conteúdo atual
 
-### `wp-content/mu-plugins/cetrus-turma-eco-fetal-2026.php`
+### `wp-content/mu-plugins/cetrus-lyceum-ocultar-turmas-tecnicas.php`
 
-Correção **temporária e apenas de exibição** da data da turma do curso
-*Atualização em Ecocardiografia Fetal* (produto WooCommerce `16187`):
-`25/11/2027 a 27/11/2027` → `07/10/2026 a 09/10/2026`.
+Oculta, em **todas** as páginas de curso, as **turmas técnicas de venda** que o
+Lyceum mantém para receber matrículas sem turma definida: id terminado em
+`.VENDAS` (ex.: `PG_COP1.SP1.VENDAS`), status `ACTIVE`, 100 vagas e data-sentinela
+em 2040 (`16/01/2040 a ...`).
 
-A data no site vem do **Lyceum** (`source: "lyceum"`, curso `EC_AEF1`). A fonte da
-verdade é o Lyceum — este mu-plugin é um paliativo enquanto a turma não é ajustada lá.
-É seguro porque a inscrição do site é só um formulário de lead (nome/e-mail/mensagem);
-o código da turma não é enviado em nenhuma matrícula.
+Como elas passam por todos os filtros do `integracao-lyceum-main`
+(ACTIVE + vagas disponíveis), apareciam no seletor "Selecione a turma" como uma
+opção de 2040. O mu-plugin corta esses itens na camada HTTP (filtro
+`http_response`), antes de o plugin ler a resposta da `products-api`. Vale para
+página de curso, fellowship e AJAX, e sobrevive a atualizações do plugin.
 
-**Remover este arquivo** (e refazer o deploy) assim que a turma for corrigida no Lyceum.
+Regra: descarta a turma se o id termina em `.VENDAS` **ou** se `startDate` for de
+2035 em diante. Ajustável pelo filtro `cetrus_lyceum_e_turma_tecnica`.
+
+Não altera nada no Lyceum (a turma técnica continua existindo lá e continua
+valendo para a operação) e não afeta o `checkout.cetrus.com.br`, que consome a
+mesma API por fora do WordPress.
+
+Cursos cuja **única** turma visível era a `.VENDAS` passam a exibir o botão de
+**fila de espera** em vez do formulário de inscrição, o correto enquanto não
+houver turma real cadastrada no Lyceum.
+
+### Histórico
+
+- `cetrus-turma-eco-fetal-2026.php`: removido em 25/08/2026. Era um override de
+  exibição da data da turma de *Ecocardiografia Fetal* (`EC_AEF1`); depois que a
+  turma real de out/2026 foi criada no Lyceum, o hack passou a duplicar a opção
+  no seletor. A correção de data é sempre no Lyceum.

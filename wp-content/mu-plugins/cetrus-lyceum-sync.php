@@ -360,9 +360,13 @@ add_action('wp_enqueue_scripts', function () {
     wp_register_style('cetrus-lyceum-turma', false, [], '1.0.0');
     wp_enqueue_style('cetrus-lyceum-turma');
     wp_add_inline_style('cetrus-lyceum-turma',
-        '.cetrus-inicio-turma{color:#003B6C;font-weight:500}' .
-        '.cetrus-vagas-turma{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:10em;' .
-        'background:#FBF3E6;color:#7F5205;font-size:.75rem;font-weight:600;letter-spacing:.02em}');
+        // Tokens Dende: #003B6C ColorBrandCetrusMain, #FBF3E6 ColorFeedbackSurfaceAlert,
+        // #7F5205 ColorFeedbackOnAlert, .75rem FontSizeTiny, 10em BorderRadiusPill.
+        // O selo segue a especificacao de Tag estatica do DS: tinyBody com peso 500,
+        // nao 600 (peso 600 e das tags interativas).
+        '.cetrus-inicio-turma{color:#003B6C;font-weight:500;font-size:.75rem}' .
+        '.cetrus-vagas-turma{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:10em;' .
+        'background:#FBF3E6;color:#7F5205;font-size:.75rem;font-weight:500;letter-spacing:.02em}');
 });
 
 /* ----------------------------------------------------------------- hooks */

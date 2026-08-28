@@ -99,15 +99,24 @@ function cetrus_news_render($atts = []) {
 
     ob_start(); ?>
 <div class="cetrus-newsletter<?php echo $a['cabecalho'] === 'nao' ? ' cetrus-newsletter--so-form' : ''; ?>" data-slot="<?php echo esc_attr($slot); ?>">
+  <div class="cetrus-newsletter__caixa">
   <?php if ($a['cabecalho'] !== 'nao') : ?>
   <div class="cetrus-newsletter__texto">
+    <p class="cetrus-newsletter__eyebrow">Newsletter</p>
     <h2 class="cetrus-newsletter__titulo"><?php echo esc_html($titulo); ?></h2>
     <p class="cetrus-newsletter__sub"><?php echo esc_html($texto); ?></p>
   </div>
   <?php endif; ?>
   <div class="cetrus-newsletter__form">
     <div id="cetrus-newsletter-alvo-<?php echo esc_attr($slot); ?>" class="cetrus-newsletter-alvo"></div>
-    <p class="cetrus-newsletter__fina">Sem spam. Cancele a inscrição a qualquer momento.</p>
+    <p class="cetrus-newsletter__fina">
+      <svg class="cetrus-newsletter__cadeado" width="12" height="12" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      Seus dados ficam com o Cetrus. Cancele a inscrição quando quiser.
+    </p>
+  </div>
   </div>
 </div>
 <script>
@@ -158,6 +167,11 @@ function cetrus_news_render($atts = []) {
             if (txt) ent.setAttribute('placeholder', txt);
           }
         });
+
+        var botao = form.querySelector('input[type=submit], .hs-button');
+        if (botao && botao.value && botao.value.indexOf('\u2192') === -1) {
+          botao.value = botao.value.trim() + '  \u2192';
+        }
 
         set('contact__ct__bait', cfg.bait);
         set('contact__ct__page_type', cfg.pageType);
@@ -213,50 +227,70 @@ add_action('wp_enqueue_scripts', function () {
     }
     // Faixa horizontal baixa: texto a esquerda, campos e botao colados numa linha so a direita.
     // Os rotulos viram placeholder no onFormReady, senao o formulario empilha e a faixa cresce.
+    //
+    // TOKENS DO DENDE (design system da Sanar) - nao inventar valor novo:
+    //   #F2F3FB ColorBrandCetrusSurface | #002452 ColorBrandCetrusDark | #003B6C ColorBrandCetrusMain
+    //   #C3C6C6 ColorNeutralLight       | #111212 ColorNeutralDarkest
+    //   rgba(17,18,18,.65) ColorTextNeutralLigther
+    //   #C61D1D ColorFeedbackMainError  | #E7F4EC ColorFeedbackSurfaceSuccess | #0C5728 ColorFeedbackOnSuccess
+    //   tipografia: 1.25rem FontSizeLarge | 1rem FontSizeMedium | .875rem FontSizeSmall | .75rem FontSizeTiny
+    //   espacamento: 4 8 12 16 20 24 32 40 48 px (Spacing1..12) | raio 8px BorderRadius2
     $css .= '
-.cetrus-newsletter{display:flex;flex-wrap:wrap;gap:16px 48px;align-items:center;justify-content:space-between;
-  max-width:1170px;margin:0 auto;padding:24px 32px;background:#F2F3FB;border-radius:8px}
-.cetrus-newsletter__texto{flex:1 1 320px;min-width:260px}
-.cetrus-newsletter__titulo{margin:0 0 4px;color:#002452;font-size:1.25rem;line-height:1.25;font-weight:700}
-.cetrus-newsletter__sub{margin:0;color:#595F5F;font-size:.9375rem;line-height:1.45}
-.cetrus-newsletter__form{flex:1 1 440px;min-width:280px}
-.cetrus-newsletter--so-form{padding:20px 24px}
+/* A cor precisa atravessar a tela inteira. O bloco vive dentro de um container
+   BOXED do Elementor (1170px), entao pintar o bloco pinta so o miolo: quem tem
+   largura total e o proprio container, e e nele que o fundo tem que ir. */
+.elementor-element-92454f4{background-color:#F2F3FB}
+.cetrus-newsletter{width:100%;background:transparent;padding:40px 24px}
+.cetrus-newsletter__caixa{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:center;
+  justify-content:space-between;max-width:1170px;margin:0 auto}
+.cetrus-newsletter__texto{flex:1 1 340px;min-width:260px}
+.cetrus-newsletter__eyebrow{margin:0 0 8px;color:rgba(17,18,18,.65);font-size:.75rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;line-height:1}
+.cetrus-newsletter__titulo{margin:0 0 8px;color:#002452;font-size:1.75rem;line-height:1.15;font-weight:700;
+  letter-spacing:-.01em}
+.cetrus-newsletter__sub{margin:0;color:rgba(17,18,18,.65);font-size:.875rem;line-height:1.5}
+.cetrus-newsletter__form{flex:1 1 420px;min-width:280px}
+.cetrus-newsletter--so-form{padding:24px}
 .cetrus-newsletter--so-form .cetrus-newsletter__form{flex:1 1 100%}
-.cetrus-newsletter__fina{margin:8px 0 0;color:#595F5F;font-size:.75rem;line-height:1.4}
+.cetrus-newsletter__fina{display:flex;align-items:center;gap:6px;margin:12px 0 0;
+  color:rgba(17,18,18,.65);font-size:.75rem;line-height:1.4}
+.cetrus-newsletter__cadeado{flex:0 0 auto}
 
-.cetrus-newsletter form.hs-form{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.cetrus-newsletter form.hs-form{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px}
 .cetrus-newsletter .hs-form-field{flex:1 1 160px;min-width:0;margin:0;position:relative}
-/* consentimento, mensagens e textos ricos do HubSpot NAO entram na linha dos campos */
 .cetrus-newsletter .legal-consent-container,.cetrus-newsletter .hs-richtext,
-.cetrus-newsletter .hs_error_rollup,.cetrus-newsletter .submitted-message{flex:1 1 100%;order:10}
+.cetrus-newsletter .hs_error_rollup,.cetrus-newsletter .submitted-message{flex:1 1 100%;order:10;margin:0}
 .cetrus-newsletter .hs-form-field>label:not(.hs-error-msg){position:absolute;width:1px;height:1px;
   padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .cetrus-newsletter .hs-form-field .input{margin:0}
 .cetrus-newsletter input[type=text],.cetrus-newsletter input[type=email]{width:100%;height:48px;
-  padding:0 14px;border:1px solid #C3C6C6;border-right:0;border-radius:0;background:#fff;
-  color:#111212;font-size:.9375rem}
-.cetrus-newsletter .hs-form-field:first-of-type input{border-radius:8px 0 0 8px}
+  padding:0 16px;border:1px solid #C3C6C6;border-radius:8px;background:#fff;color:#111212;font-size:1rem}
+.cetrus-newsletter input::placeholder{color:rgba(17,18,18,.55)}
 .cetrus-newsletter input[type=text]:focus,.cetrus-newsletter input[type=email]:focus{
-  outline:2px solid #3D93D7;outline-offset:-1px;border-color:#003B6C;position:relative;z-index:1}
+  outline:2px solid #003B6C;outline-offset:-1px;border-color:#003B6C}
 .cetrus-newsletter .hs_submit,.cetrus-newsletter .actions{flex:0 0 auto;margin:0;padding:0}
-.cetrus-newsletter .hs-button{height:48px;padding:0 26px;border:0;border-radius:0 8px 8px 0;
-  background:#003B6C;color:#fff;font-size:.9375rem;font-weight:600;cursor:pointer;white-space:nowrap}
-.cetrus-newsletter .hs-button:hover{background:#002452}
+/* a seta vai no texto do botao (onFormReady): o CSS do HubSpot vence background-image */
+.cetrus-newsletter form.hs-form .hs-button{height:48px;padding:0 24px;border:0;border-radius:8px;
+  background:#003B6C;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;white-space:nowrap;
+  }
+.cetrus-newsletter form.hs-form .hs-button:hover{background-color:#002452}
 
-/* erro nao pode empurrar a linha para baixo */
+.cetrus-newsletter .legal-consent-container{font-size:.75rem;color:rgba(17,18,18,.65);line-height:1.45}
+.cetrus-newsletter .legal-consent-container a{color:#003B6C;text-decoration:underline}
+.cetrus-newsletter .hs-form-booleancheckbox-display{display:flex;align-items:flex-start;gap:8px}
+.cetrus-newsletter .hs-form-booleancheckbox-display input[type=checkbox]{margin:2px 0 0;width:16px;height:16px;
+  accent-color:#003B6C;flex:0 0 auto}
 .cetrus-newsletter .hs-error-msgs{position:absolute;top:100%;left:0;margin:4px 0 0;padding:0;list-style:none}
 .cetrus-newsletter .hs-error-msg{color:#C61D1D;font-size:.75rem}
-.cetrus-newsletter .submitted-message{color:#0C5728;background:#E7F4EC;border-radius:8px;padding:14px 16px;margin:0;font-size:.9375rem}
-.cetrus-newsletter .legal-consent-container{font-size:.75rem;color:#595F5F;margin-top:8px}
+.cetrus-newsletter .submitted-message{color:#0C5728;background:#E7F4EC;border-radius:8px;padding:16px;font-size:1rem}
 
 @media (max-width:860px){
-  .cetrus-newsletter{padding:24px;gap:16px}
-  .cetrus-newsletter form.hs-form{flex-wrap:wrap;gap:8px}
+  .cetrus-newsletter{padding:32px 24px}
+  .cetrus-newsletter__caixa{gap:20px}
+  .cetrus-newsletter__titulo{font-size:1.5rem}
   .cetrus-newsletter .hs-form-field{flex:1 1 100%}
-  .cetrus-newsletter input[type=text],.cetrus-newsletter input[type=email]{border-right:1px solid #C3C6C6;border-radius:8px}
-  .cetrus-newsletter .hs-form-field:first-of-type input{border-radius:8px}
   .cetrus-newsletter .hs_submit{flex:1 1 100%}
-  .cetrus-newsletter .hs-button{width:100%;border-radius:8px}
+  .cetrus-newsletter .hs-button{width:100%}
   .cetrus-newsletter .hs-error-msgs{position:static}
 }
 ';

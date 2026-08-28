@@ -232,3 +232,33 @@ if (defined('WP_CLI') && WP_CLI) {
         }
     });
 }
+
+/**
+ * Setas de navegacao do carrossel da home.
+ * O widget passou a ter arrows=yes, mas o CSS do site deixava a seta de voltar
+ * no canto inferior esquerdo e a de avancar no meio da direita. Aqui elas ficam
+ * simetricas, centradas na vertical e nas bordas da faixa.
+ * Cores do Dende: #003B6C ColorBrandCetrusMain, #FFFFFF ColorNeutralWhite.
+ */
+add_action('wp_enqueue_scripts', function () {
+    if (!cetrus_carr_ativo()) return;
+    wp_register_style('cetrus-carrossel-setas', false, [], '1.0.0');
+    wp_enqueue_style('cetrus-carrossel-setas');
+    wp_add_inline_style('cetrus-carrossel-setas', '
+/* o !important e necessario: o CSS do tema posiciona uma das setas por bottom,
+   deixando a de voltar no rodape do widget e a de avancar no meio */
+.elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button{position:absolute !important;
+  top:50% !important;bottom:auto !important;transform:translateY(-50%) !important;
+  z-index:5;display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:10em;background:#fff;color:#003B6C;
+  box-shadow:0 1px 8px rgba(17,18,18,.15);cursor:pointer;margin:0 !important}
+.elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button svg{width:18px;height:18px;fill:currentColor}
+.elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-prev{left:-8px !important;right:auto !important}
+.elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-next{right:-8px !important;left:auto !important}
+.elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button:hover{background:#003B6C;color:#fff}
+.elementor-element-' . CETRUS_CARR_WIDGET . '{position:relative}
+@media (max-width:860px){
+  .elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-prev{left:0}
+  .elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-next{right:0}
+}');
+});

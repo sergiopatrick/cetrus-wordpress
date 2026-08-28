@@ -361,12 +361,20 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('cetrus-lyceum-turma');
     /**
      * Card de curso (template Elementor 11204, compartilhado por home e as 4 vitrines).
-     * No mobile os cards ficam com ~250px e apareciam tres defeitos:
-     *   1. titulo quebrando NO MEIO DA PALAVRA ("Ultrassonog / rafia")
-     *   2. coordenador e data vazando para fora do card
-     *   3. linhas coladas, sem respiro
-     * A causa de (1) e (2) e a mesma familia: item de lista do Elementor e flex, e
-     * filho flex sem min-width:0 nao encolhe nem quebra - ele estoura o container.
+     *
+     * A causa raiz da queixa de 28/08/2026 ("silabas quebradas, informacao passando do
+     * card no mobile") NAO era CSS: o widget df02ba9 estava com slides_to_show_mobile = 2,
+     * o que no iPhone 14 Pro (393px) da cards de ~126px, ainda com os dois peeks laterais
+     * do offset_width_mobile por cima. Nesse espaco "Ultrassonografia" nao cabe em uma
+     * linha e o navegador quebra no meio da palavra. Voltou para 1, que e o proprio
+     * padrao do Elementor para mobile (loop-carousel.php: mobile_default => '1'), e o
+     * card passou a ~290px - mais largo que o card do desktop (1170/5 = ~220px), onde
+     * o mesmo titulo sempre coube.
+     *
+     * O que sobra aqui e so a rede de protecao estrutural, valida em qualquer largura:
+     * item de lista do Elementor e flex, e filho flex sem min-width:0 nao encolhe nem
+     * quebra - ele estoura o container. De proposito NAO ha override de font-size:
+     * com o card no tamanho certo o tamanho natural do titulo funciona.
      */
     $card = '
 .elementor-11204 .elementor-heading-title{overflow-wrap:break-word;word-break:normal;
@@ -376,12 +384,10 @@ add_action('wp_enqueue_scripts', function () {
 .elementor-11204 .elementor-icon-list-text{min-width:0;overflow-wrap:break-word;word-break:normal;
   -webkit-hyphens:none;hyphens:none;line-height:1.35}
 @media (max-width:860px){
-  /* o titulo pode ocupar ate 3 linhas antes de truncar, em vez de cortar cedo */
-  .elementor-11204 .elementor-heading-title{font-size:.9375rem;line-height:1.25;
+  /* altura util e escassa no mobile: titulo ate 3 linhas, apoio ate 2 */
+  .elementor-11204 .elementor-heading-title{
     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .elementor-11204 .elementor-icon-list-items{gap:4px}
-  .elementor-11204 .elementor-icon-list-text{font-size:.75rem}
-  /* coordenador longo trunca em uma linha em vez de empurrar o card */
+  .elementor-11204 .elementor-icon-list-items{gap:6px}
   .elementor-11204 .elementor-icon-list-item:not(:first-child) .elementor-icon-list-text{
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 }';

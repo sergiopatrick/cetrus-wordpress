@@ -359,6 +359,27 @@ add_shortcode('cetrus_vagas_turma', 'cetrus_lyceum_sc_vagas');
 add_action('wp_enqueue_scripts', function () {
     wp_register_style('cetrus-lyceum-turma', false, [], '1.0.0');
     wp_enqueue_style('cetrus-lyceum-turma');
+    // Facet 16 "Ordenar por" das vitrines. Sem isto ele ocupa a largura inteira
+    // da coluna do grid (~810px), que e desproporcional para um controle de ordem.
+    // Tokens Dende: #C3C6C6 ColorNeutralLight, #111212 ColorNeutralDarkest,
+    // rgba(17,18,18,.65) ColorTextNeutralLigther, .875rem FontSizeSmall, 8px BorderRadius2.
+    $ordenar = '
+.wpgb-facet-16{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:0 0 16px}
+.wpgb-facet-16 .wpgb-facet-title{margin:0;font-size:.875rem;font-weight:500;
+  color:rgba(17,18,18,.65);white-space:nowrap;line-height:1}
+.wpgb-facet-16 fieldset{margin:0;padding:0;border:0}
+.wpgb-facet-16 .wpgb-sort-facet{flex:0 0 auto;width:240px;max-width:100%;position:relative}
+.wpgb-facet-16 select.wpgb-sort{width:100%;height:40px;padding:0 36px 0 12px;
+  border:1px solid #C3C6C6;border-radius:8px;background:#fff;color:#111212;
+  font-size:.875rem;line-height:1.2;cursor:pointer}
+.wpgb-facet-16 select.wpgb-sort:focus{outline:2px solid #003B6C;outline-offset:-1px;border-color:#003B6C}
+@media (max-width:640px){
+  .wpgb-facet-16{justify-content:space-between;gap:8px;margin-bottom:12px}
+  .wpgb-facet-16 .wpgb-sort-facet{flex:1 1 auto;width:auto;min-width:0}
+  .wpgb-facet-16 .wpgb-facet-title{font-size:.8125rem}
+}';
+    wp_add_inline_style('cetrus-lyceum-turma', $ordenar);
+
     wp_add_inline_style('cetrus-lyceum-turma',
         // Tokens Dende: #003B6C ColorBrandCetrusMain, #FBF3E6 ColorFeedbackSurfaceAlert,
         // #7F5205 ColorFeedbackOnAlert, .75rem FontSizeTiny, 10em BorderRadiusPill.

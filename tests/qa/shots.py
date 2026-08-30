@@ -26,6 +26,7 @@ PAGINAS = {
 VIEWPORTS = {"desk": (1440, 3400), "mob": (390, 2600)}
 
 def capturar(rotulo):
+    import random
     destino = os.path.join(BASE, "shots", rotulo)
     os.makedirs(destino, exist_ok=True)
     for nome, url in PAGINAS.items():
@@ -33,7 +34,8 @@ def capturar(rotulo):
             arq = os.path.join(destino, f"{nome}-{vp}.png")
             cmd = [CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
                    "--force-device-scale-factor=1", f"--window-size={w},{h}",
-                   "--virtual-time-budget=12000", f"--screenshot={arq}", url]
+                   "--virtual-time-budget=12000", f"--screenshot={arq}",
+                   url + ("&" if "?" in url else "?") + "v=%d" % random.randint(1,10**9)]
             subprocess.run(cmd, capture_output=True, timeout=120)
             ok = os.path.exists(arq) and os.path.getsize(arq) > 5000
             print(f"  {'ok  ' if ok else 'FALHA'} {nome}-{vp}  {os.path.getsize(arq) if os.path.exists(arq) else 0} bytes")

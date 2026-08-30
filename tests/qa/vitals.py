@@ -45,6 +45,11 @@ COLETA = r"""(()=>{ const q=window.__qa||{cls:0,shifts:[]};
     vw: innerWidth, vh: innerHeight, altura_doc: document.documentElement.scrollHeight};})()"""
 
 def medir(url, largura, altura, mobile, porta):
+    # cache-buster obrigatorio: sem ele o edge devolve o HTML anterior e a medicao
+    # mede a versao velha. Ja aconteceu aqui em 30/08/2026.
+    import random
+    sep = "&" if "?" in url else "?"
+    url = f"{url}{sep}v={random.randint(1,10**9)}"
     c = cdp.Chrome(largura, altura, mobile, porta)
     try:
         c.cmd("Page.addScriptToEvaluateOnNewDocument", {"source": OBSERVER})

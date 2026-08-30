@@ -28,7 +28,8 @@ def medir(largura, altura, mobile, porta, sem_js):
     try:
         if sem_js:
             c.cmd("Emulation.setScriptExecutionDisabled", {"value": True})
-        c.ir(URL, 10 if sem_js else 16)
+        import random
+        c.ir(URL + "?v=%d" % random.randint(1,10**9), 10 if sem_js else 16)
         return c.js(MEDIR)
     finally:
         c.fechar()

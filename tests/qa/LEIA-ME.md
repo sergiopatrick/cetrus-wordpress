@@ -50,3 +50,33 @@ funcionamento nem SEO. Tudo aqui e SOMENTE LEITURA sobre o site.
 Depois de cada mudanca, rodar o teste em tempo real do Search Console
 (conta corporativa, `/u/2/`) em pelo menos uma URL de cada template e conferir
 "O URL esta disponivel para o Google" e a aba Captura de tela.
+
+## Mais armadilhas, pagas em 30/08/2026
+
+6. **Medir CLS sem furar o cache de borda.** A primeira medicao depois da correcao
+   do hero deu 0,0438, igual a antes: o edge estava devolvendo o HTML anterior.
+   `vitals.py` agora acrescenta uma query aleatoria. Depois de mexer em HTML,
+   rode tambem `wp edge-cache purge` na URL antes de medir.
+7. **Nao confie em correlacao temporal para achar culpado de CLS.** A queda de
+   altura do hero coincidia com `document.fonts.ready` (4245 ms contra 4261 ms) e
+   parecia reflow de fonte. Bloqueando TODAS as fontes pela rede o CLS ficou
+   igual. O culpado era outro. Bloquear o recurso suspeito e desligar o
+   JavaScript sao os dois testes que realmente decidem.
+
+## Camada dupla de validacao mobile
+
+1. **`lh-mobile.sh <rotulo>`** roda o Lighthouse 13.4.1 no perfil mobile nas 6 paginas
+   principais. E o mesmo motor e a mesma pontuacao que o PageSpeed Insights mostra.
+   `lh-tabela.py <rotulo> [outro]` imprime a tabela comparativa.
+2. **`vitals.py`** e **`estrutura.py`** medem em Chrome real com viewport 390x844 e
+   emulacao movel: CLS e LCP com o observer instalado antes do documento, e a
+   checagem deterministica de altura com e sem JavaScript. Pega o que a pontuacao
+   sintetica do Lighthouse esconde.
+   `shots.py` fecha com 12 screenshots mobile comparados pixel a pixel.
+
+`lh-teto.sh` mede o teto: a mesma pagina com TODO terceiro bloqueado.
+
+**Armadilha cara:** `--blocked-url-patterns` precisa ser REPETIDO, um por padrao.
+Passar `--blocked-url-patterns="a,b,c"` vira UM padrao so, nada e bloqueado, e o
+teste devolve "bloquear terceiros nao muda nada". Foi exatamente o que aconteceu
+aqui em 30/08/2026 e levou a uma conclusao errada que precisou ser desfeita.

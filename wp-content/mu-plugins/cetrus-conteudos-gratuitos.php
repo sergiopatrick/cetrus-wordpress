@@ -16,6 +16,11 @@ const PAGE_ID   = 27615;
 const PAGE_SLUG = 'conteudos-gratuitos';
 const PORTAL    = '9321751';
 const REGION    = 'na1';
+/* Ids dos widgets da hero no Elementor. Se a hero for refeita, atualizar aqui:
+   sem eles o selo e a busca simplesmente não entram, sem quebrar a página. */
+const HERO_TITULO    = '3a64c09';
+const HERO_SUBTITULO = '066bc8c';
+
 const QUERY_VAR = 'material';
 const OPT_RULES = 'cetrus_cg_rules_v';
 const RULES_VER = '1';
@@ -400,21 +405,25 @@ add_filter(
 			$html
 		);
 
-		// 2. Barra de busca e chips, logo acima da primeira prateleira.
+		// 2. Selo e campo de busca dentro da hero (ids dos widgets do Elementor).
+		$html = junto_do_widget( $html, HERO_TITULO, selo_hero() );
+		$html = junto_do_widget( $html, HERO_SUBTITULO, busca_hero(), true );
+
+		// 3. Chips e contagem, logo acima da primeira prateleira.
 		$ancora = '<div class="elementor-element elementor-element-531de49';
 		$pos    = strpos( $html, $ancora );
 		if ( false !== $pos ) {
 			$html = substr( $html, 0, $pos ) . barra() . substr( $html, $pos );
 		}
 
-		// 3. O passo 2 falava em "abrir a página": agora a inscrição acontece na própria página.
+		// 4. O passo 2 falava em "abrir a página": agora a inscrição acontece na própria página.
 		$html = str_replace(
 			'Após abrir a página, inscreva-se e receba seu acesso.',
 			'Preencha o formulário na janela que abre e receba o acesso na hora.',
 			$html
 		);
 
-		// 4. Janela de inscrição.
+		// 5. Janela de inscrição.
 		$html .= modal();
 
 		return $html;
@@ -455,23 +464,99 @@ function barra() {
 	?>
 <div class="cg-barra" id="cg-barra">
 	<div class="cg-barra__wrap">
-		<div class="cg-busca">
-			<svg class="cg-busca__lupa" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-			<input type="search" id="cg-q" class="cg-busca__campo" autocomplete="off" spellcheck="false"
-				placeholder="Buscar por tema, especialidade ou formato"
-				aria-label="Buscar conteúdo gratuito"
-				role="combobox" aria-expanded="false" aria-controls="cg-sugestoes" aria-autocomplete="list">
-			<button type="button" class="cg-busca__limpar" hidden aria-label="Limpar busca">
-				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
-			</button>
-			<ul class="cg-sug" id="cg-sugestoes" role="listbox" aria-label="Sugestões" hidden></ul>
-		</div>
+		<p class="cg-barra__olho">Navegue por especialidade</p>
 		<div class="cg-chips" role="group" aria-label="Filtrar por especialidade"><?php echo $chips; // phpcs:ignore ?></div>
 		<p class="cg-contagem" role="status" aria-live="polite" data-cg-total="<?php echo (int) $total; ?>"></p>
 	</div>
 </div>
 	<?php
 	return ob_get_clean();
+}
+
+/**
+ * Selo que abre a hero. Mesma leitura da /materiais-gratuitos/ do Sanar Pós:
+ * o visitante entende em uma linha que ali é uma biblioteca, não uma oferta.
+ */
+function selo_hero() {
+	return '<p class="cg-hero-selo">Biblioteca de conteúdo gratuito</p>';
+}
+
+/**
+ * Campo de busca. Mora dentro da hero, e não mais na barra de filtros: é a
+ * primeira coisa que a pessoa faz ao chegar por um e-mail ou por busca.
+ * Os ids (#cg-q, #cg-sugestoes) são os mesmos, então o JS não muda.
+ */
+function busca_hero() {
+	ob_start();
+	?>
+<div id="cg-hero-busca">
+	<div class="cg-busca">
+		<svg class="cg-busca__lupa" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+		<input type="search" id="cg-q" class="cg-busca__campo" autocomplete="off" spellcheck="false"
+			placeholder="Buscar por tema, especialidade ou formato"
+			aria-label="Buscar conteúdo gratuito"
+			role="combobox" aria-expanded="false" aria-controls="cg-sugestoes" aria-autocomplete="list">
+		<button type="button" class="cg-busca__limpar" hidden aria-label="Limpar busca">
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+		</button>
+		<ul class="cg-sug" id="cg-sugestoes" role="listbox" aria-label="Sugestões" hidden></ul>
+	</div>
+</div>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Acha onde fecha o <div> que começa em $ini, contando abre e fecha. Serve para
+ * inserir logo depois de um widget do Elementor sem depender de regex frágil.
+ */
+function fim_do_div( $html, $ini ) {
+	$prof = 0;
+	$i    = $ini;
+	$n    = strlen( $html );
+	while ( $i < $n ) {
+		$abre  = strpos( $html, '<div', $i );
+		$fecha = strpos( $html, '</div>', $i );
+		if ( false === $fecha ) {
+			return null;
+		}
+		if ( false !== $abre && $abre < $fecha ) {
+			++$prof;
+			$i = $abre + 4;
+			continue;
+		}
+		--$prof;
+		$i = $fecha + 6;
+		if ( 0 === $prof ) {
+			return $i;
+		}
+	}
+	return null;
+}
+
+/**
+ * Insere HTML colado num widget do Elementor, antes ou depois dele.
+ *
+ * Se o id não existir mais, porque alguém refez a hero no editor, devolve o
+ * HTML intacto: a página continua de pé, só sem o pedaço injetado.
+ */
+function junto_do_widget( $html, $id, $novo, $depois = false ) {
+	$pos = strpos( $html, 'elementor-element-' . $id );
+	if ( false === $pos ) {
+		return $html;
+	}
+	$ini = strrpos( substr( $html, 0, $pos ), '<div' );
+	if ( false === $ini ) {
+		return $html;
+	}
+	if ( ! $depois ) {
+		return substr( $html, 0, $ini ) . $novo . substr( $html, $ini );
+	}
+	$fim = fim_do_div( $html, $ini );
+	if ( null === $fim ) {
+		return $html;
+	}
+	return substr( $html, 0, $fim ) . $novo . substr( $html, $fim );
 }
 
 function modal() {
@@ -593,37 +678,91 @@ function css() {
 @media(max-width:1218px){
 	#cg-barra .cg-barra__wrap{width:100%;padding-inline:24px}
 }
-#cg-barra .cg-busca{position:relative;max-width:560px}
-#cg-barra .cg-busca__campo{
+#cg-barra .cg-busca,#cg-hero-busca .cg-busca{position:relative;max-width:560px}
+#cg-barra .cg-busca__campo,#cg-hero-busca .cg-busca__campo{
 	width:100%;box-sizing:border-box;height:52px;padding:0 46px;margin:0;
 	font-family:var(--cg-corpo);font-size:16px;line-height:normal;color:var(--cg-cinza-esc);
 	background:#fff;border:1px solid var(--cg-linha);border-radius:var(--cg-r2);box-shadow:none;
 	transition:border-color .15s ease,box-shadow .15s ease;-webkit-appearance:none;appearance:none
 }
-#cg-barra .cg-busca__campo::placeholder{color:var(--cg-cinza-md);opacity:1}
-#cg-barra .cg-busca__campo:focus{outline:none;border-color:var(--cg-medium);box-shadow:0 0 0 3px rgba(0,59,108,.16)}
-#cg-barra .cg-busca__campo::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
-#cg-barra .cg-busca__lupa{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:19px;height:19px;
+#cg-barra .cg-busca__campo::placeholder,#cg-hero-busca .cg-busca__campo::placeholder{color:var(--cg-cinza-md);opacity:1}
+#cg-barra .cg-busca__campo:focus,#cg-hero-busca .cg-busca__campo:focus{outline:none;border-color:var(--cg-medium);box-shadow:0 0 0 3px rgba(0,59,108,.16)}
+#cg-barra .cg-busca__campo::-webkit-search-cancel-button,#cg-hero-busca .cg-busca__campo::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
+#cg-barra .cg-busca__lupa,#cg-hero-busca .cg-busca__lupa{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:19px;height:19px;
 	fill:none;stroke:var(--cg-cinza);stroke-width:2;stroke-linecap:round;pointer-events:none;z-index:1}
-#cg-barra .cg-busca__limpar{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+#cg-barra .cg-busca__limpar,#cg-hero-busca .cg-busca__limpar{position:absolute;right:8px;top:50%;transform:translateY(-50%);
 	width:32px;height:32px;min-width:0;padding:0;display:grid;place-items:center;
 	background:none;border:0;box-shadow:none;cursor:pointer;border-radius:var(--cg-r2)}
-#cg-barra .cg-busca__limpar[hidden]{display:none}
-#cg-barra .cg-busca__limpar:hover{background:var(--cg-lighter)}
-#cg-barra .cg-busca__limpar svg{width:15px;height:15px;fill:none;stroke:var(--cg-cinza);stroke-width:2;stroke-linecap:round}
+#cg-barra .cg-busca__limpar[hidden],#cg-hero-busca .cg-busca__limpar[hidden]{display:none}
+#cg-barra .cg-busca__limpar:hover,#cg-hero-busca .cg-busca__limpar:hover{background:var(--cg-lighter)}
+#cg-barra .cg-busca__limpar svg,#cg-hero-busca .cg-busca__limpar svg{width:15px;height:15px;fill:none;stroke:var(--cg-cinza);stroke-width:2;stroke-linecap:round}
 
-#cg-barra .cg-sug{position:absolute;z-index:60;top:calc(100% + 6px);left:0;right:0;margin:0;padding:6px;
+#cg-barra .cg-sug,#cg-hero-busca .cg-sug{position:absolute;z-index:60;top:calc(100% + 6px);left:0;right:0;margin:0;padding:6px;
 	list-style:none;background:#fff;border:1px solid var(--cg-linha);border-radius:var(--cg-r2);
 	box-shadow:0 12px 32px rgba(0,36,82,.14);max-height:320px;overflow:auto}
-#cg-barra .cg-sug[hidden]{display:none}
-#cg-barra .cg-sug li{margin:0;padding:0;list-style:none}
-#cg-barra .cg-sug li:before{content:none}
-#cg-barra .cg-sug button{display:block;width:100%;text-align:left;padding:9px 12px;margin:0;
+#cg-barra .cg-sug[hidden],#cg-hero-busca .cg-sug[hidden]{display:none}
+#cg-barra .cg-sug li,#cg-hero-busca .cg-sug li{margin:0;padding:0;list-style:none}
+#cg-barra .cg-sug li:before,#cg-hero-busca .cg-sug li:before{content:none}
+#cg-barra .cg-sug button,#cg-hero-busca .cg-sug button{display:block;width:100%;text-align:left;padding:9px 12px;margin:0;
 	background:none;border:0;box-shadow:none;border-radius:var(--cg-r2);cursor:pointer;
 	font-family:var(--cg-corpo);font-size:14px;font-weight:400;line-height:1.35;color:var(--cg-cinza-esc)}
-#cg-barra .cg-sug button:hover,#cg-barra .cg-sug button:focus,#cg-barra .cg-sug .is-ativa button{background:var(--cg-lighter);outline:none}
-#cg-barra .cg-sug small{display:block;margin-top:2px;font-size:12px;color:var(--cg-cinza)}
-#cg-barra .cg-sug mark{background:transparent;color:var(--cg-medium);font-weight:600}
+#cg-barra .cg-sug button:hover,#cg-hero-busca .cg-sug button:hover,#cg-barra .cg-sug button:focus,#cg-hero-busca .cg-sug button:focus,#cg-barra .cg-sug .is-ativa button,#cg-hero-busca .cg-sug .is-ativa button{background:var(--cg-lighter);outline:none}
+#cg-barra .cg-sug small,#cg-hero-busca .cg-sug small{display:block;margin-top:2px;font-size:12px;color:var(--cg-cinza)}
+#cg-barra .cg-sug mark,#cg-hero-busca .cg-sug mark{background:transparent;color:var(--cg-medium);font-weight:600}
+
+/* ---------- hero ----------
+   Refatorada em 10/09/2026 para ler como a /materiais-gratuitos/ do Sanar Pós:
+   selo, título grande, subtítulo curto e o campo de busca dentro da hero. O
+   gradiente, as cores e a arte continuam sendo os do Cetrus. O texto do título
+   e do subtítulo segue editável no Elementor: aqui só mandam escala e espaço.
+   Os seletores levam `body` na frente porque o CSS do post do Elementor tem a
+   mesma especificidade e a ordem de impressão não é garantida.            */
+/* O selo é filho de um container flex em coluna: item de flex tem o display
+   blocificado, então `inline-block` viraria `block` e ele esticaria na coluna
+   inteira. Quem faz ele abraçar o texto é o align-self.                    */
+.cg-hero-selo{
+	align-self:flex-start;margin:0 0 18px;padding:7px 14px;
+	font-family:var(--cg-corpo);font-size:12.5px;font-weight:600;line-height:1;color:#fff;
+	background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:var(--cg-pill)}
+/* O tamanho do título vem de um token global do kit, num seletor de 4 classes
+   (.elementor-27615 .elementor-element.elementor-element-XXX .elementor-heading-title).
+   Daí o `body.elementor-page-27615` na frente: sem ele o clamp perde.      */
+body.elementor-page-27615 .elementor-element.elementor-element-3a64c09 .elementor-heading-title{
+	font-size:clamp(30px,3.4vw,46px);line-height:1.14;letter-spacing:-.5px;margin:0}
+body.elementor-page-27615 .elementor-element.elementor-element-066bc8c .elementor-heading-title{
+	font-size:17px;line-height:1.6;max-width:52ch;margin:14px 0 0}
+/* respiro para o selo e a busca não encostarem nas bordas da faixa */
+body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
+	min-height:452px;padding-block:44px}
+#cg-hero-busca{margin-top:26px;max-width:560px}
+/* o campo nasceu para faixa clara; sobre o gradiente escuro ele inverte */
+#cg-hero-busca .cg-busca__campo{
+	height:56px;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.24);color:#fff}
+#cg-hero-busca .cg-busca__campo::placeholder{color:rgba(255,255,255,.62);opacity:1}
+#cg-hero-busca .cg-busca__campo:focus{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+#cg-hero-busca .cg-busca__lupa{stroke:rgba(255,255,255,.72)}
+#cg-hero-busca .cg-busca__limpar:hover{background:rgba(255,255,255,.16)}
+#cg-hero-busca .cg-busca__limpar svg{stroke:#fff}
+/* Da faixa de tablet para baixo a hero centraliza (é o desenho dela), então o
+   campo deixa de ser uma caixa de 560px encostada à esquerda e passa a ocupar
+   a largura do conteúdo: centrado, ele ficaria fora do eixo do título.     */
+@media(max-width:1024px){
+	.cg-hero-selo{margin-bottom:14px}
+	#cg-hero-busca,#cg-hero-busca .cg-busca{max-width:none}
+}
+@media(max-width:767px){
+	body.elementor-page-27615 .elementor-element.elementor-element-066bc8c .elementor-heading-title{
+		font-size:15.5px;max-width:none}
+	body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{min-height:0;padding-block:32px 36px}
+	#cg-hero-busca{margin-top:20px}
+	#cg-hero-busca .cg-busca__campo{height:52px}
+}
+
+/* olho da faixa de filtros, no lugar onde antes ficava o campo de busca */
+#cg-barra .cg-barra__olho{
+	margin:0 0 14px;font-family:var(--cg-corpo);font-size:11.5px;font-weight:600;
+	letter-spacing:.14em;text-transform:uppercase;color:var(--cg-cinza)}
+#cg-barra .cg-chips{margin-top:0}
 
 #cg-barra .cg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 #cg-barra .cg-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;margin:0;cursor:pointer;

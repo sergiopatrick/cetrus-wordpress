@@ -586,7 +586,13 @@ function css() {
    O kit do Elementor estiliza `button` e `input` com especificidade de classe
    (.elementor-kit-10452 button), então tudo aqui é ancorado no id da barra. */
 #cg-barra{background:var(--cg-neutral);padding:0 0 28px}
-#cg-barra .cg-barra__wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+/* Mesma caixa das seções do Elementor nesta página: o kit usa
+   --content-width: min(100%, 1170px) no .e-con-inner, com 24px de folga lateral
+   quando 1170 não cabe. Sem isto a barra fica 35px à direita dos títulos. */
+#cg-barra .cg-barra__wrap{width:min(100%,1170px);margin-inline:auto;padding-inline:0;box-sizing:border-box}
+@media(max-width:1218px){
+	#cg-barra .cg-barra__wrap{width:100%;padding-inline:24px}
+}
 #cg-barra .cg-busca{position:relative;max-width:560px}
 #cg-barra .cg-busca__campo{
 	width:100%;box-sizing:border-box;height:52px;padding:0 46px;margin:0;
@@ -742,10 +748,15 @@ function css() {
 	#cgModal .cg-modal__form{padding:22px}
 }
 @media(max-width:767px){
-	#cg-barra .cg-barra__wrap{padding:0 16px}
 	#cg-barra{padding-bottom:22px}
-	#cg-barra .cg-chips{gap:7px;margin-top:13px}
-	#cg-barra .cg-chip{padding:8px 13px;font-size:13px}
+	/* 7 chips empilhavam em 4 linhas no telefone. Viram uma faixa que rola,
+	   sangrando até a borda como os carrosséis da página. */
+	#cg-barra .cg-chips{
+		gap:7px;margin-top:13px;flex-wrap:nowrap;overflow-x:auto;
+		margin-inline:-24px;padding-inline:24px;scroll-padding-inline:24px;
+		scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+	#cg-barra .cg-chips::-webkit-scrollbar{display:none}
+	#cg-barra .cg-chip{padding:8px 13px;font-size:13px;flex:0 0 auto}
 	#cgModal .cg-modal__titulo{font-size:19px}
 }
 body.cg-travado{overflow:hidden}

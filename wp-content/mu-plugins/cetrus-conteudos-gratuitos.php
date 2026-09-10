@@ -652,18 +652,19 @@ function css() {
 .cg-oculto{display:none!important}
 .cg-vazia{display:none!important}
 
-/* Com filtro ativo o carrossel vira grade: o Swiper roda em loop e repetiria os
-   mesmos cartões nos clones, mostrando 4 itens para um filtro de 2 materiais. */
-body.cg-filtrando .e-n-carousel .swiper-wrapper{
+/* Carrossel vira grade quando não há o que rolar: com filtro ativo, ou quando
+   sobram menos cartões do que cabem na vista. Nos dois casos o Swiper roda em
+   loop e preencheria o espaço com clones, repetindo o mesmo material na tela. */
+.e-n-carousel.cg-grade .swiper-wrapper{
 	display:flex!important;flex-wrap:wrap!important;gap:16px;
 	transform:none!important;height:auto!important}
-body.cg-filtrando .e-n-carousel .swiper-slide{
+.e-n-carousel.cg-grade .swiper-slide{
 	width:240px!important;max-width:240px!important;margin:0!important;flex:0 0 auto}
-body.cg-filtrando .e-n-carousel .swiper-slide-duplicate{display:none!important}
-body.cg-filtrando .e-n-carousel .swiper-pagination,
-body.cg-filtrando .e-n-carousel .elementor-swiper-button{display:none!important}
+.e-n-carousel.cg-grade .swiper-slide-duplicate{display:none!important}
+.e-n-carousel.cg-grade .swiper-pagination,
+.e-n-carousel.cg-grade .elementor-swiper-button{display:none!important}
 @media(max-width:767px){
-	body.cg-filtrando .e-n-carousel .swiper-slide{width:calc(50% - 8px)!important;max-width:none!important}
+	.e-n-carousel.cg-grade .swiper-slide{width:calc(50% - 8px)!important;max-width:none!important}
 }
 
 /* ---------- janela de inscrição ---------- */
@@ -814,16 +815,29 @@ function aplica(){
 	[].slice.call(document.querySelectorAll('.e-n-carousel, .swiper')).forEach(function(car){
 		var sec = car.closest('.e-con-boxed, .e-parent') || car.parentElement;
 		if(!sec) return;
-		var temCard = !!car.querySelector('.cg-card[data-cg-slug]');
-		if(!temCard) return; // carrossel que não é de material fica quieto
-		var sobrou = [].slice.call(car.querySelectorAll('.cg-card[data-cg-slug]')).some(function(c){
-			var s = c.closest('.swiper-slide') || c.parentElement;
-			return !(s||c).classList.contains('cg-oculto');
-		});
-		sec.classList.toggle('cg-vazia', !sobrou);
+		if(!car.querySelector('.cg-card[data-cg-slug]')) return;  // carrossel que não é de material
+
+		var reais = [].slice.call(car.querySelectorAll('.swiper-slide:not(.swiper-slide-duplicate)'));
+		var naTela = reais.filter(function(s){ return !s.classList.contains('cg-oculto'); }).length;
+		sec.classList.toggle('cg-vazia', naTela === 0);
+
+		// quantos cabem na vista, no tamanho de tela de agora
+		var cabem = 4;
+		try{
+			var p = car.swiper && car.swiper.params;
+			if(p && typeof p.slidesPerView === 'number'){ cabem = p.slidesPerView; }
+			if(car.swiper && car.swiper.currentBreakpoint && p.breakpoints){
+				var bp = p.breakpoints[car.swiper.currentBreakpoint];
+				if(bp && typeof bp.slidesPerView === 'number'){ cabem = bp.slidesPerView; }
+			}
+		}catch(e){}
+
+		var grade = filtrando || naTela <= cabem;
+		car.classList.toggle('cg-grade', grade);
+
 		if(car.swiper){
 			try{
-				if(filtrando){ car.swiper.setTranslate(0); }
+				if(grade){ car.swiper.setTranslate(0); }
 				else { car.swiper.update(); car.swiper.slideTo(0,0); }
 			}catch(e){}
 		}
@@ -1090,6 +1104,13 @@ document.addEventListener('click', function(ev){
 
 marcaChips();
 aplica();
+// o Swiper inicializa depois de nós; uma segunda passada pega o slidesPerView real
+setTimeout(aplica, 900);
+var reMedir;
+window.addEventListener('resize', function(){
+	clearTimeout(reMedir);
+	reMedir = setTimeout(aplica, 250);   // quantos cabem na vista muda com a largura
+});
 if(CFG.abrir){ abre(CFG.abrir); }
 })();
 JS;

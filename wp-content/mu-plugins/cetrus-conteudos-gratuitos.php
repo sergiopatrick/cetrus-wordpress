@@ -816,17 +816,31 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
    home: círculo de 40px, #003B6C, chevron branco. A borda clara é o que separa
    o botão do preto das seções; sem ela o botão some no fundo, que é justamente
    a reclamação. Em grade (poucos cartões ou filtro ativo) elas somem pela
-   regra logo acima.                                                        */
-.elementor-element .elementor-swiper-button{
+   regra logo acima.
+
+   O `e-swiper.min.css` do Elementor chega com TRÊS classes
+   (`.elementor-element .swiper ~ .elementor-swiper-button`) e manda
+   `display:inline-flex`, `font-size:25px` e `svg{width:1em}`, sem centrar no
+   eixo X: é isso que deixava o chevron encostado na borda esquerda do círculo.
+   Por isso o `body.elementor-page-27615` na frente (para ganhar no peso) e o
+   `!important` no que precisa vencer.                                       */
+body.elementor-page-27615 .elementor-element .elementor-swiper-button{
 	width:40px;height:40px;border-radius:999px;
-	display:grid;place-items:center;
-	background:var(--cg-medium);color:#fff;
+	display:flex!important;align-items:center!important;justify-content:center!important;
+	font-size:0!important;line-height:0!important;padding:0!important;
+	background:var(--cg-medium);color:#fff!important;
 	border:1px solid rgba(255,255,255,.22);
+	top:var(--cg-seta-topo,calc(50% - 15px))!important;transform:translateY(-50%)!important;
+	bottom:auto!important;margin:0!important;
 	transition:filter .15s ease,border-color .15s ease,opacity .15s ease}
-.elementor-element .elementor-swiper-button svg{width:17px;height:17px;fill:#fff}
-.elementor-element .elementor-swiper-button:hover{filter:brightness(1.35);border-color:rgba(255,255,255,.5)}
-.elementor-element .elementor-swiper-button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.elementor-element .elementor-swiper-button.swiper-button-disabled{opacity:.32;pointer-events:none}
+body.elementor-page-27615 .elementor-element .elementor-swiper-button svg{
+	width:17px!important;height:17px!important;fill:#fff!important;display:block}
+body.elementor-page-27615 .elementor-element .elementor-swiper-button:hover{
+	filter:brightness(1.35);border-color:rgba(255,255,255,.5)}
+body.elementor-page-27615 .elementor-element .elementor-swiper-button:focus-visible{
+	outline:2px solid #fff;outline-offset:2px}
+body.elementor-page-27615 .elementor-element .elementor-swiper-button.swiper-button-disabled{
+	opacity:.32;pointer-events:none}
 
 /* Os pontinhos nativos sao #002452: na faixa preta do Lancamentos eles
    desaparecem. Quem esta sobre fundo escuro recebe .cg-fundo-escuro (medido no
@@ -1014,6 +1028,19 @@ function aplica(){
 		// entao quem as esconde em modo grade e uma classe no widget
 		var wid = car.closest('.elementor-element') || car.parentElement;
 		if(wid){ wid.classList.toggle('cg-sem-setas', grade); }
+
+		// O Elementor centra a seta no widget inteiro (top:calc(50% - 15px)) e o
+		// widget inclui a faixa da paginacao, entao a seta fica baixa. O centro
+		// certo e o do slide: medido aqui e entregue pela variavel --cg-seta-topo.
+		if(wid && !grade){
+			var sl = car.querySelector('.swiper-slide');
+			if(sl){
+				var rs = sl.getBoundingClientRect(), rw = wid.getBoundingClientRect();
+				if(rs.height){
+					wid.style.setProperty('--cg-seta-topo', Math.round(rs.top - rw.top + rs.height / 2) + 'px');
+				}
+			}
+		}
 
 		if(car.swiper){
 			try{

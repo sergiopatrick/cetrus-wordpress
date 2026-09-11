@@ -806,8 +806,34 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
 .e-n-carousel.cg-grade .swiper-slide{
 	width:240px!important;max-width:240px!important;margin:0!important;flex:0 0 auto}
 .e-n-carousel.cg-grade .swiper-slide-duplicate{display:none!important}
-.e-n-carousel.cg-grade .swiper-pagination,
-.e-n-carousel.cg-grade .elementor-swiper-button{display:none!important}
+.e-n-carousel.cg-grade .swiper-pagination{display:none!important}
+.cg-sem-setas .elementor-swiper-button{display:none!important}
+
+/* ---------- setas dos carrosséis ----------
+   Pedido do João (11/09): com fundo escuro e sem autoplay, nada dizia que a
+   prateleira rolava. As setas nativas entraram ligadas no `_elementor_data`
+   (arrows: yes nos 4 carrosséis) e aqui ganham a mesma cara das da vitrine da
+   home: círculo de 40px, #003B6C, chevron branco. A borda clara é o que separa
+   o botão do preto das seções; sem ela o botão some no fundo, que é justamente
+   a reclamação. Em grade (poucos cartões ou filtro ativo) elas somem pela
+   regra logo acima.                                                        */
+.elementor-element .elementor-swiper-button{
+	width:40px;height:40px;border-radius:999px;
+	display:grid;place-items:center;
+	background:var(--cg-medium);color:#fff;
+	border:1px solid rgba(255,255,255,.22);
+	transition:filter .15s ease,border-color .15s ease,opacity .15s ease}
+.elementor-element .elementor-swiper-button svg{width:17px;height:17px;fill:#fff}
+.elementor-element .elementor-swiper-button:hover{filter:brightness(1.35);border-color:rgba(255,255,255,.5)}
+.elementor-element .elementor-swiper-button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.elementor-element .elementor-swiper-button.swiper-button-disabled{opacity:.32;pointer-events:none}
+
+/* Os pontinhos nativos sao #002452: na faixa preta do Lancamentos eles
+   desaparecem. Quem esta sobre fundo escuro recebe .cg-fundo-escuro (medido no
+   JS, pela cor da secao) e ganha pontinhos claros - o segundo sinal, depois
+   das setas, de que a prateleira rola. */
+.cg-fundo-escuro .swiper-pagination-bullet{background:rgba(255,255,255,.38)!important;opacity:1}
+.cg-fundo-escuro .swiper-pagination-bullet-active{background:#fff!important}
 @media(max-width:767px){
 	.e-n-carousel.cg-grade .swiper-slide{width:calc(50% - 8px)!important;max-width:none!important}
 }
@@ -984,6 +1010,10 @@ function aplica(){
 
 		var grade = filtrando || naTela <= cabem;
 		car.classList.toggle('cg-grade', grade);
+		// as setas do Elementor sao IRMAS do .e-n-carousel, dentro do widget,
+		// entao quem as esconde em modo grade e uma classe no widget
+		var wid = car.closest('.elementor-element') || car.parentElement;
+		if(wid){ wid.classList.toggle('cg-sem-setas', grade); }
 
 		if(car.swiper){
 			try{
@@ -1252,7 +1282,25 @@ document.addEventListener('click', function(ev){
 
 /* ---------------- partida ---------------- */
 
+/* O widget nao sabe em que faixa da pagina ele caiu. Quem decide a cor dos
+   pontinhos e a luminancia da secao atras dele, medida uma vez na partida. */
+function marcaFundos(){
+	[].slice.call(document.querySelectorAll('.elementor-widget-n-carousel')).forEach(function(w){
+		var e = w, cor = '';
+		while(e && e !== document.body){
+			var b = getComputedStyle(e).backgroundColor;
+			if(b && b !== 'rgba(0, 0, 0, 0)' && b !== 'transparent'){ cor = b; break; }
+			e = e.parentElement;
+		}
+		var m = cor.match(/\d+/g);
+		if(!m) return;
+		var lum = (0.299*(+m[0]) + 0.587*(+m[1]) + 0.114*(+m[2])) / 255;
+		w.classList.toggle('cg-fundo-escuro', lum < 0.5);
+	});
+}
+
 marcaChips();
+marcaFundos();
 aplica();
 // o Swiper inicializa depois de nós; uma segunda passada pega o slidesPerView real
 setTimeout(aplica, 900);

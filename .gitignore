@@ -7,3 +7,7 @@
 
 # Artefatos de build do deploy
 _deploy/
+
+# Retratos e screenshots do pipeline de QA (locais, pesados, nao versionar)
+tests/qa/snap/
+tests/qa/shots/

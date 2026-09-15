@@ -59,11 +59,14 @@ PY
 }
 
 funcional() {
-  echo "### dados (servidor, somente leitura)"
+  echo "### carrossel da home (ordem dos destaques)"
+  python3 carrossel.py || falhou_carrossel=1
+  echo; echo "### dados (servidor, somente leitura)"
   scp -q ~/Documents/cetrus-testes-2026-08-28/testes-dados.php cetrus:/tmp/
   ssh -o BatchMode=yes cetrus "cd ~/htdocs && wp eval-file /tmp/testes-dados.php" | tail -6
   echo; echo "### front (local)"
   python3 ~/Documents/cetrus-testes-2026-08-28/testes-http.py | tail -8
+  return ${falhou_carrossel:-0}
 }
 
 case "${1:-}" in

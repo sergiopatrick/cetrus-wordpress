@@ -376,7 +376,20 @@ add_action('wp_enqueue_scripts', function () {
      * quebra - ele estoura o container. De proposito NAO ha override de font-size:
      * com o card no tamanho certo o tamanho natural do titulo funciona.
      */
+    /*
+     * Icone de calendario orfao (15/09/2026). Quando o curso nao tem turma, o shortcode
+     * [cetrus_inicio_turma] devolve string vazia de proposito - mas o ICONE do item de lista
+     * vem do template do Elementor e e impresso do mesmo jeito, deixando um calendario
+     * solto sem texto ao lado. Sao 243 dos 408 produtos publicados hoje, e o defeito ficou
+     * obvio ao subir Medicina Fetal para o primeiro card da home.
+     *
+     * :empty nao serve: o span sobra com um espaco entre os dois shortcodes, entao o
+     * innerHTML e " " e nao "". O teste certo e a ausencia dos spans que os shortcodes
+     * emitem (.cetrus-inicio-turma / .cetrus-vagas-turma), e so no primeiro item, que e
+     * o da data - professor e local nunca tem span proprio.
+     */
     $card = '
+.elementor-11204 .elementor-icon-list-item:first-child:not(:has(.elementor-icon-list-text > span)){display:none}
 .elementor-11204 .elementor-heading-title{overflow-wrap:break-word;word-break:normal;
   -webkit-hyphens:none;hyphens:none}
 .elementor-11204 .elementor-icon-list-item{align-items:flex-start;min-width:0}

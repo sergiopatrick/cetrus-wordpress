@@ -24,6 +24,7 @@ funcionamento nem SEO. Tudo aqui e SOMENTE LEITURA sobre o site.
 | `estrutura.py` | checagem deterministica de CLS: altura dos elementos com e sem JavaScript |
 | `cdp.py` | cliente CDP minimo (WebSocket na mao) usado por vitals e estrutura |
 | `preflight-photon.py` | testa o efeito do filtro de qualidade do Photon SEM tocar em producao |
+| `carrossel.py` | ordem, unicidade e destino dos cards do carrossel de destaques da home |
 
 ## Armadilhas ja pagas, nao repita
 

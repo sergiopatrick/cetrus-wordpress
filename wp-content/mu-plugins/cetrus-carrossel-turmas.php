@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - Carrossel dirigido por turma
  * Description: Substitui a selecao manual do carrossel da home por consulta viva as metas do Lyceum (janela de dias e ocupacao).
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Cetrus / Sanar
  *
  * REGRA (aprovada em 28/08/2026)
@@ -21,13 +21,22 @@
  * O caminho e o filtro elementor/query/query_args identificando pelo id do widget, em prioridade
  * ACIMA de 10: o modulo WooCommerce (module.php:1499) reconstroi os args em 10 e preserva apenas
  * posts_per_page, offset e paged.
+ *
+ * CURADORIA DO COMERCIAL (1.1.0, 15/09/2026)
+ * A opcao 'fixos' aceita CODIGO DE CURSO (ex "PG_HIST") alem de ID de produto, e a ordem da lista
+ * e a ordem no carrossel. Codigo e a forma preferida: e o vocabulario do comercial, sobrevive a
+ * troca de produto e dispensa alguem ir catar ID no wp-admin. Os fixos entram na frente e ignoram
+ * os cortes de janela/ocupacao/vaga minima - o proposito de um destaque e justamente furar a regra.
+ * A regra viva continua valendo para as vagas restantes, entao o carrossel nunca fica curto se um
+ * codigo for despublicado.
  */
 
 if (!defined('ABSPATH')) exit;
 
 define('CETRUS_CARR_WIDGET',  'df02ba9');   // "Cursos em destaque no mes", home 10946
 define('CETRUS_CARR_OPT',     'cetrus_carrossel');
-define('CETRUS_CARR_MINIMO',  11);          // o carrossel exibe 11
+define('CETRUS_CARR_MINIMO',  11);          // piso da cascata de fallback do bloco organico
+define('CETRUS_CARR_TOTAL',   11);          // quantos cards o carrossel renderiza (padrao)
 define('CETRUS_CARR_SEM_DATA', 253370764800);
 
 function cetrus_carr_config() {
@@ -38,7 +47,8 @@ function cetrus_carr_config() {
         'ocupacao_max'   => 60,
         'turma_minima'   => 3,
         'cota_fellowship'=> 4,          // no maximo 4 dos 11, para nao virar vitrine de nicho
-        'fixos'          => [],         // IDs sempre presentes, na frente (curadoria do comercial)
+        'fixos'          => [],         // codigos de curso ou IDs, na ordem, sempre na frente
+        'total'          => CETRUS_CARR_TOTAL,
     ]);
 }
 
@@ -138,12 +148,93 @@ function cetrus_carr_cota($lista, $cota) {
 }
 
 /**
- * Monta a lista final, com fallback em cascata.
- * Devolve ['ids' => [...], 'origem' => 'estrita|alargada|sem_ocupacao|manual'].
+ * Resolve a curadoria manual em IDs de produto, preservando a ordem pedida.
+ *
+ * Cada entrada e um ID de produto (numerico) ou um CODIGO DE CURSO (_lyceum_curso_id,
+ * ex "PG_HIST"). Aceita tambem a grafia com espaco ("PG HIST"), porque o comercial copia
+ * de planilha: ha 65 produtos com codigo fora do padrao e a lista chega das duas formas.
+ *
+ * O casamento e EXATO por _lyceum_curso_id. NUNCA por mnemonico ou substring: 17 mnemonicos
+ * colidem no catalogo (ECO1 aparece em 4 produtos, alem de HIST, ERGO, DOR1...) e casar por
+ * sufixo traz o curso errado para a home. Quando dois produtos publicados dividem o mesmo
+ * codigo (clones tipo FE_USD3), fica o de menor ID, que e deterministico entre execucoes.
+ *
+ * Devolve ['ids'=>[], 'cursos'=>[], 'ausentes'=>[]]. 'ausentes' alimenta o aviso do WP-CLI:
+ * um codigo digitado errado some em silencio, e silencio aqui vira reuniao perdida depois.
  */
-function cetrus_carr_montar() {
+function cetrus_carr_resolver_fixos($fixos) {
+    $entradas = [];
+    foreach ((array) $fixos as $f) {
+        if (is_int($f) || is_numeric($f)) { $entradas[] = (int) $f; continue; }
+        // "pg dor2" e "PG_DOR2" sao a mesma coisa: normaliza a entrada para a forma
+        // canonica com underscore, e a consulta abaixo procura as duas grafias no banco
+        $f = preg_replace('/\s+/', '_', strtoupper(trim((string) $f)));
+        if ($f !== '') $entradas[] = $f;
+    }
+    if (!$entradas) return ['ids' => [], 'cursos' => [], 'ausentes' => []];
+
+    // uma consulta so para todos os codigos, nas duas grafias
+    $codigos = array_values(array_filter($entradas, 'is_string'));
+    $mapa = [];
+    if ($codigos) {
+        $busca = [];
+        foreach ($codigos as $cod) {
+            $busca[] = $cod;
+            $busca[] = str_replace('_', ' ', $cod);
+        }
+        $busca = array_values(array_unique($busca));
+
+        global $wpdb;
+        $ph = implode(',', array_fill(0, count($busca), '%s'));
+        $linhas = $wpdb->get_results($wpdb->prepare(
+            "SELECT m.meta_value AS curso, MIN(p.ID) AS id
+               FROM {$wpdb->postmeta} m
+               JOIN {$wpdb->posts} p ON p.ID = m.post_id
+              WHERE m.meta_key = '_lyceum_curso_id'
+                AND m.meta_value IN ($ph)
+                AND p.post_type = 'product'
+                AND p.post_status = 'publish'
+           GROUP BY m.meta_value",
+            $busca
+        ));
+        foreach ($linhas as $l) {
+            $mapa[strtoupper(str_replace(' ', '_', $l->curso))] = (int) $l->id;
+        }
+    }
+
+    $ids = []; $cursos = []; $ausentes = [];
+    foreach ($entradas as $e) {
+        if (is_int($e)) {
+            if (get_post_type($e) !== 'product' || get_post_status($e) !== 'publish') {
+                $ausentes[] = (string) $e;
+                continue;
+            }
+            $id = $e;
+            $curso = (string) get_post_meta($id, '_lyceum_curso_id', true);
+        } else {
+            if (!isset($mapa[$e])) { $ausentes[] = $e; continue; }
+            $id    = $mapa[$e];
+            $curso = $e;
+        }
+        if (in_array($id, $ids, true)) continue;   // PG_MFE1 aparece nas duas prioridades
+        $ids[] = $id;
+        if ($curso !== '') $cursos[] = strtoupper(str_replace(' ', '_', $curso));
+    }
+
+    return ['ids' => $ids, 'cursos' => array_values(array_unique($cursos)), 'ausentes' => $ausentes];
+}
+
+/**
+ * Monta a lista final: curadoria do comercial na frente, regra viva no que sobra.
+ * Devolve ['ids','origem','fixos','organicos','ausentes'].
+ */
+function cetrus_carr_montar($com_fixos = true) {
     $c   = cetrus_carr_config();
     $min = CETRUS_CARR_MINIMO;
+
+    $fix = $com_fixos
+        ? cetrus_carr_resolver_fixos($c['fixos'])
+        : ['ids' => [], 'cursos' => [], 'ausentes' => []];
 
     $tentativas = [
         ['estrita',       $c['dias_min'], $c['dias_max'], $c['ocupacao_max'], $c['turma_minima']],
@@ -158,21 +249,39 @@ function cetrus_carr_montar() {
         if (count($lista) >= $min) { $melhor = $lista; $origem = $nome; break; }
     }
 
-    $ids = array_column($melhor, 'id');
+    /*
+     * Tira do bloco organico o que ja esta fixado. O corte por ID nao basta: PG_GERP e PG_ALP2
+     * entram hoje pela regra viva, e um clone com o MESMO codigo de curso e outro ID passaria,
+     * repetindo o curso em dois cards. O carrossel dedup por curso, e a curadoria tambem.
+     */
+    if ($fix['ids']) {
+        $melhor = array_values(array_filter($melhor, function ($x) use ($fix) {
+            if (in_array($x['id'], $fix['ids'], true)) return false;
+            return !($x['curso'] !== '' && in_array($x['curso'], $fix['cursos'], true));
+        }));
+    }
 
-    // curadoria do comercial vem na frente, sem duplicar
-    $fixos = array_map('intval', (array) $c['fixos']);
-    if ($fixos) $ids = array_values(array_unique(array_merge($fixos, $ids)));
+    $organicos = array_column($melhor, 'id');
+    $ids       = array_merge($fix['ids'], $organicos);
 
     // registra quando o fallback disparou, em option (nunca em arquivo de log)
     update_option('cetrus_carrossel_estado', [
-        'quando'    => time(),
-        'origem'    => $origem,
-        'total'     => count($ids),
-        'suficiente'=> count($ids) >= $min,
+        'quando'     => time(),
+        'origem'     => $origem,
+        'total'      => count($ids),
+        'fixos'      => count($fix['ids']),
+        'organicos'  => count($organicos),
+        'ausentes'   => $fix['ausentes'],
+        'suficiente' => count($ids) >= (int) $c['total'],
     ], false);
 
-    return ['ids' => $ids, 'origem' => $origem];
+    return [
+        'ids'       => $ids,
+        'origem'    => $origem,
+        'fixos'     => $fix['ids'],
+        'organicos' => $organicos,
+        'ausentes'  => $fix['ausentes'],
+    ];
 }
 
 /**
@@ -184,23 +293,36 @@ add_filter('elementor/query/query_args', function ($query_args, $widget) {
     if ($widget->get_id() !== CETRUS_CARR_WIDGET)       return $query_args;
     if (!cetrus_carr_ativo())                           return $query_args;
 
-    $r = cetrus_carr_montar();
+    // escotilha de QA: ?cetrus_carrossel_sem_fixos=1 renderiza so a regra viva,
+    // para comparar antes/depois na mesma URL sem mexer na option.
+    $com_fixos = !isset($_GET['cetrus_carrossel_sem_fixos']);
+
+    $r = cetrus_carr_montar($com_fixos);
     if (empty($r['ids'])) return $query_args;   // nunca esvazia o carrossel
+
+    $c = cetrus_carr_config();
 
     $query_args['post_type']      = 'product';
     $query_args['post_status']    = 'publish';
     $query_args['post__in']       = $r['ids'];
     $query_args['orderby']        = 'post__in';
-    $query_args['posts_per_page'] = CETRUS_CARR_MINIMO;
+    $query_args['posts_per_page'] = max(1, (int) $c['total']);
     unset($query_args['s'], $query_args['tax_query'], $query_args['meta_key'], $query_args['meta_value']);
 
     return $query_args;
 }, 20, 2);
 
 if (defined('WP_CLI') && WP_CLI) {
-    WP_CLI::add_command('cetrus-carrossel', function ($args) {
+    /**
+     * wp cetrus-carrossel [status|on|off|fixos|total]
+     *
+     *   wp cetrus-carrossel fixos PG_MFE1,PG_HIST,PG_REGE   define a curadoria, nessa ordem
+     *   wp cetrus-carrossel fixos --limpar                  volta a so regra viva
+     *   wp cetrus-carrossel total 15                        quantos cards o carrossel mostra
+     */
+    WP_CLI::add_command('cetrus-carrossel', function ($args, $assoc = []) {
         $sub = $args[0] ?? 'status';
-        $c = cetrus_carr_config();
+        $c   = cetrus_carr_config();
 
         if ($sub === 'on' || $sub === 'off') {
             $c['enabled'] = ($sub === 'on') ? 1 : 0;
@@ -209,26 +331,76 @@ if (defined('WP_CLI') && WP_CLI) {
             return;
         }
 
-        WP_CLI::line(sprintf('enabled=%d | janela %d-%d dias | ocupacao <%d%% | turma >=%d | cota fellowship %d',
-            $c['enabled'], $c['dias_min'], $c['dias_max'], $c['ocupacao_max'], $c['turma_minima'], $c['cota_fellowship']));
-        if ($c['fixos']) WP_CLI::line('fixos: ' . implode(',', $c['fixos']));
+        if ($sub === 'fixos') {
+            if (!empty($assoc['limpar'])) {
+                $c['fixos'] = [];
+            } else {
+                $lista = (string) ($args[1] ?? '');
+                if ($lista === '') WP_CLI::error('passe a lista separada por virgula, ou --limpar');
+                $c['fixos'] = array_values(array_filter(array_map('trim', explode(',', $lista))));
+            }
+            update_option(CETRUS_CARR_OPT, $c, false);
+            $r = cetrus_carr_resolver_fixos($c['fixos']);
+            WP_CLI::success(sprintf('%d fixos, %d resolvidos%s',
+                count($c['fixos']), count($r['ids']),
+                $r['ausentes'] ? ', NAO RESOLVIDOS: ' . implode(', ', $r['ausentes']) : ''));
+            return;
+        }
+
+        if ($sub === 'total') {
+            $n = (int) ($args[1] ?? 0);
+            if ($n < 1 || $n > 40) WP_CLI::error('total precisa ficar entre 1 e 40');
+            $c['total'] = $n;
+            update_option(CETRUS_CARR_OPT, $c, false);
+            WP_CLI::success('total=' . $n);
+            return;
+        }
+
+        WP_CLI::line(sprintf('enabled=%d | janela %d-%d dias | ocupacao <%d%% | turma >=%d | cota fellowship %d | total %d',
+            $c['enabled'], $c['dias_min'], $c['dias_max'], $c['ocupacao_max'], $c['turma_minima'],
+            $c['cota_fellowship'], $c['total']));
+        if ($c['fixos']) WP_CLI::line('curadoria: ' . implode(', ', $c['fixos']));
         WP_CLI::line('');
 
-        $r = cetrus_carr_montar();
-        WP_CLI::line(sprintf('origem da lista: %s | %d cursos (minimo %d)', $r['origem'], count($r['ids']), CETRUS_CARR_MINIMO));
+        $r     = cetrus_carr_montar();
+        $total = max(1, (int) $c['total']);
+        WP_CLI::line(sprintf('%d fixos + %d organicos (%s) = %d; o carrossel mostra %d',
+            count($r['fixos']), count($r['organicos']), $r['origem'], count($r['ids']), $total));
+
+        if ($r['ausentes']) {
+            WP_CLI::warning('sem produto publicado: ' . implode(', ', $r['ausentes']));
+        }
         WP_CLI::line('');
-        $agora = time();
-        foreach (array_slice($r['ids'], 0, 15) as $i => $id) {
-            $ini = (int) get_post_meta($id, '_lyceum_data_inicio', true);
-            WP_CLI::line(sprintf('  %2d. %-6d %-10s %3dd  ocup=%2d%%  livres=%-3d %s%s',
-                $i + 1, $id,
+
+        $agora = time(); $sem_data = [];
+        foreach (array_slice($r['ids'], 0, $total + 4) as $i => $id) {
+            $ini  = (int) get_post_meta($id, '_lyceum_data_inicio', true);
+            $tem  = $ini > 0 && $ini < CETRUS_CARR_SEM_DATA;
+            if (!$tem) $sem_data[] = get_post_meta($id, '_lyceum_curso_id', true) ?: $id;
+            WP_CLI::line(sprintf('  %2d. %-3s %-6d %-10s %-9s ocup=%2d%%  livres=%-3d %s%s',
+                $i + 1,
+                in_array($id, $r['fixos'], true) ? 'FIX' : '',
+                $id,
                 get_post_meta($id, '_lyceum_curso_id', true),
-                (int) floor(($ini - $agora) / DAY_IN_SECONDS),
+                $tem ? sprintf('%dd', (int) floor(($ini - $agora) / DAY_IN_SECONDS)) : 'sem data',
                 (int) get_post_meta($id, '_lyceum_ocupacao_pct', true),
                 (int) get_post_meta($id, '_lyceum_vagas_livres', true),
                 get_post_meta($id, 'is_fellowship', true) ? '[FE] ' : '',
                 mb_substr(get_the_title($id), 0, 42)
             ));
+            if ($i + 1 === $total && count($r['ids']) > $total) {
+                WP_CLI::line('  ' . str_repeat('-', 20) . ' corte do carrossel ' . str_repeat('-', 20));
+            }
+        }
+
+        /*
+         * O card so mostra "comeca em X dias" quando o sync tem data. Curso sem data nao
+         * quebra o card (o shortcode devolve string vazia de proposito), mas um destaque
+         * mudo na home merece aviso: quase sempre e cadastro de turma no Lyceum, nao bug.
+         */
+        if ($sem_data) {
+            WP_CLI::warning('destaque sem data de turma (card sai sem a linha de inicio): '
+                . implode(', ', array_unique($sem_data)));
         }
     });
 }

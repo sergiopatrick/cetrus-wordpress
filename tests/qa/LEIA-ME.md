@@ -46,6 +46,29 @@ funcionamento nem SEO. Tudo aqui e SOMENTE LEITURA sobre o site.
    e esperada; confirme abrindo o comparativo antes de tratar como regressao.
 5. **Sempre com query string aleatoria.** O edge tem TTL curto e ja enganou validacao.
 
+8. **Nao rode `wp cache flush` logo antes de uma captura.** Em 15/09/2026 isso gerou
+   **20 FALHAS fantasmas**: todas as `/especialidades/<slug>/` apareceram com
+   `n_option` caindo de 40 para 0 e exatos -112 palavras, uniformemente. O WP Grid
+   Builder devolve facet vazio no primeiro render depois que o object cache e
+   esvaziado, e se recupera sozinho. Uma segunda captura, sem flush antes, deu
+   **0 falhas**. Se um lote de paginas de facet cair junto e de forma identica,
+   suspeite do cache antes de suspeitar da mudanca.
+
+9. **O `n_option` do `/curriculo/` alterna entre 66 e 0 sem ninguem mexer.** Nao e a
+   pagina quebrando: o mesmo facet de especialidade ora sai como `<select>` (66
+   `<option>`), ora como lista de checkbox (65 `<li>`, zero `<option>`). Conferido em
+   15/09/2026 com a grade renderizando os 25 professores normalmente nas duas formas.
+   Por isso `/curriculo/` esta em `INSTAVEIS` e a queda vira ALERTA.
+
+10. **Editar o `rodar.sh` enquanto ele roda quebra a execucao em curso.** O bash le o
+    script por offset de byte, entao a edicao desloca o resto e ele cai em
+    `syntax error near unexpected token`, sempre depois que o trabalho ja terminou.
+    O arquivo esta intacto; e so nao editar durante a captura.
+
+11. **Mudanca de CSS no meio de uma captura contamina so o passo 4.** Os passos 1-3
+    (HTML, SEO, imagens) nao veem CSS e os passos 5-6 rodam depois. Basta refazer
+    `python3 shots.py <rotulo>`, nao a captura inteira.
+
 ## Portao de SEO
 
 Depois de cada mudanca, rodar o teste em tempo real do Search Console

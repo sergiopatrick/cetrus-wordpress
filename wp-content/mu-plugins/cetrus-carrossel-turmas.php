@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - Carrossel dirigido por turma
  * Description: Substitui a selecao manual do carrossel da home por consulta viva as metas do Lyceum (janela de dias e ocupacao).
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Cetrus / Sanar
  *
  * REGRA (aprovada em 28/08/2026)
@@ -29,6 +29,15 @@
  * os cortes de janela/ocupacao/vaga minima - o proposito de um destaque e justamente furar a regra.
  * A regra viva continua valendo para as vagas restantes, entao o carrossel nunca fica curto se um
  * codigo for despublicado.
+ *
+ * VETO (1.2.0, 21/09/2026)
+ * A opcao 'vetados' e o contrario de 'fixos': tira um curso do bloco ORGANICO sem mexer na regra.
+ * Existe porque "some com esse card" nao tem resposta na 1.1.0: fixar os outros nao expulsa quem
+ * entrou pela janela de dias, e baixar o 'total' derruba junto quem ninguem pediu para tirar.
+ * Nao toca nos fixos: se alguem colocar o mesmo codigo nas duas listas, a curadoria vence e o
+ * status avisa, porque veto silencioso em cima de destaque pedido pelo comercial e armadilha.
+ * O corte e por ID e por codigo de curso, igual ao dedup dos fixos, senao um clone com o mesmo
+ * codigo e outro ID reentra pela porta dos fundos.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -48,6 +57,7 @@ function cetrus_carr_config() {
         'turma_minima'   => 3,
         'cota_fellowship'=> 4,          // no maximo 4 dos 11, para nao virar vitrine de nicho
         'fixos'          => [],         // codigos de curso ou IDs, na ordem, sempre na frente
+        'vetados'        => [],         // codigos de curso ou IDs barrados no bloco organico
         'total'          => CETRUS_CARR_TOTAL,
     ]);
 }
@@ -225,6 +235,21 @@ function cetrus_carr_resolver_fixos($fixos) {
 }
 
 /**
+ * Mesma leitura de entrada do resolver de fixos, mas TOLERANTE: um curso vetado pode estar
+ * despublicado, e nesse caso o veto ja esta cumprido e nao ha nada a avisar. Por isso o codigo
+ * que nao resolve para produto vivo vira corte por codigo, e nao 'ausente'.
+ */
+function cetrus_carr_resolver_vetados($vetados) {
+    $r = cetrus_carr_resolver_fixos($vetados);
+    $cursos = $r['cursos'];
+    foreach ((array) $r['ausentes'] as $a) {
+        $a = preg_replace('/\s+/', '_', strtoupper(trim((string) $a)));
+        if ($a !== '' && !is_numeric($a) && !in_array($a, $cursos, true)) $cursos[] = $a;
+    }
+    return ['ids' => $r['ids'], 'cursos' => $cursos];
+}
+
+/**
  * Monta a lista final: curadoria do comercial na frente, regra viva no que sobra.
  * Devolve ['ids','origem','fixos','organicos','ausentes'].
  */
@@ -258,6 +283,19 @@ function cetrus_carr_montar($com_fixos = true) {
         $melhor = array_values(array_filter($melhor, function ($x) use ($fix) {
             if (in_array($x['id'], $fix['ids'], true)) return false;
             return !($x['curso'] !== '' && in_array($x['curso'], $fix['cursos'], true));
+        }));
+    }
+
+    /*
+     * Veto: tira do bloco organico o que o comercial pediu para sumir. Roda DEPOIS do corte
+     * dos fixos e nunca sobre eles, entao codigo nas duas listas continua aparecendo (o status
+     * avisa). Corta por ID e por codigo, pelo mesmo motivo do dedup acima.
+     */
+    $vet = cetrus_carr_resolver_vetados($c['vetados']);
+    if ($melhor && ($vet['ids'] || $vet['cursos'])) {
+        $melhor = array_values(array_filter($melhor, function ($x) use ($vet) {
+            if (in_array($x['id'], $vet['ids'], true)) return false;
+            return !($x['curso'] !== '' && in_array($x['curso'], $vet['cursos'], true));
         }));
     }
 
@@ -312,12 +350,30 @@ add_filter('elementor/query/query_args', function ($query_args, $widget) {
     return $query_args;
 }, 20, 2);
 
+/**
+ * Codigos que estao em 'fixos' e em 'vetados' ao mesmo tempo. O veto so mexe no bloco organico,
+ * entao esses continuam no ar; quem digitou provavelmente quis tirar e precisa saber disso.
+ */
+function cetrus_carr_conflito_veto($c) {
+    $fix = cetrus_carr_resolver_fixos($c['fixos']);
+    $vet = cetrus_carr_resolver_vetados($c['vetados']);
+    $por_curso = array_values(array_intersect($fix['cursos'], $vet['cursos']));
+    $por_id    = array_values(array_intersect($fix['ids'], $vet['ids']));
+    foreach ($por_id as $id) {
+        $cod = strtoupper(str_replace(' ', '_', (string) get_post_meta($id, '_lyceum_curso_id', true)));
+        if ($cod === '' || !in_array($cod, $por_curso, true)) $por_curso[] = $cod !== '' ? $cod : (string) $id;
+    }
+    return $por_curso;
+}
+
 if (defined('WP_CLI') && WP_CLI) {
     /**
-     * wp cetrus-carrossel [status|on|off|fixos|total]
+     * wp cetrus-carrossel [status|on|off|fixos|vetados|total]
      *
      *   wp cetrus-carrossel fixos PG_MFE1,PG_HIST,PG_REGE   define a curadoria, nessa ordem
      *   wp cetrus-carrossel fixos --limpar                  volta a so regra viva
+     *   wp cetrus-carrossel vetados FE_ED10,FE_IDR6         barra esses no bloco organico
+     *   wp cetrus-carrossel vetados --limpar                libera todo mundo de volta
      *   wp cetrus-carrossel total 15                        quantos cards o carrossel mostra
      */
     WP_CLI::add_command('cetrus-carrossel', function ($args, $assoc = []) {
@@ -347,6 +403,21 @@ if (defined('WP_CLI') && WP_CLI) {
             return;
         }
 
+        if ($sub === 'vetados') {
+            if (!empty($assoc['limpar'])) {
+                $c['vetados'] = [];
+            } else {
+                $lista = (string) ($args[1] ?? '');
+                if ($lista === '') WP_CLI::error('passe a lista separada por virgula, ou --limpar');
+                $c['vetados'] = array_values(array_filter(array_map('trim', explode(',', $lista))));
+            }
+            update_option(CETRUS_CARR_OPT, $c, false);
+            $conflito = cetrus_carr_conflito_veto($c);
+            WP_CLI::success(sprintf('%d vetados%s', count($c['vetados']),
+                $conflito ? '; TAMBEM ESTA EM fixos (a curadoria vence): ' . implode(', ', $conflito) : ''));
+            return;
+        }
+
         if ($sub === 'total') {
             $n = (int) ($args[1] ?? 0);
             if ($n < 1 || $n > 40) WP_CLI::error('total precisa ficar entre 1 e 40');
@@ -359,8 +430,15 @@ if (defined('WP_CLI') && WP_CLI) {
         WP_CLI::line(sprintf('enabled=%d | janela %d-%d dias | ocupacao <%d%% | turma >=%d | cota fellowship %d | total %d',
             $c['enabled'], $c['dias_min'], $c['dias_max'], $c['ocupacao_max'], $c['turma_minima'],
             $c['cota_fellowship'], $c['total']));
-        if ($c['fixos']) WP_CLI::line('curadoria: ' . implode(', ', $c['fixos']));
+        if ($c['fixos'])   WP_CLI::line('curadoria: ' . implode(', ', $c['fixos']));
+        if ($c['vetados']) WP_CLI::line('vetados:   ' . implode(', ', $c['vetados']));
         WP_CLI::line('');
+
+        $conflito = cetrus_carr_conflito_veto($c);
+        if ($conflito) {
+            WP_CLI::warning('vetado e fixo ao mesmo tempo, continua no carrossel pela curadoria: '
+                . implode(', ', $conflito));
+        }
 
         $r     = cetrus_carr_montar();
         $total = max(1, (int) $c['total']);

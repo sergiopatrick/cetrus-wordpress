@@ -263,15 +263,9 @@ function catalogo_todos() {
 			'lp'      => '/e-book-gratuito-tabelas-de-ultrassonografia-pediatrica',
 		),
 
-		// Pendente de publicação: enquanto 'card' tiver algum id TODO_ ou 'capa' for 0,
-		// item_pronto() mantém este item fora do site (não conta, não filtra, não abre
-		// link direto). 'card' leva os dois ids de widget do Elementor (Lançamentos e
-		// E-books) depois de duplicar o cartão nas duas prateleiras; 'capa' leva o ID
-		// do anexo depois de subir a capa na Biblioteca de Mídia. Um aviso aparece no
-		// wp-admin (ver aviso_pendencias()) enquanto isso não for feito.
 		'ebook-prp-na-pratica' => array(
-			'card'    => array( 'TODO_CARD_ID_LANCAMENTOS', 'TODO_CARD_ID_EBOOKS' ),
-			'capa'    => 0,
+			'card'    => array( '0c66417', '383c7a8' ),
+			'capa'    => 34317,
 			'titulo'  => 'PRP na prática: as novas regras que todo médico precisa dominar',
 			'desc'    => 'Indicações aprovadas, contraindicações e exigências da Resolução CFM nº 2.464/2026 para aplicar PRP com segurança.',
 			'formato' => 'E-book',

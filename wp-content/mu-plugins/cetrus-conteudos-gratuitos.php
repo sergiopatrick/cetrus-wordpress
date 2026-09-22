@@ -27,16 +27,51 @@ const RULES_VER = '1';
 const VERSAO    = '1.0.0';
 
 /**
- * Catálogo dos materiais.
+ * Catálogo dos materiais prontos para aparecer no site.
  *
- * `card` é o id do container do Elementor na página (classe .card_isca), usado para
- * casar o item com o cartão já renderizado. `lp` é o caminho da landing page no
- * HubSpot, que serve de chave alternativa caso o id do cartão mude no Elementor.
+ * Filtra catalogo_todos() por item_pronto(): um item com id de widget ou capa
+ * ainda pendente (ver TODOs em catalogo_todos()) fica de fora da contagem, dos
+ * chips, da busca e do link direto — como se ainda não tivesse sido adicionado —
+ * em vez de aparecer pela metade. Isso deixa o merge do código seguro a qualquer
+ * momento: o item liga sozinho assim que os pendentes forem preenchidos.
  */
 function catalogo() {
 	static $cache = null;
 	if ( null !== $cache ) {
 		return $cache;
+	}
+	$cache = array_filter( catalogo_todos(), __NAMESPACE__ . '\\item_pronto' );
+	return $cache;
+}
+
+/** Um item só entra no ar quando todo id de widget é real (não é mais um TODO_) e a capa foi definida. */
+function item_pronto( $item ) {
+	if ( empty( $item['capa'] ) ) {
+		return false;
+	}
+	foreach ( (array) $item['card'] as $id ) {
+		if ( 0 === strpos( $id, 'TODO_' ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Catálogo bruto, com os itens ainda pendentes de publicação inclusos.
+ *
+ * `card` é o id do container do Elementor na página (classe .card_isca), usado para
+ * casar o item com o cartão já renderizado — normalmente um id só, mas aceita uma
+ * lista quando o mesmo material tem um cartão duplicado em mais de uma prateleira.
+ * Ao duplicar um cartão no Elementor, não defina um "CSS ID" customizado no painel
+ * Advanced: o filtro deste arquivo só reconhece o id hexadecimal automático do
+ * Elementor (`data-id="[0-9a-f]+"`). `lp` é o caminho da landing page no HubSpot,
+ * que serve de chave alternativa caso o id do cartão mude no Elementor.
+ */
+function catalogo_todos() {
+	static $itens = null;
+	if ( null !== $itens ) {
+		return $itens;
 	}
 
 	$itens = array(
@@ -227,15 +262,31 @@ function catalogo() {
 			'form'    => '18a0f795-1b63-411a-a879-7d7c673ee518',
 			'lp'      => '/e-book-gratuito-tabelas-de-ultrassonografia-pediatrica',
 		),
+
+		// Pendente de publicação: enquanto 'card' tiver algum id TODO_ ou 'capa' for 0,
+		// item_pronto() mantém este item fora do site (não conta, não filtra, não abre
+		// link direto). 'card' leva os dois ids de widget do Elementor (Lançamentos e
+		// E-books) depois de duplicar o cartão nas duas prateleiras; 'capa' leva o ID
+		// do anexo depois de subir a capa na Biblioteca de Mídia. Um aviso aparece no
+		// wp-admin (ver aviso_pendencias()) enquanto isso não for feito.
+		'ebook-prp-na-pratica' => array(
+			'card'    => array( 'TODO_CARD_ID_LANCAMENTOS', 'TODO_CARD_ID_EBOOKS' ),
+			'capa'    => 0,
+			'titulo'  => 'PRP na prática: as novas regras que todo médico precisa dominar',
+			'desc'    => 'Indicações aprovadas, contraindicações e exigências da Resolução CFM nº 2.464/2026 para aplicar PRP com segurança.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Medicina Regenerativa' ),
+			'form'    => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'      => '/e-book-gratuito-prp-na-prática',
+		),
 	);
 
-	$cache = $itens;
-	return $cache;
+	return $itens;
 }
 
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia em GO', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia em GO', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {
@@ -257,17 +308,79 @@ function especialidades() {
 	return $saida;
 }
 
-/** Mapa id do cartão no Elementor => slug. */
+/**
+ * Mapa id do cartão no Elementor => slug.
+ *
+ * `card` normalmente é um id só, mas aceita uma lista de ids quando o mesmo
+ * material tem um cartão duplicado em mais de uma prateleira (ex.: em
+ * Lançamentos e também em E-books).
+ */
 function por_card() {
 	static $m = null;
 	if ( null === $m ) {
 		$m = array();
 		foreach ( catalogo() as $slug => $item ) {
-			$m[ $item['card'] ] = $slug;
+			foreach ( (array) $item['card'] as $id ) {
+				$m[ $id ] = $slug;
+			}
 		}
 	}
 	return $m;
 }
+
+/**
+ * Ids de card usados por mais de um slug ao mesmo tempo — nunca deveria acontecer,
+ * já que cada widget do Elementor só pode casar com um material. Serve só para o
+ * aviso no wp-admin: por_card() continua fail-open (o último item da lista vence
+ * silenciosamente na página), então isto é o que torna esse erro visível.
+ */
+function colisoes_de_card() {
+	$dono = array();
+	foreach ( catalogo() as $slug => $item ) {
+		foreach ( (array) $item['card'] as $id ) {
+			$dono[ $id ][] = $slug;
+		}
+	}
+	return array_filter(
+		$dono,
+		function ( $slugs ) {
+			return count( $slugs ) > 1;
+		}
+	);
+}
+
+/**
+ * Aviso no wp-admin para quem tem acesso de administrador: lista os itens do
+ * catálogo que ainda não estão prontos (ver item_pronto()) e qualquer colisão
+ * de id de card. Não aparece para visitantes nem afeta o HTML da página — é só
+ * para não depender de alguém lembrar de conferir o PR ou o comentário no código.
+ */
+function aviso_pendencias() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$pendentes = array();
+	foreach ( catalogo_todos() as $slug => $item ) {
+		if ( ! item_pronto( $item ) ) {
+			$pendentes[] = $slug;
+		}
+	}
+	$colisoes = colisoes_de_card();
+
+	if ( ! $pendentes && ! $colisoes ) {
+		return;
+	}
+
+	echo '<div class="notice notice-warning"><p><strong>Cetrus — Conteúdos Gratuitos:</strong></p><ul style="list-style:disc;margin-left:20px">';
+	if ( $pendentes ) {
+		echo '<li>Pendente de publicar (fora do site até id de card e capa serem preenchidos): ' . esc_html( implode( ', ', $pendentes ) ) . '</li>';
+	}
+	foreach ( $colisoes as $id => $slugs ) {
+		echo '<li>Id de card "' . esc_html( $id ) . '" usado por mais de um item (' . esc_html( implode( ', ', $slugs ) ) . ') — só o último da lista fica ativo.</li>';
+	}
+	echo '</ul></div>';
+}
+add_action( 'admin_notices', __NAMESPACE__ . '\\aviso_pendencias' );
 
 function link_do( $slug ) {
 	return home_url( '/' . PAGE_SLUG . '/' . $slug . '/' );

@@ -227,6 +227,20 @@ function catalogo() {
 			'form'    => '18a0f795-1b63-411a-a879-7d7c673ee518',
 			'lp'      => '/e-book-gratuito-tabelas-de-ultrassonografia-pediatrica',
 		),
+
+		// TODO(publicação): 'card' leva os dois ids de widget do Elementor (Lançamentos
+		// e E-books) depois de duplicar o cartão nas duas prateleiras — ver checklist.
+		// 'capa' leva o ID do anexo depois de subir a capa na Biblioteca de Mídia.
+		'ebook-prp-na-pratica' => array(
+			'card'    => array( 'TODO_CARD_ID_LANCAMENTOS', 'TODO_CARD_ID_EBOOKS' ),
+			'capa'    => 0,
+			'titulo'  => 'PRP na prática: as novas regras que todo médico precisa dominar',
+			'desc'    => 'Indicações aprovadas, contraindicações e exigências da Resolução CFM nº 2.464/2026 para aplicar PRP com segurança.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Medicina Regenerativa' ),
+			'form'    => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'      => '/e-book-gratuito-prp-na-prática',
+		),
 	);
 
 	$cache = $itens;
@@ -235,7 +249,7 @@ function catalogo() {
 
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia em GO', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia em GO', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {
@@ -257,13 +271,21 @@ function especialidades() {
 	return $saida;
 }
 
-/** Mapa id do cartão no Elementor => slug. */
+/**
+ * Mapa id do cartão no Elementor => slug.
+ *
+ * `card` normalmente é um id só, mas aceita uma lista de ids quando o mesmo
+ * material tem um cartão duplicado em mais de uma prateleira (ex.: em
+ * Lançamentos e também em E-books).
+ */
 function por_card() {
 	static $m = null;
 	if ( null === $m ) {
 		$m = array();
 		foreach ( catalogo() as $slug => $item ) {
-			$m[ $item['card'] ] = $slug;
+			foreach ( (array) $item['card'] as $id ) {
+				$m[ $id ] = $slug;
+			}
 		}
 	}
 	return $m;

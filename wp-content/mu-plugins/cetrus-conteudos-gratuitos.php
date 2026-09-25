@@ -44,9 +44,14 @@ function catalogo() {
 	return $cache;
 }
 
-/** Um item só entra no ar quando todo id de widget é real (não é mais um TODO_) e a capa foi definida. */
+/**
+ * Um item só entra no ar quando todo id de widget é real (não é mais um TODO_)
+ * e a capa foi definida. `capa` aceita três valores: um id de anexo (pronto),
+ * `0` (placeholder pendente — mesmo sentido dos TODO_ ids), ou `false` (o item
+ * não tem foto/mockup por design, ex.: cartão com plano de fundo em degradê).
+ */
 function item_pronto( $item ) {
-	if ( empty( $item['capa'] ) ) {
+	if ( 0 === $item['capa'] ) {
 		return false;
 	}
 	foreach ( (array) $item['card'] as $id ) {
@@ -273,6 +278,128 @@ function catalogo_todos() {
 			'form'    => '7805cb6b-c426-4b59-b65d-29db49304385',
 			'lp'      => '/e-book-gratuito-prp-na-prática',
 		),
+
+		'masterclass-roberta-fittipaldi' => array(
+			'card'    => '54e1cdd',
+			'capa'    => false,
+			'titulo'  => 'Highlights Ventilação Mecânica 2023: o que há de novo?',
+			'desc'    => 'Masterclass gratuita com a Dra. Roberta Fittipaldi trazendo os principais destaques e novidades em Ventilação Mecânica em 2023, com aula gravada e material complementar para download.',
+			'formato' => 'Masterclass',
+			'esp'     => array( 'Medicina Intensiva' ),
+			'form'    => '64b46930-70be-4ac3-a6c1-00219464d810',
+			'lp'      => '/master-class-roberta-fittipaldi',
+		),
+
+		'podcast-ultrassonografia-musculoesqueletica' => array(
+			'card'    => 'fe41e6d',
+			'capa'    => 34476,
+			'titulo'  => 'Ultrassonografia musculoesquelética com Dr. Monres',
+			'desc'    => 'Podcast exclusivo com o Dr. Monres José Gomes sobre ultrassonografia musculoesquelética: entenda por que esse exame é o diferencial de quem quer se tornar referência na área.',
+			'formato' => 'Podcast',
+			'esp'     => array( 'Ultrassonografia Musculoesquelética' ),
+			'form'    => '535ad7d9-4dbb-4c48-aab6-76dea22f4027',
+			'lp'      => '/podcast-ultrassonografia-musculoesqueletica-com-dr-monres',
+		),
+
+		'masterclass-ortopedia' => array(
+			'card'    => '0a26b06',
+			'capa'    => 34477,
+			'titulo'  => 'Reparo do manguito rotador em dupla fileira e equivalente transósseo',
+			'desc'    => 'Masterclass exclusiva com o Dr. Breno Schor sobre reparo do manguito rotador em dupla fileira e a técnica equivalente transóssea, voltada a médicos com interesse em cirurgia do ombro e traumatologia esportiva.',
+			'formato' => 'Masterclass',
+			'esp'     => array( 'Ortopedia' ),
+			'form'    => '9589e406-f7cf-49c1-af41-619213f4e1e4',
+			'lp'      => '/masterclass-ortopedia',
+		),
+
+		'masterclass-fabio-peralta' => array(
+			'card'    => 'dc5bf3a',
+			'capa'    => 34478,
+			'titulo'  => 'Masterclass de casos clínicos em Medicina Fetal',
+			'desc'    => 'Aula gratuita com o Dr. Fábio Peralta e equipe médica: uma curadoria de 3 casos clínicos reais de medicina fetal, do achado ao diagnóstico e à conduta.',
+			'formato' => 'Masterclass',
+			'esp'     => array( 'Ultrassonografia em GO' ),
+			'form'    => '70e5e1e8-b8bd-4b20-84bc-03be5e305891',
+			'lp'      => '/masterclass-fabio-peralta',
+		),
+
+		'masterclass-sexualidade-humana' => array(
+			'card'    => 'f9981b0',
+			'capa'    => 34483,
+			'titulo'  => 'Diretrizes para terapia androgênica em mulheres',
+			'desc'    => 'Masterclass gratuita sobre diretrizes para terapia androgênica em mulheres, com as ginecologistas e obstetras Dra. Aline Ambrósio e Dra. Carolina Ambrogini, ambas especialistas em Sexualidade Humana pela USP.',
+			'formato' => 'Masterclass',
+			'esp'     => array( 'Sexualidade Humana', 'Ginecologia e Obstetrícia' ),
+			'form'    => '6ce6099f-4953-4ff1-8bac-fb241ee4a1c3',
+			'lp'      => '/masterclass-sexualidade-humana',
+		),
+
+		'quiz-carreira-medica' => array(
+			'card'    => '957e0be',
+			'capa'    => 34479,
+			'titulo'  => 'Quiz: qual o próximo passo para a sua carreira?',
+			'desc'    => 'Um quiz rápido e gratuito que ajuda o médico a identificar o melhor próximo passo da carreira, de acordo com sua etapa profissional atual.',
+			'formato' => 'Quiz',
+			'esp'     => array( 'Carreira' ),
+			'form'    => 'c5e85202-1111-4ce7-988e-e6c3ae6c54a2',
+			'lp'      => '/fellowship-artigo-didatico-04-quiz-carreira-medica',
+		),
+
+		'ebook-faturamento-clinica' => array(
+			'card'    => 'c9ffbb1',
+			'capa'    => 34480,
+			'titulo'  => 'Aumente o faturamento da sua clínica: estratégias para Ginecologistas e Obstetras',
+			'desc'    => 'E-book gratuito com estratégias práticas para ginecologistas e obstetras aumentarem o faturamento da clínica: pacotes de atendimento que geram recorrência, como a ultrassonografia pode elevar o ticket médio e como estruturar a gestão para crescer com segurança.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Carreira', 'Ultrassonografia em GO' ),
+			'form'    => 'de8750f2-9e83-431c-95fe-4db6da8f5225',
+			'lp'      => '/ebook-gratuito-como-aumentar-faturamento-clinica',
+		),
+
+		'ebook-aparelhos-ultrassom' => array(
+			'card'    => '477a56a',
+			'capa'    => false,
+			'titulo'  => 'Como comprar um aparelho de Ultrassom?',
+			'desc'    => 'E-book gratuito com os principais fatores para levar em conta na hora de escolher e comprar um aparelho de ultrassom para a clínica ou consultório.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Ultrassonografia' ),
+			'form'    => '28220254-0b62-4bf3-a8c5-544143024901',
+			'lp'      => '/aparelhos-de-ultrassom-como-escolher',
+		),
+
+		'ebook-corionicidade' => array(
+			'card'    => 'c41bc27',
+			'capa'    => false,
+			'titulo'  => 'Corionicidade na prática: o que muda na sua conduta desde o primeiro exame',
+			'desc'    => 'Guia prático sobre corionicidade em gestações múltiplas: critérios para diferenciar mono e dicoriônica, implicações clínicas e um checklist para agilizar a conduta desde o primeiro exame.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Ultrassonografia em GO' ),
+			'form'    => 'a1993ec4-328d-4128-9f85-6dae5cc5d13a',
+			'lp'      => '/ebook-corionicidade',
+		),
+
+		'ebook-como-solicitar-exame-ultrassonografia' => array(
+			'card'    => 'fc01769',
+			'capa'    => 34481,
+			'titulo'  => 'Guia definitivo para solicitar ultrassonografias sem erros',
+			'desc'    => 'Guia gratuito com tabela prática que conecta a queixa clínica ao exame de ultrassonografia correto, modelos de indicação, checklist de revisão e orientações sobre quando acionar o radiologista.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Ultrassonografia' ),
+			'form'    => '6569e266-d703-4c2f-b88b-206a65d3906a',
+			'lp'      => '/ebook-gratuito-como-solicitar-exame-de-ultrassonografia',
+		),
+
+		// Aparece em duas prateleiras: Lançamentos e E-books (mesmo material, dois cartões).
+		'ebook-caminhos-carreira-generalistas' => array(
+			'card'    => array( '95bd205', '5699e01' ),
+			'capa'    => 34482,
+			'titulo'  => '6 caminhos de carreira para você, médico, dar o próximo passo',
+			'desc'    => 'E-book gratuito com o panorama de mercado, faixa de renda e trilha de formação em 6 áreas: ultrassonografia, endoscopia digestiva, terapia intensiva, dermatologia, medicina da dor e gestão de consultório.',
+			'formato' => 'E-book',
+			'esp'     => array( 'Carreira' ),
+			'form'    => '471d1449-f8d9-40d6-8639-df451f9fd32e',
+			'lp'      => '/ebook-gratuito-caminhos-de-carreira-para-medicos-generalistas',
+		),
 	);
 
 	return $itens;
@@ -280,7 +407,7 @@ function catalogo_todos() {
 
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia em GO', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Medicina Intensiva', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {

@@ -698,7 +698,7 @@ function barra() {
 	?>
 <div class="cg-barra" id="cg-barra">
 	<div class="cg-barra__wrap">
-		<p class="cg-barra__olho">Navegue por especialidade</p>
+		<p class="cg-barra__olho">Navegue por área médica</p>
 		<div class="cg-chips" role="group" aria-label="Filtrar por especialidade"><?php echo $chips; // phpcs:ignore ?></div>
 		<p class="cg-contagem" role="status" aria-live="polite" data-cg-total="<?php echo (int) $total; ?>"></p>
 	</div>

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - Carrossel dirigido por turma
  * Description: Substitui a selecao manual do carrossel da home por consulta viva as metas do Lyceum (janela de dias e ocupacao).
- * Version:     1.2.0
+ * Version:     1.3.0
  * Author:      Cetrus / Sanar
  *
  * REGRA (aprovada em 28/08/2026)
@@ -38,6 +38,12 @@
  * status avisa, porque veto silencioso em cima de destaque pedido pelo comercial e armadilha.
  * O corte e por ID e por codigo de curso, igual ao dedup dos fixos, senao um clone com o mesmo
  * codigo e outro ID reentra pela porta dos fundos.
+ *
+ * CURADORIA PELO DEPLOY (1.3.0, 28/09/2026)
+ * 'fixos' so mudava por WP-CLI, e quem publica pelo deploy do GitHub nao tem SSH. As entradas de
+ * CETRUS_CARR_MIGRACOES poem codigos na FRENTE de 'fixos', uma vez cada, no primeiro request
+ * depois do deploy. Acrescentam em vez de substituir: o deploy nao enxerga a option, e trocar a
+ * lista inteira apagaria um fixo que ninguem pediu para tirar.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -323,6 +329,63 @@ function cetrus_carr_montar($com_fixos = true) {
 }
 
 /**
+ * Curadoria que chega pelo deploy. Cada entrada poe seus codigos na frente de 'fixos', na ordem
+ * dada, e o resto da lista gravada continua atras como estava; se um desses codigos ja estava
+ * mais para tras, sobe, em vez de aparecer duas vezes.
+ *
+ * Roda uma vez por entrada: a option cetrus_carrossel_mig_<chave> marca que foi aplicada e guarda
+ * a lista de 'antes', que e o rollback. Nao e trava: dois requests no mesmo instante logo apos o
+ * deploy podem aplicar os dois, e 'fixos' sai igual, porque a operacao e idempotente. O que pode
+ * se perder nessa corrida e so o 'antes' da marca; por isso a lista anterior de cada entrada fica
+ * escrita tambem no comentario dela.
+ *
+ * Reverter o PR NAO desfaz: a lista fica gravada na option. Desfazer e WP-CLI com o 'antes' da
+ * marca, ou um deploy novo que regrave 'fixos'. Apagar a entrada daqui depois de aplicada e
+ * seguro, so deixa de ser conferida; apagar a MARCA com a entrada ainda aqui aplica de novo.
+ */
+define('CETRUS_CARR_MIGRACOES', [
+    // 28/09/2026 (Joao Faro): US Geral, US G.O. e Ginecologia Avancada na frente dos 12 de 15/09.
+    // Antes: PG_MFE1,PG_HIST,PG_REGE,PG_EDA2,PG_GERP,PG_HEH2,PG_ALP2,PG_RAM1,PG_DOR2,PG_USDE,PG_USE2,PG_USME
+    '2026-09-28-us-geral-usgo-gap3' => ['PG_USG1', 'PG_USGO', 'PG_GAP3'],
+]);
+
+function cetrus_carr_aplicar_migracoes() {
+    // mesma leitura do resolver: "pg usgo" gravado a mao conta como PG_USGO
+    $norm = fn($f) => is_numeric($f) ? (string) (int) $f
+                                     : preg_replace('/\s+/', '_', strtoupper(trim((string) $f)));
+
+    foreach (CETRUS_CARR_MIGRACOES as $chave => $na_frente) {
+        $marca = 'cetrus_carrossel_mig_' . $chave;
+        if (get_option($marca) !== false) continue;
+
+        /*
+         * Option crua, nao cetrus_carr_config(): gravar o merge com os padroes transformaria uma
+         * leitura falha em enabled=0 e total=11, e o carrossel voltaria ao manual sem ninguem
+         * com WP-CLI para ver. Sem array lido, nao grava nada e o proximo request tenta de novo.
+         */
+        $c = get_option(CETRUS_CARR_OPT);
+        if (!is_array($c)) continue;
+
+        $antes  = array_values((array) ($c['fixos'] ?? []));
+        $novos  = array_map($norm, $na_frente);
+        $resto  = array_filter($antes, fn($f) => !in_array($norm($f), $novos, true));
+        $depois = array_values(array_merge($novos, $resto));
+
+        if ($depois !== $antes) {
+            $c['fixos'] = $depois;
+            if (!update_option(CETRUS_CARR_OPT, $c, false)) continue;   // sem marca, tenta de novo
+            $registro = ['quando' => time(), 'antes' => $antes, 'depois' => $depois];
+        } else {
+            // ja estava na frente (WP-CLI antes do deploy, ou outro request neste instante). Marca
+            // mesmo assim: sem marca, um 'fixos' refeito depois pelo comercial seria reaplicado.
+            $registro = ['quando' => time(), 'antes' => null, 'depois' => $depois];
+        }
+        add_option($marca, $registro, '', true);   // autoload: a conferencia sai do cache
+    }
+}
+add_action('init', 'cetrus_carr_aplicar_migracoes');
+
+/**
  * Prioridade 20: o modulo WooCommerce reconstroi os args em 10 preservando so
  * posts_per_page/offset/paged, entao qualquer coisa abaixo disso seria descartada.
  */
@@ -432,6 +495,12 @@ if (defined('WP_CLI') && WP_CLI) {
             $c['cota_fellowship'], $c['total']));
         if ($c['fixos'])   WP_CLI::line('curadoria: ' . implode(', ', $c['fixos']));
         if ($c['vetados']) WP_CLI::line('vetados:   ' . implode(', ', $c['vetados']));
+        foreach (array_keys(CETRUS_CARR_MIGRACOES) as $chave) {
+            $m = get_option('cetrus_carrossel_mig_' . $chave);
+            WP_CLI::line(sprintf('migracao %s: %s', $chave,
+                $m === false ? 'pendente'
+                    : 'aplicada' . (isset($m['quando']) ? ' em ' . wp_date('d/m/Y H:i', (int) $m['quando']) : '')));
+        }
         WP_CLI::line('');
 
         $conflito = cetrus_carr_conflito_veto($c);

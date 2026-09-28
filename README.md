@@ -43,6 +43,26 @@ Cursos cuja **única** turma visível era a `.VENDAS` passam a exibir o botão d
 **fila de espera** em vez do formulário de inscrição, o correto enquanto não
 houver turma real cadastrada no Lyceum.
 
+### `wp-content/mu-plugins/cetrus-carrossel-turmas.php`
+
+Monta o carrossel **"Cursos em destaque no mês"** da home (widget `df02ba9`):
+primeiro os **fixos** da curadoria do comercial, na ordem pedida, depois a regra
+viva de turmas (janela de dias, ocupação, vagas) até completar o `total` de cards.
+A configuração fica na option `cetrus_carrossel`, no banco, e não no código.
+
+**Colocar cursos na frente sem SSH:** acrescente uma entrada em
+`CETRUS_CARR_MIGRACOES` com uma chave nova e os códigos de curso, faça o merge e
+dispare o deploy em WordPress.com › Implantações. No primeiro request que chega ao
+PHP depois do deploy, os códigos vão para a frente de `fixos`, uma única vez, e o
+resto da lista continua atrás como estava. A home mostra a nova ordem em até
+~5 min (TTL do edge cache). Para conferir, rode `python3 tests/qa/carrossel.py`.
+
+- Reverter o PR **não** desfaz a mudança, porque a lista fica gravada na option.
+  Para desfazer, use WP-CLI com o `antes` guardado na option
+  `cetrus_carrossel_mig_<chave>`, ou faça um deploy novo que regrave `fixos`.
+- Com SSH, `wp cetrus-carrossel status | fixos | vetados | total` continua sendo o
+  caminho direto.
+
 ### Histórico
 
 - `cetrus-turma-eco-fetal-2026.php`: removido em 25/08/2026. Era um override de

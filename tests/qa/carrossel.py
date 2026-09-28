@@ -23,14 +23,26 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
 
 # Curadoria aprovada em 15/09/2026 (Joao Faro). Prioridade 1 = Pos-fixa 2026,
 # prioridade 2 = Pos-fixa 2027. PG_MFE1 aparece nas duas listas e conta uma vez so.
+# Em 28/09/2026 (Joao Faro) entraram 3 destaques na frente de tudo (P0). Com total=15
+# os 15 cards passam a ser curadoria: os 3 organicos que fechavam o carrossel saem, com
+# aceite do pedido, e o ALERTA de "nenhum card da regra viva" passa a ser o esperado.
+P0 = ["PG_USG1", "PG_USGO", "PG_GAP3"]
 P1 = ["PG_MFE1", "PG_HIST", "PG_REGE", "PG_EDA2", "PG_GERP", "PG_HEH2", "PG_ALP2", "PG_RAM1"]
 P2 = ["PG_DOR2", "PG_USDE", "PG_USE2", "PG_USME"]          # PG_MFE1 ja entrou na P1
-ESPERADO = P1 + P2
+ESPERADO = P0 + P1 + P2
+
+# 'total' da option cetrus_carrossel. So conferindo o tamanho da para provar que os 3
+# organicos sairam: se o total subir, eles voltam no rabo e o prefixo nao acusaria.
+TOTAL = 15
 
 # id de produto de cada codigo, resolvido em 15/09/2026 por _lyceum_curso_id exato.
 # Fica explicito no teste de proposito: se alguem trocar o produto por tras do codigo,
 # o teste acusa em vez de acompanhar a mudanca em silencio.
 IDS = {
+    # P0 resolvido em 28/09/2026 pelo courseCode do front nos 402 produtos do product-sitemap:
+    # nenhum clone com o mesmo codigo, e os que caem no fallback de _sku tem ID >= 18687,
+    # entao o MIN(ID) do resolver nao tem como passar na frente destes tres
+    "PG_USG1": 15640, "PG_USGO": 16084, "PG_GAP3": 16042,
     "PG_MFE1": 12712, "PG_HIST": 16066, "PG_REGE": 12703, "PG_EDA2": 12596,
     "PG_GERP": 16052, "PG_HEH2": 16070, "PG_ALP2": 16551, "PG_RAM1": 16601,
     "PG_DOR2": 12588, "PG_USDE": 16582, "PG_USE2": 16011, "PG_USME": 12719,
@@ -110,7 +122,13 @@ def main():
     if len(ids) != len(set(ids)):
         falhas.append("ha produto repetido entre os slides")
 
-    # 3. sobrou espaco para a regra viva - o carrossel nao virou so curadoria
+    # 2b. o carrossel tem o tamanho de 'total', nem mais nem menos
+    if len(ids) != TOTAL:
+        falhas.append(f"carrossel com {len(ids)} cards, esperados {TOTAL}; "
+                      "confira 'total' em wp cetrus-carrossel status")
+
+    # 3. sobrou espaco para a regra viva - o carrossel nao virou so curadoria.
+    # Desde 28/09/2026 a curadoria ocupa os 15 cards e este alerta e o esperado.
     organicos = [p for p in ids if p not in esperados_ids]
     if not organicos:
         alertas.append("nenhum card veio da regra viva de turmas; "

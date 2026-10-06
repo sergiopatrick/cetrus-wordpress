@@ -72,6 +72,7 @@ function item_pronto( $item ) {
  * Advanced: o filtro deste arquivo só reconhece o id hexadecimal automático do
  * Elementor (`data-id="[0-9a-f]+"`). `lp` é o caminho da landing page no HubSpot,
  * que serve de chave alternativa caso o id do cartão mude no Elementor.
+ * `docentes` e `termos` são opcionais e só alimentam a busca (ver chave_de_busca()).
  */
 function catalogo_todos() {
 	static $itens = null;
@@ -400,6 +401,47 @@ function catalogo_todos() {
 			'form'    => '471d1449-f8d9-40d6-8639-df451f9fd32e',
 			'lp'      => '/ebook-gratuito-caminhos-de-carreira-para-medicos-generalistas',
 		),
+
+		// Aulas abertas das pós: cada uma aparece em Lançamentos e em Aulas e cursos gratuitos.
+		// UTI e US-ME usam o mesmo formulário do HubSpot (é o mesmo embed nas duas LPs).
+		'aulas-abertas-ultrassonografia-emergencias-uti' => array(
+			'card'     => array( 'f286933', 'f7ca76c' ),
+			'capa'     => 34844,
+			'titulo'   => 'Aulas abertas: Ultrassonografia em Emergências e UTI',
+			'desc'     => 'Trechos de aulas da pós em Ultrassonografia em Emergências e UTI com os Drs. Adriano Czapkowski e Elizabeth Ayub: hérnia de Spiegel, Doppler na hérnia encarcerada, torção ovariana e TVP no canal dos adutores.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Ultrassonografia', 'Medicina Intensiva', 'Medicina de Emergência' ),
+			'docentes' => array( 'Adriano Czapkowski', 'Elizabeth Ayub' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'       => '/-trechos-aulas-uti',
+		),
+
+		'aulas-abertas-ultrassonografia-musculoesqueletica' => array(
+			'card'     => array( '0360798', '8aea604' ),
+			'capa'     => 34845,
+			'titulo'   => 'Aulas abertas: Ultrassonografia Musculoesquelética',
+			'desc'     => 'Trechos de aulas da pós em Ultrassonografia Musculoesquelética com os Drs. Everaldo Gregio, Ronaldo Lins, Mateus Queiroz e Bruno Raya: infiltração no ombro, recesso suprapatelar e bloqueio facetário guiados por ultrassom.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Ultrassonografia Musculoesquelética', 'Ortopedia' ),
+			'docentes' => array( 'Everaldo Gregio', 'Ronaldo Lins', 'Mateus Queiroz', 'Bruno Raya' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'       => '/-trechos-aulas-usme',
+		),
+
+		'aulas-abertas-intervencao-em-dor' => array(
+			'card'     => array( 'aa1e98f', 'dee116d' ),
+			'capa'     => 34846,
+			'titulo'   => 'Aulas abertas: Intervenção em Dor',
+			'desc'     => 'Trechos do módulo de Cefaleias da pós em Intervenção em Dor com os Drs. Marcos Cardoso, Aline Turbino e Marcos Lange: toxina botulínica, bloqueio do occipital maior e pontos-gatilho.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Medicina da Dor', 'Neurologia' ),
+			'docentes' => array( 'Marcos Cardoso', 'Aline Turbino', 'Marcos Lange' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '2901b526-5011-4340-a552-2e1a9f030a2c',
+			'lp'       => '/-trechos-aulas-dor',
+		),
 	);
 
 	return $itens;
@@ -407,7 +449,7 @@ function catalogo_todos() {
 
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Medicina Intensiva', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Neurologia', 'Medicina Regenerativa', 'Medicina Intensiva', 'Medicina de Emergência', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {
@@ -665,9 +707,19 @@ add_filter(
 	20
 );
 
-/** Texto que o campo de busca compara: título, descrição, formato e especialidades. */
+/**
+ * Texto que o campo de busca compara: título, descrição, formato e especialidades,
+ * mais os opcionais `docentes` (nomes do corpo docente) e `termos` (sinônimos que
+ * não cabem na copy, ex.: "pós-graduação", "videoaula").
+ */
 function chave_de_busca( $it ) {
 	$bruto = $it['titulo'] . ' ' . $it['desc'] . ' ' . $it['formato'] . ' ' . implode( ' ', $it['esp'] );
+	if ( ! empty( $it['docentes'] ) ) {
+		$bruto .= ' ' . implode( ' ', $it['docentes'] );
+	}
+	if ( ! empty( $it['termos'] ) ) {
+		$bruto .= ' ' . $it['termos'];
+	}
 	return normaliza( $bruto );
 }
 

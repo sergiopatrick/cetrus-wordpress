@@ -72,7 +72,8 @@ function item_pronto( $item ) {
  * Advanced: o filtro deste arquivo só reconhece o id hexadecimal automático do
  * Elementor (`data-id="[0-9a-f]+"`). `lp` é o caminho da landing page no HubSpot,
  * que serve de chave alternativa caso o id do cartão mude no Elementor.
- * `docentes` e `termos` são opcionais e só alimentam a busca (ver chave_de_busca()).
+ * `docentes` (com Dr./Dra., coordenador primeiro) alimenta a busca e, com mais de um
+ * nome, a pílula do cartão alterna entre eles. `termos` é opcional e só vai para a busca.
  */
 function catalogo_todos() {
 	static $itens = null;
@@ -406,12 +407,12 @@ function catalogo_todos() {
 		// UTI e US-ME usam o mesmo formulário do HubSpot (é o mesmo embed nas duas LPs).
 		'aulas-abertas-ultrassonografia-emergencias-uti' => array(
 			'card'     => array( 'f286933', 'f7ca76c' ),
-			'capa'     => 34844,
+			'capa'     => 34850,
 			'titulo'   => 'Aulas abertas: Ultrassonografia em Emergências e UTI',
 			'desc'     => 'Trechos de aulas da pós em Ultrassonografia em Emergências e UTI com os Drs. Adriano Czapkowski e Elizabeth Ayub: hérnia de Spiegel, Doppler na hérnia encarcerada, torção ovariana e TVP no canal dos adutores.',
 			'formato'  => 'Aula',
 			'esp'      => array( 'Ultrassonografia', 'Medicina Intensiva', 'Medicina de Emergência' ),
-			'docentes' => array( 'Adriano Czapkowski', 'Elizabeth Ayub' ),
+			'docentes' => array( 'Dr. Adriano Czapkowski', 'Dra. Elizabeth Ayub' ),
 			'termos'   => 'pós-graduação trechos de aula videoaula',
 			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
 			'lp'       => '/-trechos-aulas-uti',
@@ -419,12 +420,12 @@ function catalogo_todos() {
 
 		'aulas-abertas-ultrassonografia-musculoesqueletica' => array(
 			'card'     => array( '0360798', '8aea604' ),
-			'capa'     => 34845,
+			'capa'     => 34851,
 			'titulo'   => 'Aulas abertas: Ultrassonografia Musculoesquelética',
 			'desc'     => 'Trechos de aulas da pós em Ultrassonografia Musculoesquelética com os Drs. Everaldo Gregio, Ronaldo Lins, Mateus Queiroz e Bruno Raya: infiltração no ombro, recesso suprapatelar e bloqueio facetário guiados por ultrassom.',
 			'formato'  => 'Aula',
 			'esp'      => array( 'Ultrassonografia Musculoesquelética', 'Ortopedia' ),
-			'docentes' => array( 'Everaldo Gregio', 'Ronaldo Lins', 'Mateus Queiroz', 'Bruno Raya' ),
+			'docentes' => array( 'Dr. Everaldo Gregio', 'Dr. Ronaldo Lins', 'Dr. Mateus Queiroz', 'Dr. Bruno Raya' ),
 			'termos'   => 'pós-graduação trechos de aula videoaula',
 			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
 			'lp'       => '/-trechos-aulas-usme',
@@ -432,12 +433,12 @@ function catalogo_todos() {
 
 		'aulas-abertas-intervencao-em-dor' => array(
 			'card'     => array( 'aa1e98f', 'dee116d' ),
-			'capa'     => 34846,
+			'capa'     => 34852,
 			'titulo'   => 'Aulas abertas: Intervenção em Dor',
 			'desc'     => 'Trechos do módulo de Cefaleias da pós em Intervenção em Dor com os Drs. Marcos Cardoso, Aline Turbino e Marcos Lange: toxina botulínica, bloqueio do occipital maior e pontos-gatilho.',
 			'formato'  => 'Aula',
 			'esp'      => array( 'Medicina da Dor', 'Neurologia' ),
-			'docentes' => array( 'Marcos Cardoso', 'Aline Turbino', 'Marcos Lange' ),
+			'docentes' => array( 'Dr. Marcos Cardoso', 'Dra. Aline Turbino', 'Dr. Marcos Lange' ),
 			'termos'   => 'pós-graduação trechos de aula videoaula',
 			'form'     => '2901b526-5011-4340-a552-2e1a9f030a2c',
 			'lp'       => '/-trechos-aulas-dor',
@@ -672,6 +673,10 @@ add_filter(
 					esc_attr( implode( '|', $it['esp'] ) ),
 					esc_attr( chave_de_busca( $it ) )
 				);
+				// Mais de um docente: a pílula do cartão alterna entre os nomes (ver giraDocentes() no JS).
+				if ( ! empty( $it['docentes'] ) && count( $it['docentes'] ) > 1 ) {
+					$attrs .= ' data-cg-docentes="' . esc_attr( implode( '|', $it['docentes'] ) ) . '"';
+				}
 
 				return '<div class="' . $m[1] . ' cg-card"' . $m[2] . 'data-id="' . $id . '"' . $m[4] . $attrs . '>'
 					. '<a class="cg-card__link" href="' . esc_url( link_do( $slug ) ) . '">'
@@ -1078,6 +1083,8 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
 	color:var(--cg-light);background:rgba(0,20,44,.62);padding:5px 9px;border-radius:var(--cg-pill);line-height:1;
 	backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none}
 @media(max-width:767px){.cg-card .cg-card__formato{top:8px;right:8px;font-size:9px;padding:4px 7px}}
+.cg-card .cg-gira{transition:opacity .3s ease}
+.cg-card .cg-gira.is-saindo{opacity:0}
 
 /* filtro: some o que não casa, e a prateleira que ficou sem nada */
 .cg-oculto{display:none!important}
@@ -1612,8 +1619,36 @@ function marcaFundos(){
 	});
 }
 
+/* Cartão com vários docentes: a pílula do topo (primeiro título do cartão, que no
+   Elementor traz o coordenador) alterna entre os nomes. Sem JS, ou com movimento
+   reduzido, fica no nome do coordenador. */
+function giraDocentes(){
+	if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+	var pilulas = [];
+	[].slice.call(document.querySelectorAll('.cg-card[data-cg-docentes]')).forEach(function(card){
+		var nomes = card.dataset.cgDocentes.split('|');
+		var el = card.querySelector('.elementor-heading-title');
+		if(!el || nomes.length < 2) return;
+		el.classList.add('cg-gira');
+		pilulas.push({ el: el, nomes: nomes, i: Math.max(0, nomes.indexOf(el.textContent.trim())) });
+	});
+	if(!pilulas.length) return;
+	setInterval(function(){
+		if(document.hidden) return;
+		pilulas.forEach(function(p){
+			p.el.classList.add('is-saindo');
+			setTimeout(function(){
+				p.i = (p.i + 1) % p.nomes.length;
+				p.el.textContent = p.nomes[p.i];
+				p.el.classList.remove('is-saindo');
+			}, 300);
+		});
+	}, 2600);
+}
+
 marcaChips();
 marcaFundos();
+giraDocentes();
 aplica();
 // o Swiper inicializa depois de nós; uma segunda passada pega o slidesPerView real
 setTimeout(aplica, 900);

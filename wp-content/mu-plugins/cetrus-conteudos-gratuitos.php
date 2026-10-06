@@ -72,6 +72,8 @@ function item_pronto( $item ) {
  * Advanced: o filtro deste arquivo só reconhece o id hexadecimal automático do
  * Elementor (`data-id="[0-9a-f]+"`). `lp` é o caminho da landing page no HubSpot,
  * que serve de chave alternativa caso o id do cartão mude no Elementor.
+ * `docentes` (com Dr./Dra., coordenador primeiro) alimenta a busca e, com mais de um
+ * nome, a pílula do cartão alterna entre eles. `termos` é opcional e só vai para a busca.
  */
 function catalogo_todos() {
 	static $itens = null;
@@ -400,6 +402,47 @@ function catalogo_todos() {
 			'form'    => '471d1449-f8d9-40d6-8639-df451f9fd32e',
 			'lp'      => '/ebook-gratuito-caminhos-de-carreira-para-medicos-generalistas',
 		),
+
+		// Aulas abertas das pós: cada uma aparece em Lançamentos e em Aulas e cursos gratuitos.
+		// UTI e US-ME usam o mesmo formulário do HubSpot (é o mesmo embed nas duas LPs).
+		'aulas-abertas-ultrassonografia-emergencias-uti' => array(
+			'card'     => array( 'f286933', 'f7ca76c' ),
+			'capa'     => 34871,
+			'titulo'   => 'Aulas abertas: Ultrassonografia em Emergências e UTI',
+			'desc'     => 'Trechos de aulas da pós em Ultrassonografia em Emergências e UTI com os Drs. Adriano Czapkowski e Elizabeth Ayub: hérnia de Spiegel, Doppler na hérnia encarcerada, torção ovariana e TVP no canal dos adutores.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Ultrassonografia', 'Medicina Intensiva', 'Medicina de Emergência' ),
+			'docentes' => array( 'Dr. Adriano Czapkowski', 'Dra. Elizabeth Ayub' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'       => '/-trechos-aulas-uti',
+		),
+
+		'aulas-abertas-ultrassonografia-musculoesqueletica' => array(
+			'card'     => array( '0360798', '8aea604' ),
+			'capa'     => 34872,
+			'titulo'   => 'Aulas abertas: Ultrassonografia Musculoesquelética',
+			'desc'     => 'Trechos de aulas da pós em Ultrassonografia Musculoesquelética com os Drs. Everaldo Gregio, Ronaldo Lins, Mateus Queiroz e Bruno Raya: infiltração no ombro, recesso suprapatelar e bloqueio facetário guiados por ultrassom.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Ultrassonografia Musculoesquelética', 'Ortopedia' ),
+			'docentes' => array( 'Dr. Everaldo Gregio', 'Dr. Ronaldo Lins', 'Dr. Mateus Queiroz', 'Dr. Bruno Raya' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'lp'       => '/-trechos-aulas-usme',
+		),
+
+		'aulas-abertas-intervencao-em-dor' => array(
+			'card'     => array( 'aa1e98f', 'dee116d' ),
+			'capa'     => 34873,
+			'titulo'   => 'Aulas abertas: Intervenção em Dor',
+			'desc'     => 'Trechos do módulo de Cefaleias da pós em Intervenção em Dor com os Drs. Marcos Cardoso, Aline Turbino e Marcos Lange: toxina botulínica, bloqueio do occipital maior e pontos-gatilho.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Medicina da Dor', 'Neurologia' ),
+			'docentes' => array( 'Dr. Marcos Cardoso', 'Dra. Aline Turbino', 'Dr. Marcos Lange' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula',
+			'form'     => '2901b526-5011-4340-a552-2e1a9f030a2c',
+			'lp'       => '/-trechos-aulas-dor',
+		),
 	);
 
 	return $itens;
@@ -407,7 +450,7 @@ function catalogo_todos() {
 
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Medicina Regenerativa', 'Medicina Intensiva', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Neurologia', 'Medicina Regenerativa', 'Medicina Intensiva', 'Medicina de Emergência', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {
@@ -630,6 +673,10 @@ add_filter(
 					esc_attr( implode( '|', $it['esp'] ) ),
 					esc_attr( chave_de_busca( $it ) )
 				);
+				// Mais de um docente: a pílula do cartão alterna entre os nomes (ver giraDocentes() no JS).
+				if ( ! empty( $it['docentes'] ) && count( $it['docentes'] ) > 1 ) {
+					$attrs .= ' data-cg-docentes="' . esc_attr( implode( '|', $it['docentes'] ) ) . '"';
+				}
 
 				return '<div class="' . $m[1] . ' cg-card"' . $m[2] . 'data-id="' . $id . '"' . $m[4] . $attrs . '>'
 					. '<a class="cg-card__link" href="' . esc_url( link_do( $slug ) ) . '">'
@@ -665,9 +712,19 @@ add_filter(
 	20
 );
 
-/** Texto que o campo de busca compara: título, descrição, formato e especialidades. */
+/**
+ * Texto que o campo de busca compara: título, descrição, formato e especialidades,
+ * mais os opcionais `docentes` (nomes do corpo docente) e `termos` (sinônimos que
+ * não cabem na copy, ex.: "pós-graduação", "videoaula").
+ */
 function chave_de_busca( $it ) {
 	$bruto = $it['titulo'] . ' ' . $it['desc'] . ' ' . $it['formato'] . ' ' . implode( ' ', $it['esp'] );
+	if ( ! empty( $it['docentes'] ) ) {
+		$bruto .= ' ' . implode( ' ', $it['docentes'] );
+	}
+	if ( ! empty( $it['termos'] ) ) {
+		$bruto .= ' ' . $it['termos'];
+	}
 	return normaliza( $bruto );
 }
 
@@ -1026,6 +1083,14 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
 	color:var(--cg-light);background:rgba(0,20,44,.62);padding:5px 9px;border-radius:var(--cg-pill);line-height:1;
 	backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none}
 @media(max-width:767px){.cg-card .cg-card__formato{top:8px;right:8px;font-size:9px;padding:4px 7px}}
+.cg-card .cg-gira{transition:opacity .3s ease}
+.cg-card .cg-gira.is-saindo{opacity:0}
+/* A pílula que alterna nomes não pode invadir a etiqueta de formato (absoluta, no canto direito):
+   nome longo vira reticências em vez de passar por baixo dela. */
+.cg-card[data-cg-docentes] > div.e-con:first-of-type{max-width:calc(100% - 60px);min-width:0}
+.cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-widget{max-width:100%;min-width:0}
+.cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-heading-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:767px){.cg-card[data-cg-docentes] > div.e-con:first-of-type{max-width:calc(100% - 50px)}}
 
 /* filtro: some o que não casa, e a prateleira que ficou sem nada */
 .cg-oculto{display:none!important}
@@ -1560,8 +1625,36 @@ function marcaFundos(){
 	});
 }
 
+/* Cartão com vários docentes: a pílula do topo (primeiro título do cartão, que no
+   Elementor traz o coordenador) alterna entre os nomes. Sem JS, ou com movimento
+   reduzido, fica no nome do coordenador. */
+function giraDocentes(){
+	if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+	var pilulas = [];
+	[].slice.call(document.querySelectorAll('.cg-card[data-cg-docentes]')).forEach(function(card){
+		var nomes = card.dataset.cgDocentes.split('|');
+		var el = card.querySelector('.elementor-heading-title');
+		if(!el || nomes.length < 2) return;
+		el.classList.add('cg-gira');
+		pilulas.push({ el: el, nomes: nomes, i: Math.max(0, nomes.indexOf(el.textContent.trim())) });
+	});
+	if(!pilulas.length) return;
+	setInterval(function(){
+		if(document.hidden) return;
+		pilulas.forEach(function(p){
+			p.el.classList.add('is-saindo');
+			setTimeout(function(){
+				p.i = (p.i + 1) % p.nomes.length;
+				p.el.textContent = p.nomes[p.i];
+				p.el.classList.remove('is-saindo');
+			}, 300);
+		});
+	}, 2600);
+}
+
 marcaChips();
 marcaFundos();
+giraDocentes();
 aplica();
 // o Swiper inicializa depois de nós; uma segunda passada pega o slidesPerView real
 setTimeout(aplica, 900);

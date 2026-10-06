@@ -407,7 +407,7 @@ function catalogo_todos() {
 		// UTI e US-ME usam o mesmo formulário do HubSpot (é o mesmo embed nas duas LPs).
 		'aulas-abertas-ultrassonografia-emergencias-uti' => array(
 			'card'     => array( 'f286933', 'f7ca76c' ),
-			'capa'     => 34850,
+			'capa'     => 34871,
 			'titulo'   => 'Aulas abertas: Ultrassonografia em Emergências e UTI',
 			'desc'     => 'Trechos de aulas da pós em Ultrassonografia em Emergências e UTI com os Drs. Adriano Czapkowski e Elizabeth Ayub: hérnia de Spiegel, Doppler na hérnia encarcerada, torção ovariana e TVP no canal dos adutores.',
 			'formato'  => 'Aula',
@@ -420,7 +420,7 @@ function catalogo_todos() {
 
 		'aulas-abertas-ultrassonografia-musculoesqueletica' => array(
 			'card'     => array( '0360798', '8aea604' ),
-			'capa'     => 34851,
+			'capa'     => 34872,
 			'titulo'   => 'Aulas abertas: Ultrassonografia Musculoesquelética',
 			'desc'     => 'Trechos de aulas da pós em Ultrassonografia Musculoesquelética com os Drs. Everaldo Gregio, Ronaldo Lins, Mateus Queiroz e Bruno Raya: infiltração no ombro, recesso suprapatelar e bloqueio facetário guiados por ultrassom.',
 			'formato'  => 'Aula',
@@ -433,7 +433,7 @@ function catalogo_todos() {
 
 		'aulas-abertas-intervencao-em-dor' => array(
 			'card'     => array( 'aa1e98f', 'dee116d' ),
-			'capa'     => 34852,
+			'capa'     => 34873,
 			'titulo'   => 'Aulas abertas: Intervenção em Dor',
 			'desc'     => 'Trechos do módulo de Cefaleias da pós em Intervenção em Dor com os Drs. Marcos Cardoso, Aline Turbino e Marcos Lange: toxina botulínica, bloqueio do occipital maior e pontos-gatilho.',
 			'formato'  => 'Aula',
@@ -1085,6 +1085,12 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
 @media(max-width:767px){.cg-card .cg-card__formato{top:8px;right:8px;font-size:9px;padding:4px 7px}}
 .cg-card .cg-gira{transition:opacity .3s ease}
 .cg-card .cg-gira.is-saindo{opacity:0}
+/* A pílula que alterna nomes não pode invadir a etiqueta de formato (absoluta, no canto direito):
+   nome longo vira reticências em vez de passar por baixo dela. */
+.cg-card[data-cg-docentes] > div.e-con:first-of-type{max-width:calc(100% - 60px);min-width:0}
+.cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-widget{max-width:100%;min-width:0}
+.cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-heading-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:767px){.cg-card[data-cg-docentes] > div.e-con:first-of-type{max-width:calc(100% - 50px)}}
 
 /* filtro: some o que não casa, e a prateleira que ficou sem nada */
 .cg-oculto{display:none!important}

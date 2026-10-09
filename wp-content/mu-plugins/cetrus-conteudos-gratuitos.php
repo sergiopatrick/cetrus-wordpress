@@ -20,6 +20,8 @@ const REGION    = 'na1';
    sem eles o selo e a busca simplesmente não entram, sem quebrar a página. */
 const HERO_TITULO    = '3a64c09';
 const HERO_SUBTITULO = '066bc8c';
+/* Texto da seção "Blog Educa Cetrus": a lista de mais acessados entra logo depois dele. */
+const BLOG_TEXTO = 'eca2f23';
 
 const QUERY_VAR = 'material';
 const OPT_RULES = 'cetrus_cg_rules_v';
@@ -283,7 +285,7 @@ function catalogo_todos() {
 
 		'masterclass-roberta-fittipaldi' => array(
 			'card'    => '54e1cdd',
-			'capa'    => false,
+			'capa'    => 34977,
 			'titulo'  => 'Highlights Ventilação Mecânica 2023: o que há de novo?',
 			'desc'    => 'Masterclass gratuita com a Dra. Roberta Fittipaldi trazendo os principais destaques e novidades em Ventilação Mecânica em 2023, com aula gravada e material complementar para download.',
 			'formato' => 'Masterclass',
@@ -305,7 +307,7 @@ function catalogo_todos() {
 
 		'masterclass-ortopedia' => array(
 			'card'    => '0a26b06',
-			'capa'    => 34477,
+			'capa'    => 34975,
 			'titulo'  => 'Reparo do manguito rotador em dupla fileira e equivalente transósseo',
 			'desc'    => 'Masterclass exclusiva com o Dr. Breno Schor sobre reparo do manguito rotador em dupla fileira e a técnica equivalente transóssea, voltada a médicos com interesse em cirurgia do ombro e traumatologia esportiva.',
 			'formato' => 'Masterclass',
@@ -316,7 +318,7 @@ function catalogo_todos() {
 
 		'masterclass-fabio-peralta' => array(
 			'card'    => 'dc5bf3a',
-			'capa'    => 34478,
+			'capa'    => 34976,
 			'titulo'  => 'Masterclass de casos clínicos em Medicina Fetal',
 			'desc'    => 'Aula gratuita com o Dr. Fábio Peralta e equipe médica: uma curadoria de 3 casos clínicos reais de medicina fetal, do achado ao diagnóstico e à conduta.',
 			'formato' => 'Masterclass',
@@ -327,7 +329,7 @@ function catalogo_todos() {
 
 		'masterclass-sexualidade-humana' => array(
 			'card'    => 'f9981b0',
-			'capa'    => 34483,
+			'capa'    => 34974,
 			'titulo'  => 'Diretrizes para terapia androgênica em mulheres',
 			'desc'    => 'Masterclass gratuita sobre diretrizes para terapia androgênica em mulheres, com as ginecologistas e obstetras Dra. Aline Ambrósio e Dra. Carolina Ambrogini, ambas especialistas em Sexualidade Humana pela USP.',
 			'formato' => 'Masterclass',
@@ -360,7 +362,7 @@ function catalogo_todos() {
 
 		'ebook-aparelhos-ultrassom' => array(
 			'card'    => '477a56a',
-			'capa'    => false,
+			'capa'    => 34981,
 			'titulo'  => 'Como comprar um aparelho de Ultrassom?',
 			'desc'    => 'E-book gratuito com os principais fatores para levar em conta na hora de escolher e comprar um aparelho de ultrassom para a clínica ou consultório.',
 			'formato' => 'E-book',
@@ -371,7 +373,7 @@ function catalogo_todos() {
 
 		'ebook-corionicidade' => array(
 			'card'    => 'c41bc27',
-			'capa'    => false,
+			'capa'    => 34980,
 			'titulo'  => 'Corionicidade na prática: o que muda na sua conduta desde o primeiro exame',
 			'desc'    => 'Guia prático sobre corionicidade em gestações múltiplas: critérios para diferenciar mono e dicoriônica, implicações clínicas e um checklist para agilizar a conduta desde o primeiro exame.',
 			'formato' => 'E-book',
@@ -443,14 +445,89 @@ function catalogo_todos() {
 			'form'     => '2901b526-5011-4340-a552-2e1a9f030a2c',
 			'lp'       => '/-trechos-aulas-dor',
 		),
+
+		'aulas-abertas-medicina-fetal' => array(
+			'card'     => array( '99138f8', '37f4b27' ),
+			'capa'     => 34978,
+			'titulo'   => 'Aulas abertas: Medicina Fetal',
+			'desc'     => 'Trechos de aulas da pós em Medicina Fetal com o Dr. Fábio Peralta: morfológico antes do DNA fetal livre, rastreio de Down, saco gestacional vazio e por que evitar "ovo cego" no laudo.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Medicina Fetal', 'Ultrassonografia em GO' ),
+			'docentes' => array( 'Dr. Fábio Peralta' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula obstetrícia pré-natal morfológico',
+			'form'     => 'b8ca4ea7-8d5e-4207-9497-be0815bd9053',
+			'lp'       => '/-trechos-aulas-fetal',
+		),
+
+		'aulas-abertas-imagem-da-mama' => array(
+			'card'     => array( '345bec6', '6cec3ea' ),
+			'capa'     => 34985,
+			'titulo'   => 'Aulas abertas: Imagem da Mama',
+			'desc'     => 'Trechos de aulas da pós em Imagem da Mama com as Dras. Daniella Prudente, Rúbia Portilho e Maria Christina Rizzi: PAF ou core biópsia, cisto espesso, lesão sólido-cística e como descrever na dúvida.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Mastologia', 'Ultrassonografia' ),
+			'docentes' => array( 'Dra. Daniella Prudente', 'Dra. Rúbia Portilho', 'Dra. Maria Christina Rizzi' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula mama biópsia mamografia BI-RADS',
+			'form'     => '719f0b2f-e80c-4b0f-b3be-3c39df29757e',
+			'lp'       => '/-trechos-aulas-mama',
+		),
+
+		'aulas-abertas-ultrassonografia-dermatologica' => array(
+			'card'     => array( 'a007731', '9592aa6' ),
+			'capa'     => 34979,
+			'titulo'   => 'Aulas abertas: Ultrassonografia Dermatológica',
+			'desc'     => 'Trechos de aulas da pós em Ultrassonografia Dermatológica com os Drs. Estêvão Vargas e Camila Nogueira: risco vascular na região dos olhos, artéria labial no Doppler e sinais de oclusão vascular em injetáveis.',
+			'formato'  => 'Aula',
+			'esp'      => array( 'Dermatologia', 'Ultrassonografia' ),
+			'docentes' => array( 'Dr. Estêvão Vargas', 'Dra. Camila Nogueira' ),
+			'termos'   => 'pós-graduação trechos de aula videoaula dermatologia injetáveis preenchedores harmonização',
+			'form'     => 'b5c0d64b-e0e1-4734-8e8e-c01452a7f6c3',
+			'lp'       => '/-trechos-aulas-dermato',
+		),
 	);
 
 	return $itens;
 }
 
+/**
+ * Artigos do Educa na lista "Conteúdos mais acessados" da seção Blog Educa Cetrus,
+ * na ordem de exibição. Curadoria manual: para trocar, edite esta lista e faça o deploy.
+ * `img` é a miniatura de 150px do próprio post no Educa (a do Miomas vem 150x102; o object-fit do círculo cobre).
+ */
+function mais_acessados() {
+	$up = 'https://educa.cetrus.com.br/wp-content/uploads/';
+	return array(
+		array(
+			'url'    => 'https://educa.cetrus.com.br/miomas-uterinos-e-a-classificacao-figo-musa/',
+			'titulo' => 'Miomas Uterinos e a Classificação FIGO/MUSA',
+			'img'    => $up . '2025/06/Banner-Blog-1024x696px-150x150.png',
+		),
+		array(
+			'url'    => 'https://educa.cetrus.com.br/posicoes-cirurgicas/',
+			'titulo' => 'Posições Cirúrgicas: Guia para médicos e estudantes',
+			'img'    => $up . '2023/03/medica-cirurgia-olha-para-a-camera-enquanto-o-outro-medico-opera-paciente-com-posicao-cirurgica-150x150.webp',
+		),
+		array(
+			'url'    => 'https://educa.cetrus.com.br/pi-rads-como-usar-classificacao-para-cancer-de-prostata/',
+			'titulo' => 'PI-RADS: como usar classificação para câncer de próstata',
+			'img'    => $up . '2023/05/Banner-Blog-1024x696px-3-150x150.png',
+		),
+		array(
+			'url'    => 'https://educa.cetrus.com.br/cisto-de-bartholin-qual-o-melhor-caminho-de-tratamento/',
+			'titulo' => 'Cisto de Bartholin: qual o melhor caminho de tratamento?',
+			'img'    => $up . '2023/04/Banner-Blog-1024x696px-1-150x150.png',
+		),
+		array(
+			'url'    => 'https://educa.cetrus.com.br/qual-a-melhor-escolha-de-anticoncepcional-na-sop/',
+			'titulo' => 'Qual a melhor escolha de anticoncepcional na SOP?',
+			'img'    => $up . '2020/04/anticoncepcional-na-SOP-150x150.jpg',
+		),
+	);
+}
+
 /** Ordem dos filtros de especialidade. Só entra no chip quem tem material. */
 function especialidades() {
-	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Neurologia', 'Medicina Regenerativa', 'Medicina Intensiva', 'Medicina de Emergência', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
+	$ordem = array( 'Ultrassonografia', 'Ultrassonografia Musculoesquelética', 'Ultrassonografia em GO', 'Medicina Fetal', 'Mastologia', 'Dermatologia', 'Ortopedia', 'Cardiologia', 'Pediatria', 'Medicina da Dor', 'Neurologia', 'Medicina Regenerativa', 'Medicina Intensiva', 'Medicina de Emergência', 'Sexualidade Humana', 'Ginecologia e Obstetrícia', 'Carreira' );
 	$conta = array();
 	foreach ( catalogo() as $item ) {
 		foreach ( $item['esp'] as $e ) {
@@ -690,6 +767,9 @@ add_filter(
 		$html = junto_do_widget( $html, HERO_TITULO, selo_hero() );
 		$html = junto_do_widget( $html, HERO_SUBTITULO, busca_hero(), true );
 
+		// 2b. Lista "Conteúdos mais acessados" na seção Blog Educa Cetrus, depois do texto.
+		$html = junto_do_widget( $html, BLOG_TEXTO, lista_mais_acessados(), true );
+
 		// 3. Chips e contagem, logo acima da primeira prateleira.
 		$ancora = '<div class="elementor-element elementor-element-531de49';
 		$pos    = strpos( $html, $ancora );
@@ -795,6 +875,34 @@ function busca_hero() {
 </div>
 	<?php
 	return ob_get_clean();
+}
+
+/**
+ * Lista "Conteúdos mais acessados" do Educa. Mesmo olho (eyebrow) da faixa de filtros
+ * e mesma tipografia dos cartões; cada artigo abre em nova guia.
+ * Sem UTM de propósito: o Yoast do Educa responde 301 para qualquer URL com utm_*
+ * (move as variáveis para o #), então o link vai direto para a URL canônica do post.
+ */
+function lista_mais_acessados() {
+	$itens = mais_acessados();
+	if ( ! $itens ) {
+		return '';
+	}
+	$li = '';
+	foreach ( $itens as $it ) {
+		$li .= sprintf(
+			'<li><a class="cg-top__link" href="%s" target="_blank" rel="noopener noreferrer">'
+			. '<img class="cg-top__img" src="%s" alt="" width="48" height="48" loading="lazy" decoding="async">'
+			. '<span class="cg-top__tit">%s</span>'
+			. '<svg class="cg-top__seta" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17 17 7M9 7h8v8"/></svg>'
+			. '<span class="cg-sr"> (abre em nova guia)</span></a></li>',
+			esc_url( $it['url'] ),
+			esc_url( $it['img'] ),
+			esc_html( $it['titulo'] )
+		);
+	}
+	return '<div class="cg-top" id="cg-top"><p class="cg-top__olho" id="cg-top-titulo">Conteúdos mais acessados</p>'
+		. '<ol class="cg-top__lista" role="list" aria-labelledby="cg-top-titulo">' . $li . '</ol></div>';
 }
 
 /**
@@ -1091,6 +1199,34 @@ body.elementor-page-27615 .elementor-element.elementor-element-1e8309c{
 .cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-widget{max-width:100%;min-width:0}
 .cg-card[data-cg-docentes] > div.e-con:first-of-type .elementor-heading-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:767px){.cg-card[data-cg-docentes] > div.e-con:first-of-type{max-width:calc(100% - 50px)}}
+
+/* ---------- Blog Educa Cetrus: conteúdos mais acessados ----------
+   Lista no lugar da antiga "Destaques do mês" do Educa: miniatura redonda, título
+   na tipografia dos cartões e seta de link externo. O olho é o mesmo da faixa de
+   filtros ("Navegue por área médica"), para as duas listas da página lerem iguais. */
+#cg-top{width:100%;max-width:560px;margin:0;padding-top:16px;border-top:1px solid var(--cg-linha)}
+#cg-top .cg-top__olho{margin:0 0 4px;font-family:var(--cg-corpo);font-size:11.5px;font-weight:600;
+	letter-spacing:.14em;text-transform:uppercase;color:var(--cg-cinza)}
+#cg-top .cg-top__lista{list-style:none;margin:0;padding:0}
+#cg-top .cg-top__lista li{margin:0;padding:0;list-style:none;border-bottom:1px solid var(--cg-linha)}
+#cg-top .cg-top__lista li:last-child{border-bottom:0}
+#cg-top .cg-top__lista li:before{content:none}
+#cg-top .cg-top__link{display:flex;align-items:center;gap:14px;padding:11px 2px 11px 0;
+	text-decoration:none;color:inherit;border-radius:var(--cg-r2)}
+#cg-top .cg-top__img{flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:50%;object-fit:cover;
+	background:var(--cg-cetrus-lighter);box-shadow:0 0 0 1px var(--cg-cetrus-lighter)}
+#cg-top .cg-top__tit{flex:1 1 auto;min-width:0;font-family:var(--cg-titulo);font-size:15px;line-height:1.3;
+	font-weight:700;color:var(--cg-dark);transition:color .15s ease}
+#cg-top .cg-top__seta{flex:0 0 16px;width:16px;height:16px;fill:none;stroke:var(--cg-cinza-md);stroke-width:2;
+	stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s ease,transform .15s ease}
+#cg-top .cg-top__link:hover .cg-top__tit{color:var(--cg-medium)}
+#cg-top .cg-top__link:hover .cg-top__seta{stroke:var(--cg-medium);transform:translate(2px,-2px)}
+#cg-top .cg-top__link:focus-visible{outline:2px solid var(--cg-medium);outline-offset:2px}
+@media(max-width:767px){
+	#cg-top{max-width:none}
+	#cg-top .cg-top__tit{font-size:14.5px}
+}
+@media(prefers-reduced-motion:reduce){#cg-top .cg-top__seta{transition:none}}
 
 /* filtro: some o que não casa, e a prateleira que ficou sem nada */
 .cg-oculto{display:none!important}
@@ -1483,9 +1619,21 @@ document.addEventListener('click', function(ev){
 
 var hsPronto = false, hsCarregando = false;
 function carregaHS(cb){
+	// a newsletter da página (cetrus-newsletter.php) já pode ter trazido a mesma lib
+	if(!hsPronto && window.hbspt && window.hbspt.forms){ hsPronto = true; }
 	if(hsPronto){ cb(); return; }
 	if(hsCarregando){ setTimeout(function(){ carregaHS(cb); }, 200); return; }
 	hsCarregando = true;
+	// ...ou ainda estar baixando (ela entra com defer): espera a mesma tag em vez de baixar de novo
+	if(document.querySelector('script[src*="js.hsforms.net/forms/embed/v2.js"]')){
+		var tentativas = 0;
+		(function espera(){
+			if(window.hbspt && window.hbspt.forms){ hsPronto = true; hsCarregando = false; cb(); return; }
+			if(++tentativas > 75){ hsCarregando = false; if(falha) falha.hidden = false; return; }
+			setTimeout(espera, 200);
+		})();
+		return;
+	}
 	var s = document.createElement('script');
 	s.src = 'https://js.hsforms.net/forms/embed/v2.js';
 	s.async = true;

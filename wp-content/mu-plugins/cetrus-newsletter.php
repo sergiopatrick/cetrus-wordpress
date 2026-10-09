@@ -32,13 +32,19 @@ if (!defined('ABSPATH')) exit;
 define('CETRUS_NEWS_OPT', 'cetrus_newsletter');
 
 function cetrus_news_config() {
-    return wp_parse_args((array) get_option(CETRUS_NEWS_OPT, []), [
+    $padrao = [
         'enabled'   => 0,                                        // 0 = so preview por query string
         'portal_id' => '9321751',
         'region'    => 'na1',
         'form_id'   => '5259dfdc-18fa-4c1f-94ea-3b34ef59a3ca',
-        'slots'     => ['home' => 1, 'rodape' => 0, 'produto' => 0],
-    ]);
+        // conteudos = /conteudos-gratuitos/, entre a ultima prateleira (E-books) e o Blog Educa Cetrus
+        'slots'     => ['home' => 1, 'rodape' => 0, 'produto' => 0, 'conteudos' => 1],
+    ];
+    $c = wp_parse_args((array) get_option(CETRUS_NEWS_OPT, []), $padrao);
+    // A option gravada pelo WP-CLI traz a lista de slots inteira e, sem o merge, apagaria
+    // qualquer slot novo do codigo. O que estiver no banco continua valendo.
+    $c['slots'] = array_merge($padrao['slots'], (array) $c['slots']);
+    return $c;
 }
 
 /** Visivel para o publico so com enabled=1; ?cetrus_newsletter=1 libera o preview em producao. */
@@ -51,7 +57,9 @@ function cetrus_news_ativo($slot) {
 
 function cetrus_news_lib() {
     if (wp_script_is('cetrus-hsforms', 'enqueued')) return;
-    wp_enqueue_script('cetrus-hsforms', 'https://js.hsforms.net/forms/embed/v2.js', [], null, true);
+    // defer: o monta() do bloco ja espera a lib por polling, entao ela nao precisa travar
+    // o parser antes dos scripts de rodape da pagina (ex.: o JS de /conteudos-gratuitos/)
+    wp_enqueue_script('cetrus-hsforms', 'https://js.hsforms.net/forms/embed/v2.js', [], null, ['in_footer' => true, 'strategy' => 'defer']);
 }
 
 /**
@@ -218,12 +226,17 @@ add_shortcode('cetrus_newsletter', 'cetrus_news_render');
  * Esconde o container inteiro ate o slot ser ligado.
  */
 define('CETRUS_NEWS_CONTAINER_HOME', 'elementor-element-92454f4');
+/** Mesmo cuidado para o container do slot "conteudos" em /conteudos-gratuitos/ (916341e). */
+define('CETRUS_NEWS_CONTAINER_CONTEUDOS', 'elementor-element-916341e');
 
 /** CSS escopado. Cores do kit Elementor 10452, que sao os tokens Cetrus do Dende. */
 add_action('wp_enqueue_scripts', function () {
     $css = '';
     if (!cetrus_news_ativo('home')) {
         $css .= '.' . CETRUS_NEWS_CONTAINER_HOME . '{display:none !important}';
+    }
+    if (!cetrus_news_ativo('conteudos')) {
+        $css .= '.' . CETRUS_NEWS_CONTAINER_CONTEUDOS . '{display:none !important}';
     }
     // Faixa horizontal baixa: texto a esquerda, campos e botao colados numa linha so a direita.
     // Os rotulos viram placeholder no onFormReady, senao o formulario empilha e a faixa cresce.
@@ -292,6 +305,11 @@ add_action('wp_enqueue_scripts', function () {
   .cetrus-newsletter .hs_submit{flex:1 1 100%}
   .cetrus-newsletter .hs-button{width:100%}
   .cetrus-newsletter .hs-error-msgs{position:static}
+}
+/* /conteudos-gratuitos/: com a caixa de 1170px ja centrada pelo container boxed, o respiro
+   lateral deslocaria a faixa 24px para dentro do grid dos titulos das prateleiras */
+@media (min-width:1219px){
+  .cetrus-newsletter[data-slot="conteudos"]{padding-left:0;padding-right:0}
 }
 ';
     wp_register_style('cetrus-newsletter', false, [], '1.0.0');

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cetrus - ocultar turmas tecnicas do Lyceum
- * Description: Remove da resposta da products-api (Lyceum) as turmas tecnicas de venda (sufixo ".VENDAS", datas-sentinela em 2040) antes que o plugin integracao-lyceum monte o seletor "Selecione a turma".
- * Version: 1.0.0
+ * Description: Remove da resposta da products-api (Lyceum) as turmas tecnicas de venda (sufixo ".VENDAS", datas-sentinela em 2040) e as turmas que ja comecaram, antes que o plugin integracao-lyceum monte o seletor "Selecione a turma".
+ * Version: 1.1.0
  * Author: Sanar / Cetrus
  *
  * Contexto
@@ -27,6 +27,25 @@
  *
  * Nao afeta o checkout.cetrus.com.br, que consome a mesma API por fora do
  * WordPress.
+ *
+ * Turmas que ja comecaram (1.1.0, 09/10/2026)
+ * -------------------------------------------
+ * O processor de curso non-fellowship (class-course-processor.php) filtra so
+ * status ACTIVE e vaga sobrando, sem olhar data. Quando o Lyceum deixa uma
+ * turma antiga em ACTIVE com vaga, ela aparece no seletor como se ainda
+ * estivesse a venda. Em 09/10/2026 eram 100 turmas passadas em 44 cursos
+ * (US_TRV2 com 4, US_MAMA com 7, MMFC com 12, desde 2024). O processor de
+ * fellowship ja exigia startDate >= hoje; esta versao estende a mesma regra
+ * aos demais cursos.
+ *
+ * "Ja comecou" = dia de inicio anterior a hoje no fuso do site. O dia e lido
+ * da propria string (os 10 primeiros caracteres), o mesmo dia que o seletor
+ * exibe, entao turma que comeca hoje continua visivel.
+ *
+ * O corte por data NAO vale para os lotes do cetrus-lyceum-sync.php
+ * (take >= 100): o sync para na primeira pagina vazia, e uma pagina inteira
+ * de turmas antigas filtrada para vazio encerraria a varredura no meio do
+ * catalogo. O sync ja descarta turma passada por conta propria.
  */
 
 if (!defined('ABSPATH')) {
@@ -43,6 +62,12 @@ const CETRUS_LYCEUM_SUFIXO_TECNICO = '.VENDAS';
  * As turmas tecnicas usam 2040; nenhuma turma real do Cetrus comeca tao longe.
  */
 const CETRUS_LYCEUM_ANO_SENTINELA = 2035;
+
+/**
+ * take a partir do qual a requisicao e um lote do sync (mesmo corte de
+ * cetrus-lyceum-api-cache.php). Lote do sync nao recebe o corte por data.
+ */
+const CETRUS_LYCEUM_TAKE_LOTE_SYNC = 100;
 
 /**
  * Diz se a URL requisitada e o endpoint de produtos da API Lyceum.
@@ -96,13 +121,55 @@ function cetrus_lyceum_e_turma_tecnica($lyceum) {
 }
 
 /**
- * Remove os itens de turma tecnica de uma lista de produtos da API.
+ * Diz se a turma ja comecou (dia de inicio anterior a hoje no fuso do site).
  *
- * @param array $itens      Lista de itens da API.
- * @param int   $removidos  Contador por referencia.
- * @return array Lista sem as turmas tecnicas.
+ * @param array $lyceum Bloco packAcademics.lyceum ja normalizado em array.
+ * @return bool
  */
-function cetrus_lyceum_filtra_itens($itens, &$removidos) {
+function cetrus_lyceum_turma_ja_comecou($lyceum) {
+    $inicio = isset($lyceum['startDate']) ? substr((string) $lyceum['startDate'], 0, 10) : '';
+
+    $comecou = false;
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $inicio)) {
+        $comecou = $inicio < wp_date('Y-m-d');
+    }
+
+    /**
+     * Permite ajustar a regra sem editar este arquivo.
+     *
+     * @param bool  $comecou Se a turma deve ser ocultada por ja ter comecado.
+     * @param array $lyceum  Bloco lyceum da turma.
+     */
+    return (bool) apply_filters('cetrus_lyceum_turma_ja_comecou', $comecou, $lyceum);
+}
+
+/**
+ * Diz se a URL e um lote de varredura do sync (take >= 100).
+ *
+ * @param string $url URL da requisicao.
+ * @return bool
+ */
+function cetrus_lyceum_e_lote_sync($url) {
+    $query = wp_parse_url($url, PHP_URL_QUERY);
+    if (!is_string($query) || $query === '') {
+        return false;
+    }
+
+    parse_str($query, $q);
+
+    return isset($q['take']) && (int) $q['take'] >= CETRUS_LYCEUM_TAKE_LOTE_SYNC;
+}
+
+/**
+ * Remove os itens de turma tecnica (e, se pedido, de turma ja iniciada) de
+ * uma lista de produtos da API.
+ *
+ * @param array $itens          Lista de itens da API.
+ * @param int   $removidos      Contador por referencia.
+ * @param bool  $corta_passadas Se tambem remove as turmas que ja comecaram.
+ * @return array Lista sem as turmas removidas.
+ */
+function cetrus_lyceum_filtra_itens($itens, &$removidos, $corta_passadas = false) {
     $mantidos = array();
 
     foreach ($itens as $item) {
@@ -116,6 +183,11 @@ function cetrus_lyceum_filtra_itens($itens, &$removidos) {
         }
 
         if (is_array($lyceum) && cetrus_lyceum_e_turma_tecnica($lyceum)) {
+            $removidos++;
+            continue;
+        }
+
+        if ($corta_passadas && is_array($lyceum) && cetrus_lyceum_turma_ja_comecou($lyceum)) {
             $removidos++;
             continue;
         }
@@ -158,14 +230,15 @@ function cetrus_lyceum_filtra_resposta_api($response, $args, $url) {
         return $response;
     }
 
-    $removidos = 0;
+    $removidos      = 0;
+    $corta_passadas = !cetrus_lyceum_e_lote_sync($url);
 
     if (isset($dados['items']) && is_array($dados['items'])) {
-        $dados['items'] = cetrus_lyceum_filtra_itens($dados['items'], $removidos);
+        $dados['items'] = cetrus_lyceum_filtra_itens($dados['items'], $removidos, $corta_passadas);
     } elseif (isset($dados['data']) && is_array($dados['data'])) {
-        $dados['data'] = cetrus_lyceum_filtra_itens($dados['data'], $removidos);
+        $dados['data'] = cetrus_lyceum_filtra_itens($dados['data'], $removidos, $corta_passadas);
     } else {
-        $dados = cetrus_lyceum_filtra_itens($dados, $removidos);
+        $dados = cetrus_lyceum_filtra_itens($dados, $removidos, $corta_passadas);
     }
 
     if ($removidos === 0) {
@@ -180,7 +253,7 @@ function cetrus_lyceum_filtra_resposta_api($response, $args, $url) {
     $response['body'] = $novo_body;
 
     if (get_option('lyceum_debug_mode')) {
-        do_action('lyceum_log', '[cetrus-turmas-tecnicas] removidas=' . $removidos . ' | url=' . $url);
+        do_action('lyceum_log', '[cetrus-turmas-tecnicas] removidas=' . $removidos . ' | passadas=' . ($corta_passadas ? 'sim' : 'nao') . ' | url=' . $url);
     }
 
     return $response;

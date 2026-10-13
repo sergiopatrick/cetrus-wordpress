@@ -63,6 +63,32 @@ resto da lista continua atrás como estava. A home mostra a nova ordem em até
 - Com SSH, `wp cetrus-carrossel status | fixos | vetados | total` continua sendo o
   caminho direto.
 
+### `wp-content/mu-plugins/cetrus-cursos-fm-cidade.php`
+
+Corrige a localização exibida nas páginas de curso cujo **SKU** (`_sku`) ou
+**Código do Curso** (ACF `v2_codigo_do_curso`) começa com `FM`. Hoje são 9
+produtos: 5 em Fortaleza e 4 em Manaus. A turma deles no Lyceum vem com
+`physicalUnit` "UNIDADE SÃO PAULO", e o seletor "Selecione a unidade" anunciava
+São Paulo.
+
+Nesses cursos, e só neles:
+
+- o seletor de unidade some (sem ocupar espaço). A unidade única já vem
+  escolhida e o seletor de turma vem liberado, então o fluxo "Quero me inscrever"
+  e o popup HubSpot continuam iguais, inclusive os campos
+  `contact__ct__unit_site` e `contact__ct__class_site`;
+- logo abaixo de **Duração** aparece **Cidade: \<nome\>**, no card do desktop e na
+  aba "Informações Básicas" do mobile, com o mesmo estilo da linha de duração.
+
+A cidade vem do metabox **Cidades** (taxonomia `v2_cidade`) do produto. Se o
+estado e a cidade estiverem marcados, só a cidade aparece. Para mudar a cidade
+de um curso, basta editar esse metabox, sem precisar de deploy. Um produto FM
+novo entra sozinho, desde que tenha a cidade marcada e use um template de
+produto com o shortcode `[show-duracao]`.
+
+Se o JavaScript não rodar, o seletor de unidade volta a aparecer e o formulário
+fica como era antes, nunca travado.
+
 ### Histórico
 
 - `cetrus-turma-eco-fetal-2026.php`: removido em 25/08/2026. Era um override de

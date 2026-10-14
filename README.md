@@ -84,11 +84,16 @@ Nesses cursos, e só neles:
 A localização vem do metabox **Cidades** (taxonomia `v2_cidade`) do produto. A
 cidade é o termo marcado e a UF é o estado acima dela na hierarquia (Fortaleza
 fica dentro de Ceará). Se a cidade estiver solta no topo da taxonomia, a UF vem
-do estado marcado no próprio produto. Sem cidade marcada, aparece só o nome do
-estado; sem estado em lugar nenhum, só a cidade. Para mudar a localização de um
-curso, basta editar esse metabox, sem precisar de deploy. Um produto FM novo
-entra sozinho, desde que tenha a cidade marcada e use um template de produto
-com o shortcode `[show-duracao]`.
+do estado marcado no próprio produto. Um estado marcado que não é a UF de
+nenhuma cidade marcada aparece como outro local, pelo nome (São Paulo e Rio de
+Janeiro saem como `São Paulo - SP` e `Rio de Janeiro - RJ`, porque o termo do
+estado é usado para a capital); sem estado em lugar nenhum, aparece só a cidade.
+Uma cidade pendurada no estado errado herda a UF errada (hoje, Imperatriz está
+dentro de Manaus): a correção é mudar o pai do termo em Produtos › Cidades.
+
+Para mudar a localização de um curso, basta editar esse metabox, sem precisar
+de deploy. Um produto FM novo entra sozinho, desde que tenha a cidade marcada e
+use um template de produto com o shortcode `[show-duracao]`.
 
 Se o JavaScript não rodar, o seletor de unidade volta a aparecer e o formulário
 fica como era antes, nunca travado.

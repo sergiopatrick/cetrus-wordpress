@@ -25,7 +25,11 @@
  *     na mesma linha: Recife + Boa Viagem -> Boa Viagem);
  *   - UF = o primeiro estado acima da cidade; sem estado acima, o estado marcado
  *     no proprio produto, se for um so.
- *   Sem cidade marcada, aparece o nome do estado. Sem UF, so a cidade.
+ *   Estado marcado que nao e a UF de nenhuma cidade marcada aparece como outro
+ *   local, pelo nome ("Recife - PE, Sao Paulo - SP"; Sao Paulo e Rio de Janeiro
+ *   levam a sigla porque o termo do estado e usado para a capital). Cidade sem
+ *   UF em lugar nenhum aparece sem sigla. Termo pendurado no estado errado
+ *   (Imperatriz sob Manaus) herda a UF errada: corrige-se o pai do termo.
  *
  * COMO FUNCIONA (so na pagina de um produto FM, nada muda nas demais)
  * 1. A saida de [show-duracao] do produto da pagina ganha um marcador
@@ -186,6 +190,26 @@ function cetrus_fm_uf_acima( $cidade ) {
 }
 
 /**
+ * UFs cuja capital tem o nome do estado. No site o termo do estado costuma ser
+ * marcado para a capital (121 produtos so com "Sao Paulo", o estado).
+ */
+const CETRUS_FM_UF_CAPITAL_HOMONIMA = array( 'SP', 'RJ' );
+
+/**
+ * Estado marcado sem cidade correspondente: "Ceara", ou "Sao Paulo - SP" quando
+ * a capital tem o mesmo nome.
+ *
+ * @param WP_Term $estado Termo de estado da v2_cidade.
+ * @param string  $uf     Sigla do estado.
+ * @return string
+ */
+function cetrus_fm_estado_como_local( $estado, $uf ) {
+	$nome = cetrus_fm_nome( $estado );
+
+	return in_array( $uf, CETRUS_FM_UF_CAPITAL_HOMONIMA, true ) ? $nome . ' - ' . $uf : $nome;
+}
+
+/**
  * Localizacao do curso no formato "Cidade - UF", lida da v2_cidade do produto.
  *
  * Mais de uma cidade vira "Cidade A - UF, Cidade B - UF". Ver FONTES DE DADO
@@ -220,6 +244,7 @@ function cetrus_fm_localizacao( $produto_id ) {
 
 	$uf_marcada = 1 === count( $estados ) ? (string) key( $estados ) : '';
 	$partes     = array();
+	$ufs_usadas = array();
 
 	foreach ( $cidades as $cidade ) {
 		$nome = cetrus_fm_nome( $cidade );
@@ -227,14 +252,21 @@ function cetrus_fm_localizacao( $produto_id ) {
 		if ( '' === $uf ) {
 			$uf = $uf_marcada;
 		}
+		if ( '' !== $uf ) {
+			$ufs_usadas[ $uf ] = true;
+		}
 
 		// Nome que ja traz a UF ("Fortaleza - CE", "Fortaleza/CE") nao ganha outra.
 		$partes[] = ( '' === $uf || preg_match( '#[\s/-]' . $uf . '$#i', $nome ) ) ? $nome : $nome . ' - ' . $uf;
 	}
 
-	if ( ! $partes ) {
-		foreach ( $termos as $termo ) {
-			$partes[] = cetrus_fm_nome( $termo );
+	// Estado marcado que nao e a UF de nenhuma cidade marcada e outro local
+	// (Sao Paulo + Recife), ou o unico, se nenhuma cidade foi marcada.
+	foreach ( $termos as $termo ) {
+		$uf = cetrus_fm_uf_se_estado( $termo );
+		if ( '' !== $uf && ! isset( $ufs_usadas[ $uf ] ) ) {
+			$ufs_usadas[ $uf ] = true;
+			$partes[]          = cetrus_fm_estado_como_local( $termo, $uf );
 		}
 	}
 

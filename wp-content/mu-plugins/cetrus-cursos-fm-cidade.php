@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cetrus - cidade dos cursos FM
- * Description: Nas paginas de curso com SKU/codigo iniciado em FM, oculta o seletor de unidade (o Lyceum devolve "UNIDADE SAO PAULO" para turmas de outras cidades) e mostra, logo abaixo da duracao, a cidade marcada no produto.
- * Version:     1.0.0
+ * Description: Nas paginas de curso com SKU/codigo iniciado em FM, oculta o seletor de unidade (o Lyceum devolve "UNIDADE SAO PAULO" para turmas de outras cidades) e mostra, logo abaixo da duracao, "Localizacao: Cidade - UF" a partir das cidades marcadas no produto.
+ * Version:     1.1.0
  * Author:      Cetrus / Sanar
  *
  * PROBLEMA (13/10/2026)
@@ -15,9 +15,21 @@
  * FONTES DE DADO
  * - Curso FM: meta `_sku` (WooCommerce) ou `v2_codigo_do_curso` (ACF "Codigo do
  *   Curso") comecando com FM. Hoje os dois sao iguais nos 9 produtos FM.
- * - Cidade: taxonomia `v2_cidade` (metabox "Cidades" do produto). Ela e
- *   hierarquica, estado > cidade; quando o estado e a cidade estao marcados, o
- *   estado sai e fica so a cidade (Ceara + Fortaleza -> Fortaleza).
+ * - Localizacao: taxonomia `v2_cidade` (metabox "Cidades" do produto), no
+ *   formato "Cidade - UF" (Fortaleza - CE). A taxonomia deveria ser estado >
+ *   cidade, mas nem sempre e: ha cidades no topo (Teresina, Brasilia) e estados
+ *   pendurados em cidade (Piaui sob Teresina). Por isso:
+ *   - estado = termo cujo nome e o de uma UF, a nao ser que o pai tenha o mesmo
+ *     nome (Sao Paulo e Rio de Janeiro, cidades, dentro do estado homonimo);
+ *   - cidade = qualquer outro termo marcado (o mais especifico, se houver dois
+ *     na mesma linha: Recife + Boa Viagem -> Boa Viagem);
+ *   - UF = o primeiro estado acima da cidade; sem estado acima, o estado marcado
+ *     no proprio produto, se for um so.
+ *   Estado marcado que nao e a UF de nenhuma cidade marcada aparece como outro
+ *   local, pelo nome ("Recife - PE, Sao Paulo - SP"; Sao Paulo e Rio de Janeiro
+ *   levam a sigla porque o termo do estado e usado para a capital). Cidade sem
+ *   UF em lugar nenhum aparece sem sigla. Termo pendurado no estado errado
+ *   (Imperatriz sob Manaus) herda a UF errada: corrige-se o pai do termo.
  *
  * COMO FUNCIONA (so na pagina de um produto FM, nada muda nas demais)
  * 1. A saida de [show-duracao] do produto da pagina ganha um marcador
@@ -25,7 +37,8 @@
  *    duracao, no card do desktop e na aba "Informacoes Basicas" do mobile, sem
  *    depender de texto, id de elemento do Elementor ou posicao no HTML.
  * 2. Logo abaixo da linha de duracao entra uma copia dela (mesmas classes, entao
- *    mesma tipografia e espacamento) com icone de mapa, "Cidade:" e o nome.
+ *    mesma tipografia e espacamento) com icone de mapa, "Localizacao:" e o
+ *    "Cidade - UF".
  * 3. O seletor de unidade some (display:none, sem ocupar espaco). Como o JS do
  *    plugin so libera a turma depois de escolher a unidade e valida
  *    "unidade && turma", a unidade unica ja vem escolhida, o seletor de turma
@@ -82,37 +95,184 @@ function cetrus_fm_e_curso_fm( $produto_id ) {
 	return (bool) apply_filters( 'cetrus_fm_e_curso_fm', $e_fm, $produto_id );
 }
 
+/** Sigla de cada UF, pelo nome do estado sem acento e em minusculas. */
+const CETRUS_FM_UFS = array(
+	'acre'                => 'AC',
+	'alagoas'             => 'AL',
+	'amapa'               => 'AP',
+	'amazonas'            => 'AM',
+	'bahia'               => 'BA',
+	'ceara'               => 'CE',
+	'distrito federal'    => 'DF',
+	'espirito santo'      => 'ES',
+	'goias'               => 'GO',
+	'maranhao'            => 'MA',
+	'mato grosso'         => 'MT',
+	'mato grosso do sul'  => 'MS',
+	'minas gerais'        => 'MG',
+	'para'                => 'PA',
+	'paraiba'             => 'PB',
+	'parana'              => 'PR',
+	'pernambuco'          => 'PE',
+	'piaui'               => 'PI',
+	'rio de janeiro'      => 'RJ',
+	'rio grande do norte' => 'RN',
+	'rio grande do sul'   => 'RS',
+	'rondonia'            => 'RO',
+	'roraima'             => 'RR',
+	'santa catarina'      => 'SC',
+	'sao paulo'           => 'SP',
+	'sergipe'             => 'SE',
+	'tocantins'           => 'TO',
+);
+
 /**
- * Cidade do curso, lida da taxonomia v2_cidade do produto.
+ * Nome do termo sem entidades HTML (o WordPress grava "&" como "&amp;").
  *
- * Termos que sao ancestrais de outro termo marcado (o estado da cidade) sao
- * descartados. Mais de uma cidade marcada vira "Cidade A, Cidade B".
- *
- * @param int $produto_id ID do produto.
- * @return string Nome da cidade, ou '' se nada estiver marcado.
+ * @param WP_Term $termo Termo da v2_cidade.
+ * @return string
  */
-function cetrus_fm_cidade( $produto_id ) {
-	$termos = get_the_terms( $produto_id, 'v2_cidade' );
-	$nomes  = array();
+function cetrus_fm_nome( $termo ) {
+	return html_entity_decode( $termo->name, ENT_QUOTES, 'UTF-8' );
+}
 
-	if ( is_array( $termos ) ) {
-		$ancestrais = array();
-		foreach ( $termos as $termo ) {
-			foreach ( get_ancestors( $termo->term_id, 'v2_cidade', 'taxonomy' ) as $ancestral ) {
-				$ancestrais[ (int) $ancestral ] = true;
-			}
+/**
+ * Sigla da UF cujo nome e o do termo ("Ceara" -> "CE"), ou ''.
+ *
+ * @param WP_Term $termo Termo da v2_cidade.
+ * @return string
+ */
+function cetrus_fm_uf_do_nome( $termo ) {
+	$chave = trim( preg_replace( '/[^a-z0-9]+/', ' ', strtolower( remove_accents( cetrus_fm_nome( $termo ) ) ) ) );
+
+	return array_key_exists( $chave, CETRUS_FM_UFS ) ? CETRUS_FM_UFS[ $chave ] : '';
+}
+
+/**
+ * Sigla da UF se o termo for um estado, ou '' se for uma cidade.
+ *
+ * Sao Paulo e Rio de Janeiro dentro do estado de mesmo nome sao cidades.
+ *
+ * @param WP_Term $termo Termo da v2_cidade.
+ * @return string
+ */
+function cetrus_fm_uf_se_estado( $termo ) {
+	$uf = cetrus_fm_uf_do_nome( $termo );
+
+	if ( '' !== $uf && $termo->parent ) {
+		$pai = get_term( (int) $termo->parent, 'v2_cidade' );
+		if ( $pai instanceof WP_Term && cetrus_fm_uf_do_nome( $pai ) === $uf ) {
+			return '';
 		}
+	}
 
-		foreach ( $termos as $termo ) {
-			if ( ! isset( $ancestrais[ (int) $termo->term_id ] ) ) {
-				$nomes[] = html_entity_decode( $termo->name, ENT_QUOTES, 'UTF-8' );
+	return $uf;
+}
+
+/**
+ * Sigla do primeiro estado acima da cidade na hierarquia, ou ''.
+ *
+ * @param WP_Term $cidade Termo da v2_cidade que nao e estado.
+ * @return string
+ */
+function cetrus_fm_uf_acima( $cidade ) {
+	foreach ( get_ancestors( $cidade->term_id, 'v2_cidade', 'taxonomy' ) as $id ) {
+		$ancestral = get_term( (int) $id, 'v2_cidade' );
+		if ( $ancestral instanceof WP_Term ) {
+			$uf = cetrus_fm_uf_se_estado( $ancestral );
+			if ( '' !== $uf ) {
+				return $uf;
 			}
 		}
 	}
 
-	$cidade = implode( ', ', array_unique( $nomes ) );
+	return '';
+}
 
-	return (string) apply_filters( 'cetrus_fm_cidade', $cidade, $produto_id );
+/**
+ * UFs cuja capital tem o nome do estado. No site o termo do estado costuma ser
+ * marcado para a capital (121 produtos so com "Sao Paulo", o estado).
+ */
+const CETRUS_FM_UF_CAPITAL_HOMONIMA = array( 'SP', 'RJ' );
+
+/**
+ * Estado marcado sem cidade correspondente: "Ceara", ou "Sao Paulo - SP" quando
+ * a capital tem o mesmo nome.
+ *
+ * @param WP_Term $estado Termo de estado da v2_cidade.
+ * @param string  $uf     Sigla do estado.
+ * @return string
+ */
+function cetrus_fm_estado_como_local( $estado, $uf ) {
+	$nome = cetrus_fm_nome( $estado );
+
+	return in_array( $uf, CETRUS_FM_UF_CAPITAL_HOMONIMA, true ) ? $nome . ' - ' . $uf : $nome;
+}
+
+/**
+ * Localizacao do curso no formato "Cidade - UF", lida da v2_cidade do produto.
+ *
+ * Mais de uma cidade vira "Cidade A - UF, Cidade B - UF". Ver FONTES DE DADO
+ * no topo do arquivo para a regra completa.
+ *
+ * @param int $produto_id ID do produto.
+ * @return string Localizacao, ou '' se nada estiver marcado.
+ */
+function cetrus_fm_localizacao( $produto_id ) {
+	$termos = get_the_terms( $produto_id, 'v2_cidade' );
+	if ( ! is_array( $termos ) ) {
+		$termos = array();
+	}
+
+	$cidades = array();
+	$estados = array();
+	foreach ( $termos as $termo ) {
+		$uf = cetrus_fm_uf_se_estado( $termo );
+		if ( '' !== $uf ) {
+			$estados[ $uf ] = true;
+		} else {
+			$cidades[ (int) $termo->term_id ] = $termo;
+		}
+	}
+
+	// Duas cidades na mesma linha da hierarquia: fica a mais especifica.
+	foreach ( $cidades as $cidade ) {
+		foreach ( get_ancestors( $cidade->term_id, 'v2_cidade', 'taxonomy' ) as $ancestral ) {
+			unset( $cidades[ (int) $ancestral ] );
+		}
+	}
+
+	$uf_marcada = 1 === count( $estados ) ? (string) key( $estados ) : '';
+	$partes     = array();
+	$ufs_usadas = array();
+
+	foreach ( $cidades as $cidade ) {
+		$nome = cetrus_fm_nome( $cidade );
+		$uf   = cetrus_fm_uf_acima( $cidade );
+		if ( '' === $uf ) {
+			$uf = $uf_marcada;
+		}
+		if ( '' !== $uf ) {
+			$ufs_usadas[ $uf ] = true;
+		}
+
+		// Nome que ja traz a UF ("Fortaleza - CE", "Fortaleza/CE") nao ganha outra.
+		$partes[] = ( '' === $uf || preg_match( '#[\s/-]' . $uf . '$#i', $nome ) ) ? $nome : $nome . ' - ' . $uf;
+	}
+
+	// Estado marcado que nao e a UF de nenhuma cidade marcada e outro local
+	// (Sao Paulo + Recife), ou o unico, se nenhuma cidade foi marcada.
+	foreach ( $termos as $termo ) {
+		$uf = cetrus_fm_uf_se_estado( $termo );
+		if ( '' !== $uf && ! isset( $ufs_usadas[ $uf ] ) ) {
+			$ufs_usadas[ $uf ] = true;
+			$partes[]          = cetrus_fm_estado_como_local( $termo, $uf );
+		}
+	}
+
+	$localizacao = implode( ', ', array_unique( $partes ) );
+
+	return (string) apply_filters( 'cetrus_fm_localizacao', $localizacao, $produto_id );
 }
 
 /**
@@ -155,7 +315,7 @@ add_filter(
 		}
 
 		$produto = cetrus_fm_produto_da_pagina();
-		if ( ! $produto || (int) get_the_ID() !== $produto || '' === cetrus_fm_cidade( $produto ) ) {
+		if ( ! $produto || (int) get_the_ID() !== $produto || '' === cetrus_fm_localizacao( $produto ) ) {
 			return $saida;
 		}
 
@@ -207,9 +367,9 @@ add_action(
 		}
 
 		$config = array(
-			'produto' => $produto,
-			'cidade'  => cetrus_fm_cidade( $produto ),
-			'rotulo'  => (string) apply_filters( 'cetrus_fm_rotulo_cidade', 'Cidade:' ),
+			'produto'     => $produto,
+			'localizacao' => cetrus_fm_localizacao( $produto ),
+			'rotulo'      => (string) apply_filters( 'cetrus_fm_rotulo', 'Localização:' ),
 		);
 
 		$json = wp_json_encode( $config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
@@ -223,7 +383,7 @@ add_action(
 );
 
 /**
- * Corpo do script do rodape. Recebe `cfg` = {produto, cidade, rotulo}.
+ * Corpo do script do rodape. Recebe `cfg` = {produto, localizacao, rotulo}.
  *
  * @return string
  */
@@ -287,13 +447,13 @@ function cetrus_fm_js() {
 		});
 	}, true);
 
-	/* 2. Linha "Cidade:" logo abaixo da linha de duracao. */
+	/* 2. Linha "Localizacao:" logo abaixo da linha de duracao. */
 
 	/* Ja existe linha cuja informacao e a propria cidade ("Local: Fortaleza",
 	   "Fortaleza - CE")? Compara o valor depois do rotulo, nunca um trecho
 	   qualquer: "Coordenacao: Dra. Ana Fortaleza" nao conta. */
 	function cidadeJaExibida(linha) {
-		var alvo = normaliza(cfg.cidade);
+		var alvo = normaliza(cfg.localizacao);
 		return Array.prototype.some.call(linha.parentNode.children, function (irmao) {
 			if (irmao === linha) return false;
 			if (irmao.hasAttribute('data-cetrus-cidade-linha') || irmao.querySelector('[data-cetrus-cidade]')) return true;
@@ -330,7 +490,7 @@ function cetrus_fm_js() {
 		valor.removeAttribute('data-cetrus-duracao');
 		valor.className = 'cetrus-fm-cidade-valor';
 		valor.setAttribute('data-cetrus-cidade', '');
-		valor.textContent = cfg.cidade;
+		valor.textContent = cfg.localizacao;
 
 		var widgetValor = valor.closest('.elementor-widget');
 		cada(nova.querySelectorAll('.elementor-widget-text-editor'), function (widget) {
@@ -360,7 +520,7 @@ function cetrus_fm_js() {
 		}
 
 		try {
-			if (cfg.cidade) cada(document.querySelectorAll('[data-cetrus-duracao]'), inserirCidade);
+			if (cfg.localizacao) cada(document.querySelectorAll('[data-cetrus-duracao]'), inserirCidade);
 		} catch (erro) {
 			if (window.console) console.warn('[cetrus-curso-fm] cidade', erro);
 		}

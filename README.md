@@ -77,14 +77,18 @@ Nesses cursos, e só neles:
   escolhida e o seletor de turma vem liberado, então o fluxo "Quero me inscrever"
   e o popup HubSpot continuam iguais, inclusive os campos
   `contact__ct__unit_site` e `contact__ct__class_site`;
-- logo abaixo de **Duração** aparece **Cidade: \<nome\>**, no card do desktop e na
-  aba "Informações Básicas" do mobile, com o mesmo estilo da linha de duração.
+- logo abaixo de **Duração** aparece **Localização: Cidade - UF** (ex.:
+  `Fortaleza - CE`), no card do desktop e na aba "Informações Básicas" do mobile,
+  com o mesmo estilo da linha de duração.
 
-A cidade vem do metabox **Cidades** (taxonomia `v2_cidade`) do produto. Se o
-estado e a cidade estiverem marcados, só a cidade aparece. Para mudar a cidade
-de um curso, basta editar esse metabox, sem precisar de deploy. Um produto FM
-novo entra sozinho, desde que tenha a cidade marcada e use um template de
-produto com o shortcode `[show-duracao]`.
+A localização vem do metabox **Cidades** (taxonomia `v2_cidade`) do produto. A
+cidade é o termo marcado e a UF é o estado acima dela na hierarquia (Fortaleza
+fica dentro de Ceará). Se a cidade estiver solta no topo da taxonomia, a UF vem
+do estado marcado no próprio produto. Sem cidade marcada, aparece só o nome do
+estado; sem estado em lugar nenhum, só a cidade. Para mudar a localização de um
+curso, basta editar esse metabox, sem precisar de deploy. Um produto FM novo
+entra sozinho, desde que tenha a cidade marcada e use um template de produto
+com o shortcode `[show-duracao]`.
 
 Se o JavaScript não rodar, o seletor de unidade volta a aparecer e o formulário
 fica como era antes, nunca travado.

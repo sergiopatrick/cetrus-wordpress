@@ -406,7 +406,6 @@ function catalogo_todos() {
 		),
 
 		// Aulas abertas das pós: cada uma aparece em Lançamentos e em Aulas e cursos gratuitos.
-		// UTI e US-ME usam o mesmo formulário do HubSpot (é o mesmo embed nas duas LPs).
 		'aulas-abertas-ultrassonografia-emergencias-uti' => array(
 			'card'     => array( 'f286933', 'f7ca76c' ),
 			'capa'     => 34871,
@@ -416,7 +415,7 @@ function catalogo_todos() {
 			'esp'      => array( 'Ultrassonografia', 'Medicina Intensiva', 'Medicina de Emergência' ),
 			'docentes' => array( 'Dr. Adriano Czapkowski', 'Dra. Elizabeth Ayub' ),
 			'termos'   => 'pós-graduação trechos de aula videoaula',
-			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'form'     => '2d2dc9a0-8d69-43b8-bea2-8bc10ec51a2a',
 			'lp'       => '/-trechos-aulas-uti',
 		),
 
@@ -429,7 +428,7 @@ function catalogo_todos() {
 			'esp'      => array( 'Ultrassonografia Musculoesquelética', 'Ortopedia' ),
 			'docentes' => array( 'Dr. Everaldo Gregio', 'Dr. Ronaldo Lins', 'Dr. Mateus Queiroz', 'Dr. Bruno Raya' ),
 			'termos'   => 'pós-graduação trechos de aula videoaula',
-			'form'     => '7805cb6b-c426-4b59-b65d-29db49304385',
+			'form'     => 'a1803c03-1d73-4649-a1f8-75f3ae4b7adc',
 			'lp'       => '/-trechos-aulas-usme',
 		),
 

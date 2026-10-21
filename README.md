@@ -98,6 +98,29 @@ use um template de produto com o shortcode `[show-duracao]`.
 Se o JavaScript não rodar, o seletor de unidade volta a aparecer e o formulário
 fica como era antes, nunca travado.
 
+### `wp-content/mu-plugins/cetrus-whatsapp-flutuante.php`
+
+Botão flutuante de WhatsApp da equipe comercial, **só na home**, no canto
+inferior direito: círculo verde `#25D366` de 56 px no desktop e 52 px até
+1024 px, com o mesmo ícone do botão "Fale Conosco" do cabeçalho. Abre
+`api.whatsapp.com/send/` em nova aba, com a mensagem pré-preenchida. Nas outras
+páginas o arquivo não imprime nada (nem CSS, nem JS).
+
+- **Número e mensagem:** constantes `CETRUS_WA_TELEFONE` e `CETRUS_WA_MENSAGEM`
+  no topo do arquivo (ou o filtro `cetrus_wa_config`). A mensagem vai em texto
+  puro; a codificação da URL é feita pelo código. Mudou, faça merge e deploy.
+- **Outras páginas:** filtro `cetrus_wa_exibir` (ex.: `__return_true` para o
+  site todo).
+- **Rastreamento:** nenhum código novo. O acionador de clique do GTM para links
+  `https://api.whatsapp.com/` já dispara `MM_click_whatsapp` (GA4
+  `G-640TX0LEC1` e Pixel da Meta), uma vez por clique. O link tem
+  `id="cetrus-whatsapp-flutuante"` para separar o botão dos outros links de
+  WhatsApp (Click ID no GTM; `link_id` no evento `click` das medições otimizadas).
+- **Vizinhos:** fica no mesmo eixo do "Subir ao início" da home e um JS curto o
+  empilha acima dele, do banner de cookies do HubSpot e dos pop-ups do HubSpot
+  que estiverem na mesma coluna (por `transform`, sem CLS). Se algo cobrir mais
+  da metade de baixo da tela, o botão some até aquilo fechar.
+
 ### Histórico
 
 - `cetrus-turma-eco-fetal-2026.php`: removido em 25/08/2026. Era um override de

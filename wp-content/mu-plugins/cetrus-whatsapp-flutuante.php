@@ -44,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 const CETRUS_WA_TELEFONE = '5511982450256';
-const CETRUS_WA_MENSAGEM = 'Olá! Vim pelo site e gostaria de obter mais informações sobre os cursos do Cetrus.';
+const CETRUS_WA_MENSAGEM = 'Olá! Acessei o site do Cetrus e gostaria de obter mais informações sobre os cursos';
 
 /**
  * Telefone, mensagem e rotulo acessivel do botao.

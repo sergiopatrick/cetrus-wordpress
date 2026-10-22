@@ -22,7 +22,8 @@ async function cetrusHarness(b64) {
 	await php.writeFile('/tmp/p.b64', b64);
 
 	const stubs = `<?php
-define('ABSPATH','/'); define('MINUTE_IN_SECONDS',60); define('WPMU_PLUGIN_URL','https://x/wp-content/mu-plugins');
+define('ABSPATH','/'); define('MINUTE_IN_SECONDS',60); define('WPMU_PLUGIN_URL','https://x/wp-content/mu-plugins'); define('WPMU_PLUGIN_DIR','/tmp/mu');
+@mkdir('/tmp/mu/cetrus-black-november-2026', 0777, true); file_put_contents('/tmp/mu/cetrus-black-november-2026/black.css', '/* */');
 $GLOBALS['F']=[]; $GLOBALS['OPT']=[]; $GLOBALS['LOGADO']=false; $GLOBALS['PODE']=false; $GLOBALS['ESTILOS']=[];
 function add_filter($h,$cb,$p=10,$a=1){ $GLOBALS['F'][$h][]=$cb; } function add_action($h,$cb,$p=10,$a=1){ $GLOBALS['F'][$h][]=$cb; }
 function apply_filters($h,$v){ return $v; } function run_filters($h,$v){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v);} return $v; }

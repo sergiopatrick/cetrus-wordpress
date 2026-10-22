@@ -240,7 +240,9 @@ add_filter(
 add_action(
 	'wp_enqueue_scripts',
 	function () {
-		if ( ! cetrus_black_ativo() ) {
+		// Sem o arquivo (ex.: staging com o codigo colado no Code Snippets) o CSS
+		// vai por fora; as regras so pegam com a classe no body, entao nada vaza.
+		if ( ! cetrus_black_ativo() || ! file_exists( WPMU_PLUGIN_DIR . '/cetrus-black-november-2026/black.css' ) ) {
 			return;
 		}
 		wp_enqueue_style(

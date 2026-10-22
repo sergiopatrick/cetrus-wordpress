@@ -158,6 +158,102 @@ body.cetrus-black-2026 .e-n-tab-title[aria-selected="true"] .e-n-tab-title-text 
 	color: var(--cb-texto) !important;
 }
 
+/* ---- Selos dos shortcodes de destaque ("Inscrições abertas", "Lançamento", modalidade):
+ * vem com background inline (branco ou #002452); no Black viram o chip escuro do Artifact. ---- */
+body.cetrus-black-2026 .elementor-shortcode > div[style*="background"] {
+	background: var(--cb-superficie) !important;
+	border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+body.cetrus-black-2026 .elementor-shortcode > div[style*="background"] p,
+body.cetrus-black-2026 .elementor-shortcode > div[style*="background"] span {
+	color: var(--cb-texto) !important;
+}
+
+/* ---- Card do coordenador da fellowship (snippets V3) ---- */
+body.cetrus-black-2026 .fellow-card {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026 .fellow-card .fellow-name {
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026 .fellow-card,
+body.cetrus-black-2026 .fellow-card p,
+body.cetrus-black-2026 .fellow-card li,
+body.cetrus-black-2026 .fellow-description {
+	color: var(--cb-corpo) !important;
+}
+
+/* ---- Seta do acordeao (icone escuro) ---- */
+body.cetrus-black-2026 .product-accordion .accordion-button i,
+body.cetrus-black-2026 .product-accordion .accordion-button svg {
+	color: var(--cb-texto) !important;
+	fill: currentColor !important;
+}
+
+/* ---- Formulario HubSpot embutido na pagina (pacotes: snippet 109, .cetrus-hs-form--inline) ---- */
+body.cetrus-black-2026 .cetrus-hs-form--inline {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026 .cetrus-hs-form .hs-form label,
+body.cetrus-black-2026 .cetrus-hs-form .hs-form legend,
+body.cetrus-black-2026 .cetrus-hs-form .hs-field-desc {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026 .cetrus-hs-form .hs-input:not([type=checkbox]):not([type=radio]) {
+	background-color: var(--cb-grafite) !important;
+	color: var(--cb-texto) !important;
+	border: 1px solid var(--cb-borda-campo) !important;
+	border-radius: var(--cb-raio-campo) !important;
+	color-scheme: dark;
+}
+body.cetrus-black-2026 .cetrus-hs-form .hs-button {
+	background: #3a3b4e !important;
+	border: 1px solid rgba(212, 213, 232, 0.4) !important;
+	color: #fff !important;
+	font-family: var(--cb-fonte-titulo);
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+body.cetrus-black-2026 .cetrus-hs-form .legal-consent-container,
+body.cetrus-black-2026 .cetrus-hs-form .hs-richtext {
+	color: var(--cb-apoio) !important;
+}
+body.cetrus-black-2026 .cetrus-hs-form a {
+	color: var(--cb-lavanda-clara) !important;
+}
+
+/* ---- Conteudo dos cursos do pacote (snippet 106, .cetrus-pacote__*) ---- */
+body.cetrus-black-2026 .cetrus-pacote__painel,
+body.cetrus-black-2026 .cetrus-pacote__nav {
+	background-color: var(--cb-superficie) !important;
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026 .cetrus-pacote__modulo {
+	background-color: var(--cb-grafite-2) !important;
+	border: 1px solid var(--cb-borda) !important;
+}
+body.cetrus-black-2026 .cetrus-pacote__modulo summary,
+body.cetrus-black-2026 .cetrus-pacote__modulo summary * {
+	color: var(--cb-texto) !important;
+	background: transparent !important;
+}
+body.cetrus-black-2026 .cetrus-pacote__modulo > :not(summary) {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026 .cetrus-pacote__aba {
+	color: var(--cb-apoio) !important;
+	background: transparent !important;
+}
+body.cetrus-black-2026 .cetrus-pacote__aba.is-ativo,
+body.cetrus-black-2026 .cetrus-pacote__aba[aria-selected="true"] {
+	color: var(--cb-texto) !important;
+	border-color: var(--cb-borda-outline) !important;
+}
+
 /* ---- Formularios HubSpot dos popups de curso (14050, 29363, 20500, 28094) ---- */
 body.cetrus-black-2026 .elementor-location-popup .hs-form label,
 body.cetrus-black-2026 .elementor-location-popup .hs-form legend {

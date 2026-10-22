@@ -1,0 +1,44 @@
+/*
+ * Cetrus - Black November 2026: camada visual (rascunho 0.1.0, 22/10/2026).
+ * Carregado por ../cetrus-black-november-2026.php SO dentro da janela da campanha
+ * (ou na previa ?cetrus_black=1). Tudo fica sob body.cetrus-black-2026.
+ *
+ * O grosso do visual vai nos clones [BLACK-2026] dos templates do Elementor.
+ * Este arquivo cobre o que o Elementor nao controla: HTML gerado por shortcodes
+ * do Code Snippets, seletores do Lyceum, cards do WP Grid Builder e formularios.
+ *
+ * Tokens: Artifact "Cetrus - Black November 2026 - v2", artboard Tokens
+ * (secao 3 do PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md).
+ */
+
+body.cetrus-black-2026 {
+	--cb-grafite: #0e0f12;      /* base: faixas, barra, fundo */
+	--cb-grafite-2: #141518;    /* secoes alternadas */
+	--cb-grafite-3: #121316;    /* secoes alternadas (vitrine, docentes) */
+	--cb-topo: #0b0c0e;         /* header, rodape, hero da home */
+	--cb-rodape-base: #070809;  /* faixa legal do rodape */
+	--cb-superficie: #191a1e;   /* cards e formulario */
+	--cb-hero-a: #23242a;       /* degrade do hero de produto (topo) */
+	--cb-hero-b: #121316;       /* degrade do hero de produto (base) */
+	--cb-lavanda: #8c8eb6;
+	--cb-lavanda-clara: #d4d5e8;
+	--cb-texto: #f3f3f6;        /* titulos */
+	--cb-corpo: #c9cad6;        /* texto corrido */
+	--cb-apoio: #a9aab8;        /* legendas */
+	--cb-link-rodape: #d6deec;
+	--cb-botao-form: #3a3b4e;
+	--cb-borda: rgba(255, 255, 255, 0.10);
+	--cb-borda-suave: rgba(255, 255, 255, 0.06);
+	--cb-borda-campo: rgba(255, 255, 255, 0.14);
+	--cb-borda-outline: rgba(255, 255, 255, 0.55);
+	--cb-degrade-black: linear-gradient(100deg, #8c8eb6 0%, #d4d5e8 100%);
+	--cb-raio-botao: 4px;
+	--cb-raio-card: 12px;
+	--cb-raio-card-curso: 4px;
+	--cb-raio-campo: 6px;
+	--cb-fonte-titulo: "BwModelica", "Bw Modelica", Montserrat, sans-serif;
+	--cb-fonte-corpo: Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Componentes fora do Elementor: preencher depois da inspecao das paginas
+ * renderizadas no staging (secao 7 do documento do projeto). */

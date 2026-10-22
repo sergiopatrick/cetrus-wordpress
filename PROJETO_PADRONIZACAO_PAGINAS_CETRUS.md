@@ -329,7 +329,7 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 4 | Mapeamento produto → template (staging, 432 páginas) | Aprovado | seção 5.2 (1 página com erro de rede, repetir) |
 | 5 | Baseline SEO da produção | — | `prod-pre-black-20261022.tsv` (ver histórico) |
 | 6 | Filtro `elementor/theme/get_location_templates/template_id` existe e troca o template | **Bloqueado** | execução de PHP no staging negada pelo controle de permissões da sessão (seção 14) |
-| 7 | Lint PHP do mu-plugin | — | sem PHP local; usar php-wasm no navegador |
+| 7 | Lint PHP e lógica do mu-plugin com stubs do WordPress (PHP 8.3.33 em WebAssembly) | Aprovado | `tests/qa/black/mu-plugin-harness.js`, 22/10: MD5 `3461d17e…f9e6`, lint OK; janela (31/10 23:59:59 fora, 01/11 00:00 dentro, 30/11 23:59:59 dentro, 01/12 00:00 fora), modos ligado/desligado, prévia só para editor logado, desligado no editor do Elementor, vínculos e 4 alertas esperados, troca 12073→clone, classe no body e CSS só quando ligado. **Não exercita o Elementor real** (isso é o teste 6). |
 | 8 | Visual (desktop/tablet/mobile) dos clones × Artifact | — | |
 | 9 | Funcional (seletores Lyceum, CTAs, popups HubSpot, CF7, WhatsApp, menus, filtros) | — | |
 | 10 | SEO por página (diff contra a baseline) | — | |
@@ -438,13 +438,14 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 | Data | Quem | O quê |
 |---|---|---|
+| 22/10/2026 | Claude (sessão 1) | Lint e teste lógico do mu-plugin em PHP-WASM (`tests/qa/black/mu-plugin-harness.js`): aprovado. |
 | 22/10/2026 | Claude (sessão 1) | Leitura do Artifact; auditoria do staging e da produção (somente leitura); rastreamento das 432 páginas de produto do staging; branch `projeto/black-november-2026`; script `tests/qa/black/seo-baseline.ps1`; baseline de SEO e de redirecionamentos da produção; rascunho do mu-plugin `cetrus-black-november-2026.php` + `black.css`; este documento. Nenhuma alteração em staging ou produção. Tentativa de criar snippet de teste no staging negada (não executada). |
 
 ## 22. Próximas ações priorizadas
 
 1. **Obter as decisões da seção 14** (itens 1, 2, 4–9), começando por: autorização para rodar código no staging e sincronizar o staging com a produção.
 2. Provar no staging o filtro de troca de template (teste 6) com a sonda; se o filtro não existir nesta versão, trocar a estratégia para condições no próprio clone (troca em lote por script) e registrar aqui.
-3. Lint do mu-plugin (php-wasm) e instalação no staging (snippet ou Implantações).
+3. Instalação do mu-plugin no staging (snippet ou Implantações). Lint e lógica já aprovados em PHP-WASM (teste 7); repetir o harness a cada mudança no arquivo.
 4. Exportar JSON dos originais (pre-black) para `black-november-2026/elementor/pre-black/`.
 5. Criar os clones na ordem: header 11545 + barra → footer 10919 → produto 12073 (pós v2 + intensivos) → 19225 → 32359 → 26931/28008/28779/21114 → loop 11204 → popups.
 6. Montar o pipeline de comparação (template esperado, SEO, visual por screenshot, rede/analytics com bloqueio) e rodar a cada clone.

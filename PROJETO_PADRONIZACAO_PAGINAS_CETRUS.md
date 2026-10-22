@@ -9,11 +9,12 @@
 |---|---|
 | Artifact de referência | Lido por completo (10 artboards, código-fonte). Design system na seção 3. |
 | Auditoria do staging | Feita por leitura (REST autenticada + rastreamento das 432 páginas de produto). |
-| Baseline de SEO da produção | `black-november-2026/baseline/prod-pre-black-20261022.tsv` (captura em andamento/concluída, ver seção 10). Redirecionamentos: `prod-pre-black-20261022-redirects.tsv`. |
-| Mecanismo de ativação/rollback | Rascunho do mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` (+ `cetrus-black-november-2026/black.css`). **Não testado, não implantado.** |
+| Baseline de SEO da produção | **Concluída**: `black-november-2026/baseline/prod-pre-black-20261022.tsv` (456 URLs, todas HTTP 200; resumo na seção 10). Redirecionamentos: `prod-pre-black-20261022-redirects.tsv`. |
+| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` (templates + páginas), testado com stubs (13 casos). Filtro do Elementor **confirmado** no staging (teste 6a). Cópia 0.1.0 rodando no staging como snippet 116 (inerte fora da janela). **Não implantado em produção.** |
 | Templates Black no Elementor | Nenhum criado ainda. |
-| Bloqueio principal | Rodar código PHP no staging (teste do filtro do Elementor e do mu-plugin) foi negado pelo controle de permissões da sessão; precisa de autorização explícita ou de outro caminho (seção 14). |
-| Próximo passo exato | Seção 22, item 1. |
+| Componentes prontos | Formulário "Condições exclusivas" da home (`black-november-2026/componentes/home-condicoes-formulario.html`), testado em prévia. |
+| Bloqueio principal | Criar modelos novos `[BLACK-2026]` no Elementor do staging foi negado pelo controle de permissões da sessão; precisa de autorização explícita do usuário (seção 14). |
+| Próximo passo exato | Com a autorização: criar o clone `[BLACK-2026] #11545` e provar a troca (teste 6b). Seção 22. |
 
 ---
 
@@ -258,6 +259,9 @@ Classificação de negócio = taxonomia **`v2_modalidade`** (não é `product_ca
 5. **Camada CSS** (`cetrus-black-november-2026/black.css`, só na janela, sob `body.cetrus-black-2026`) para o que o Elementor não estiliza: HTML de shortcodes do Code Snippets, seletores do Lyceum, cards do WP Grid Builder, formulários.
 6. **Pós com layout do Artifact:** o 12073 atende pós **e** intensivos. Para não mudar a estrutura dos intensivos, os elementos novos da v2 (chips, seção "Pertencimento") entram no clone com condição de exibição por modalidade (recurso de condições de exibição do Elementor Pro, ou shortcode que só imprime em pós). Alternativa, se isso não funcionar: dois clones do 12073 e escolha por modalidade no filtro.
 
+7. **Páginas do Artifact** (Home 10946, Vitrine 11768, Conteúdos gratuitos 27615): a página original continua sendo servida; o mu-plugin esvazia o conteúdo do Elementor dela (`elementor/frontend/builder_content_data`), enfileira o CSS do modelo `[BLACK-2026] #<id da página>` no `<head>` e imprime o conteúdo do modelo no `the_content`. URL, title, description, canonical, breadcrumb e schema do Yoast não mudam.
+8. **Formulário da home:** widget HTML com o formulário HubSpot das páginas de curso (`6ed56c62…`) e a busca de curso da LP por cima do select `contact__ct__product_from_site` (D6).
+
 **Templates a clonar (lista mínima):** product 12073, 26931, 28008, 19225, 28779, 21114, 32359 (+34795 se a cópia de teste continuar em uso); header 11545, 20497, 20396; footer 10919; loop-item 11204; popups 14050, 29363, 20500, 28094 (se os formulários precisarem de tema escuro). Decidir EAD 19062 e Graduação 19379.
 
 **Por que não editar os originais e restaurar depois:** o rollback ficaria dependente de restaurar `_elementor_data` (revisões ou backup), e qualquer edição legítima feita em novembro seria perdida ou misturada. **Por que não só CSS global:** cores globais do Kit são usadas ao mesmo tempo como fundo e como texto (ex.: `#002452`), então remapear as variáveis inverteria contraste em vários pontos; nos templates de produto ~115 de 140 cores são globais e ~25 fixas.
@@ -290,6 +294,10 @@ Este procedimento será validado com um produto de teste por categoria no stagin
 - `prod-pre-black-20261022-redirects.tsv` — 79 regras 301 do Redirection.
 
 **Script:** `tests/qa/black/seo-baseline.ps1` (PowerShell 5.1 + curl.exe; não depende de Python/Node, que não existem nesta máquina). Query aleatória em cada pedido para furar o cache de borda; UA de navegador (UA de bot recebe desafio do edge).
+
+**Resumo da baseline de produção (22/10/2026, 456 URLs):** todas HTTP 200; 5 com redirecionamento (ex.: `/shop/` → `/vitrine/`); canonical = URL final em todas; 4 com `noindex`; 8 sem meta description; 0 imagens sem `alt`; 0 erros de PHP; GTM presente em todas. 13 URLs com H1 ≠ 1 (arquivos `/modalidades/*` e `/especialidades/` com 2 H1; `/monitoria/` sem H1; 2 produtos com 2 H1). Template por URL: 19225 = 172, 12073 = 155, 32359 = 29, 19062 = 29, páginas = 24, 26931 = 20, 28008 = 14, outros = 13. H1 da home hoje: "No Cetrus, você se desenvolve ao lado dos melhores".
+
+**Mudança de SEO a aprovar antes de implementar (home):** o Artifact troca o H1 da home por "Aproveite a melhor oportunidade para estar entre os melhores.". Risco: baixo e temporário (title, description, canonical e schema continuam os da página; a home ranqueia por marca), mas é uma alteração de heading. Mitigação proposta: manter o H1 atual como H1 da versão Black e usar a frase do Artifact com o mesmo visual, como texto de destaque (não heading); ou aceitar a troca por 30 dias. Decisão pendente (seção 14).
 
 **Achados pré-existentes (não são deste projeto; não corrigir sem decisão):**
 
@@ -328,7 +336,10 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 3 | Inventário de templates e condições (staging e produção) | Aprovado | seção 5.1 |
 | 4 | Mapeamento produto → template (staging, 432 páginas) | Aprovado | seção 5.2 (1 página com erro de rede, repetir) |
 | 5 | Baseline SEO da produção | — | `prod-pre-black-20261022.tsv` (ver histórico) |
-| 6 | Filtro `elementor/theme/get_location_templates/template_id` existe e troca o template | **Bloqueado** | execução de PHP no staging negada pelo controle de permissões da sessão (seção 14) |
+| 6a | Filtro `elementor/theme/get_location_templates/template_id` existe no Elementor Pro 4.1.3 e é chamado na resolução | Aprovado | 22/10, snippet-sonda 115 no staging (`?cetrus_probe=1`, logado): o filtro recebe todos os templates com condição, em ordem de id decrescente (32359, 28779, 28008, 26931, 21114, 19379, 19225, 19062, …), na home, na pós US-ME (12073) e na pós Sanar (28008) |
+| 6b | A troca renderiza o clone de fato (header e produto) | **Bloqueado** | criar o clone `[BLACK-2026] #11545` no staging (AJAX `save_template` do Elementor) foi negado pelo controle de permissões da sessão ("modificar recurso compartilhado"); precisa de autorização explícita para criar modelos novos no staging |
+| 6c | mu-plugin instalado no staging como snippet 116 (cópia 0.1.0) | Aprovado | sem parâmetro: home 200, sem classe Black; com `?cetrus_black=1` logado: classe `cetrus-black-2026`; Ferramentas > Black November 2026 mostra janela 01/11 00:00 → 01/12 00:00, modo auto, "desligada" |
+| 15 | Formulário da home (busca de curso + HubSpot 6ed56c62) em prévia local | Aprovado | `black-november-2026/componentes/home-condicoes-formulario.html`; prévia headless com o formulário HubSpot real (sem envio): busca "ecocardio fetal" lista 5 cursos; escolher grava `EC FETL` no select; digitar limpa; sem resultado mostra aviso; texto exato grava `EC_AEF1`; UTMs padrão `site-cetrus/organic/navegacao-padrao`; `.hbspt-form` renomeada. Evidências: `black-november-2026/evidencias/20261022-home-formulario-*.png`. **Envio real não testado** (geraria lead). |
 | 7 | Lint PHP e lógica do mu-plugin com stubs do WordPress (PHP 8.3.33 em WebAssembly) | Aprovado | `tests/qa/black/mu-plugin-harness.js`, 22/10: MD5 `3461d17e…f9e6`, lint OK; janela (31/10 23:59:59 fora, 01/11 00:00 dentro, 30/11 23:59:59 dentro, 01/12 00:00 fora), modos ligado/desligado, prévia só para editor logado, desligado no editor do Elementor, vínculos e 4 alertas esperados, troca 12073→clone, classe no body e CSS só quando ligado. **Não exercita o Elementor real** (isso é o teste 6). |
 | 8 | Visual (desktop/tablet/mobile) dos clones × Artifact | — | |
 | 9 | Funcional (seletores Lyceum, CTAs, popups HubSpot, CF7, WhatsApp, menus, filtros) | — | |
@@ -345,13 +356,31 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 22/10 | Staging privado: `fetch` sem cookie devolve "Site privado" | rastrear com a sessão logada (`credentials: 'include'`) |
 | 22/10 | Python/Node ausentes; pipeline `tests/qa/*.py` não roda nesta máquina | scripts novos em PowerShell + JavaScript no navegador |
 | 22/10 | `Remove-Item` falha com caminho 8.3 do TEMP (`JOAO~1.FAR`) | pasta temporária dentro da saída + `[IO.File]::Delete` |
-| 22/10 | Criação de snippet PHP de teste no staging negada pelo controle de permissões | registrado como bloqueio; pedir autorização (seção 14) |
+| 22/10 | Criação de snippet PHP de teste no staging negada pelo controle de permissões | usuário autorizou rodar código no staging (D1); snippets 115 e 116 criados |
+| 22/10 | Criação de modelo novo do Elementor no staging (clone do header) negada pelo controle de permissões | aguardando autorização explícita para criar modelos `[BLACK-2026]` no staging |
+| 22/10 | Páginas (Home, Vitrine, Conteúdos gratuitos) não passam pelo filtro de templates | mu-plugin passou a trocar só o conteúdo do Elementor da página pelo modelo `[BLACK-2026] #<id da página>` (filtros `elementor/frontend/builder_content_data` + `the_content`); URL e todo o SEO do Yoast continuam os da página original |
+| 22/10 | Formulário HubSpot: campo "Curso" (614 opções) é desenhado depois do `onFormReady`, e o vão entre campos vinha dos ~17 campos ocultos somando `gap` | observador no contêiner (não no `<form>`) reaplica a busca/placeholders; layout por margem nos campos visíveis |
+| 22/10 | Bw Modelica no site: Thin, Light, Regular, Medium, Bold, ExtraBold, Black (sem SemiBold) | peso 600 do Artifact vira Bold 700 (é o que o navegador escolhe para 600 sem a face 600) |
 
 ## 14. Pendências e bloqueios
 
+**Decisões do usuário registradas em 22/10/2026**
+
+| # | Decisão |
+|---|---|
+| D1 | Autorizado rodar código no staging (snippets de teste e o mu-plugin como snippet). **A sincronização produção → staging não foi autorizada explicitamente**: não executar sem novo "sim". |
+| D2 | Rollback no fim da janela proposta: **01/12/2026 00:00 (Brasília)**, automático pelo mu-plugin. Responsável pela validação pós-rollback ainda não nomeado. |
+| D3 | Escopo: **todas as páginas do Artifact** (Home, Busca/vitrine, Produto, Conteúdos gratuitos/material rico) **e todas as páginas de produto** (pós, fellowship, cursos intensivos, pacotes e demais modalidades: EAD, graduação, preparatórios, monitoria). Header, barra de campanha e rodapé entram. |
+| D4 | Fonte: "igual ao Artifact ou o mais próximo". Interpretação adotada: **Bw Modelica** (a fonte que o próprio Artifact manda usar em produção; já carregada no site) **com os pesos do Artifact** (300 nos títulos, ênfase forte, BLACK em negrito com degradê), e não a regra 300/500 de 14/10. Montserrat literal fica como alternativa documentada. |
+| D5 | **Todos os cursos têm condições exclusivas**: o selo "Condições exclusivas" vale para todos os cards e páginas de produto (sem tag de participação). |
+| D6 | Formulário "Receba nossas condições exclusivas" da home: **o mesmo formulário das páginas de curso**, mas o campo "curso de interesse" não vem preenchido: funciona como **busca**, igual ao da LP https://cetrus.com.br/lista-vip-black/. |
+
 **Bloqueios técnicos**
 
-1. **Executar código no staging.** Para provar o filtro e testar ativação/rollback é preciso rodar o mu-plugin no staging. Caminhos, do mais simples ao mais "limpo": (a) autorizar explicitamente a criação de um snippet de teste no Code Snippets do staging (só reage a `?cetrus_probe=1` com usuário logado); (b) consertar a conexão Jetpack do staging e conectar as Implantações do staging à branch `projeto/black-november-2026`; (c) SFTP/SSH do staging (credenciais com o usuário).
+0. **Criar modelos novos no Elementor do staging** (os clones `[BLACK-2026]`, sem tocar nos originais): negado pelo controle de permissões da sessão em 22/10 mesmo com D1. Precisa de autorização explícita do usuário. Sem isso, os testes 6b, 8–13 não andam.
+0b. **H1 da home** (seção 10): decidir entre manter o H1 atual ou usar a frase do Artifact.
+
+1. **Executar código no staging.** (Resolvido por D1 para snippets; ver item 0 para modelos.) Para provar o filtro e testar ativação/rollback é preciso rodar o mu-plugin no staging. Caminhos, do mais simples ao mais "limpo": (a) autorizar explicitamente a criação de um snippet de teste no Code Snippets do staging (só reage a `?cetrus_probe=1` com usuário logado); (b) consertar a conexão Jetpack do staging e conectar as Implantações do staging à branch `projeto/black-november-2026`; (c) SFTP/SSH do staging (credenciais com o usuário).
 2. **Staging desatualizado** (~16/10). Recomendado puxar a produção para o staging (WP.com > Sincronizar > puxar da produção) **antes** de criar os clones, para os clones nascerem dos templates atuais (header 11545 mudou em 19/10). Isso sobrescreve o staging; precisa de aprovação.
 3. **Teste de formulários no staging envia dados reais**: o staging carrega GTM-MKCGH2J, HubSpot e CF7. Testes devem bloquear `/g/collect`, `facebook.com/tr`, envio do HubSpot e e-mail, ou usar contatos de teste combinados com o time de CRM.
 
@@ -438,14 +467,15 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 | Data | Quem | O quê |
 |---|---|---|
+| 22/10/2026 | Claude (sessão 1) | **Staging:** snippet 115 "[BLACK-2026][QA] Sonda do filtro" (front-end, só reage a `?cetrus_probe=1` logado; pode ser apagado) e snippet 116 "[BLACK-2026] Camada Black November 2026" (cópia do mu-plugin 0.1.0, ainda sem a troca de páginas). Filtro do Elementor confirmado (teste 6a). mu-plugin ganhou a troca de conteúdo das páginas (harness: 13 casos, MD5 `fed39b40…`). Componente do formulário da home (D6) criado e testado em prévia. Baseline de SEO da produção concluída (456 URLs, todas 200). |
 | 22/10/2026 | Claude (sessão 1) | Lint e teste lógico do mu-plugin em PHP-WASM (`tests/qa/black/mu-plugin-harness.js`): aprovado. |
 | 22/10/2026 | Claude (sessão 1) | Leitura do Artifact; auditoria do staging e da produção (somente leitura); rastreamento das 432 páginas de produto do staging; branch `projeto/black-november-2026`; script `tests/qa/black/seo-baseline.ps1`; baseline de SEO e de redirecionamentos da produção; rascunho do mu-plugin `cetrus-black-november-2026.php` + `black.css`; este documento. Nenhuma alteração em staging ou produção. Tentativa de criar snippet de teste no staging negada (não executada). |
 
 ## 22. Próximas ações priorizadas
 
-1. **Obter as decisões da seção 14** (itens 1, 2, 4–9), começando por: autorização para rodar código no staging e sincronizar o staging com a produção.
-2. Provar no staging o filtro de troca de template (teste 6) com a sonda; se o filtro não existir nesta versão, trocar a estratégia para condições no próprio clone (troca em lote por script) e registrar aqui.
-3. Instalação do mu-plugin no staging (snippet ou Implantações). Lint e lógica já aprovados em PHP-WASM (teste 7); repetir o harness a cada mudança no arquivo.
+1. **Autorização para criar modelos `[BLACK-2026]` no staging** (seção 14, item 0) e decisão do H1 da home (item 0b).
+2. Atualizar o snippet 116 do staging com o mu-plugin atual (troca de páginas) e criar o clone `[BLACK-2026] #11545` pelo AJAX `save_template` do Elementor (`post_id` obrigatório); provar a troca com `?cetrus_black=1` (teste 6b) e conferir que o desempate entre condições continua igual (template por URL com e sem Black).
+3. Repetir o harness (`tests/qa/black/mu-plugin-harness.js`) a cada mudança no mu-plugin.
 4. Exportar JSON dos originais (pre-black) para `black-november-2026/elementor/pre-black/`.
 5. Criar os clones na ordem: header 11545 + barra → footer 10919 → produto 12073 (pós v2 + intensivos) → 19225 → 32359 → 26931/28008/28779/21114 → loop 11204 → popups.
 6. Montar o pipeline de comparação (template esperado, SEO, visual por screenshot, rede/analytics com bloqueio) e rodar a cada clone.

@@ -20,6 +20,10 @@
  *   (header, footer, single product...), este arquivo devolve o id do clone no
  *   lugar do original. Produto novo cadastrado em novembro cai na condicao do
  *   original (modalidade, tag...) e, por isso, recebe a versao Black sozinho.
+ * - Paginas do Artifact (Home, Vitrine, Conteudos gratuitos): o clone e um modelo
+ *   do Elementor (tipo pagina/secao/container) com titulo "[BLACK-2026] #<id da
+ *   pagina>". A pagina original continua sendo servida (URL e todo o SEO do Yoast
+ *   sao dela); so o conteudo do Elementor e trocado pelo do modelo.
  * - Fora da janela o filtro devolve o id original: o rollback e automatico e
  *   nao apaga nada do banco (produtos, leads, pedidos e edicoes continuam).
  *
@@ -47,6 +51,8 @@ const CETRUS_BLACK_FIM     = '2026-12-01T00:00:00-03:00'; // PENDENTE: confirmar
 const CETRUS_BLACK_PREFIXO = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO   = 'cetrus_black_2026_modo';
 const CETRUS_BLACK_CACHE   = 'cetrus_black_2026_mapa';
+// Tipos de modelo do Elementor aceitos como versao Black de uma PAGINA (Home, Vitrine...).
+const CETRUS_BLACK_TIPOS_PAGINA = array( 'page', 'section', 'container' );
 
 /**
  * Modo gravado no banco: auto (segue a janela), ligado ou desligado.
@@ -175,9 +181,14 @@ function cetrus_black_mapa( $com_alertas = false ) {
 		}
 		$original          = (int) $m[1];
 		$linha['original'] = $original;
+		$tipo_post         = get_post_type( $original );
 		$tipo_original     = (string) get_post_meta( $original, '_elementor_template_type', true );
-		if ( 'elementor_library' !== get_post_type( $original ) ) {
-			$alertas[] = sprintf( 'Clone %d aponta para #%d, que nao e um template do Elementor neste site.', $c->ID, $original );
+		if ( 'page' === $tipo_post ) {
+			// Pagina: o clone e um modelo de pagina/secao do Elementor (sem URL propria).
+			$tipo_original = in_array( $linha['tipo'], CETRUS_BLACK_TIPOS_PAGINA, true ) ? $linha['tipo'] : 'page';
+		}
+		if ( 'elementor_library' !== $tipo_post && 'page' !== $tipo_post ) {
+			$alertas[] = sprintf( 'Clone %d aponta para #%d, que nao e template do Elementor nem pagina neste site.', $c->ID, $original );
 		} elseif ( $tipo_original !== $linha['tipo'] ) {
 			$alertas[] = sprintf( 'Clone %d (%s) e original #%d (%s) tem tipos diferentes.', $c->ID, $linha['tipo'], $original, $tipo_original );
 		} elseif ( 'publish' !== $c->post_status ) {
@@ -225,6 +236,59 @@ add_filter(
 		$mapa = cetrus_black_mapa();
 		return isset( $mapa[ (int) $template_id ] ) ? $mapa[ (int) $template_id ] : $template_id;
 	}
+);
+
+/**
+ * Paginas (Home, Vitrine, Conteudos gratuitos): a pagina original continua sendo
+ * a pagina servida (URL, title, description, canonical, breadcrumb e schema do
+ * Yoast sao os dela); so o conteudo do Elementor e trocado pelo do modelo
+ * "[BLACK-2026] #<id da pagina>".
+ *
+ * @return int Id do modelo Black da pagina atual, ou 0.
+ */
+function cetrus_black_clone_da_pagina() {
+	if ( ! cetrus_black_ativo() || ! is_page() ) {
+		return 0;
+	}
+	$mapa = cetrus_black_mapa();
+	$id   = (int) get_queried_object_id();
+	return isset( $mapa[ $id ] ) ? (int) $mapa[ $id ] : 0;
+}
+
+/** O original nao e montado (nem o CSS dele carregado) quando ha clone. */
+add_filter(
+	'elementor/frontend/builder_content_data',
+	function ( $data, $post_id ) {
+		$clone = cetrus_black_clone_da_pagina();
+		return ( $clone && (int) $post_id === (int) get_queried_object_id() ) ? array() : $data;
+	},
+	10,
+	2
+);
+
+/** CSS do clone no <head>, como o de qualquer pagina do Elementor. */
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		$clone = cetrus_black_clone_da_pagina();
+		if ( $clone && class_exists( '\Elementor\Core\Files\CSS\Post' ) ) {
+			\Elementor\Core\Files\CSS\Post::create( $clone )->enqueue();
+		}
+	},
+	20
+);
+
+add_filter(
+	'the_content',
+	function ( $content ) {
+		$clone = cetrus_black_clone_da_pagina();
+		if ( ! $clone || ! in_the_loop() || ! is_main_query() || (int) get_the_ID() !== (int) get_queried_object_id() || ! class_exists( '\Elementor\Plugin' ) ) {
+			return $content;
+		}
+		$html = \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $clone );
+		return '' !== $html ? $html : $content;
+	},
+	20
 );
 
 add_filter(

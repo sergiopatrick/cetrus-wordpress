@@ -101,7 +101,9 @@ function cetrus_black_ativo() {
 	if ( null !== $ativo ) {
 		return $ativo;
 	}
-	if ( ! did_action( 'wp' ) ) {
+	// Desde o init (usuario ja carregado). Nao esperar o 'wp': nos arquivos de produto e na
+	// busca o Elementor Pro escolhe o template no pre_get_posts e guarda a escolha.
+	if ( ! did_action( 'init' ) ) {
 		return false; // cedo demais para decidir; nao guarda em cache.
 	}
 	if ( ( is_admin() && ! wp_doing_ajax() ) || is_feed() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {

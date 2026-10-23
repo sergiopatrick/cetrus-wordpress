@@ -1,20 +1,35 @@
 # Projeto Cetrus — Padronização de páginas (Elementor) e Black November 2026
 
 > **Documento central do projeto.** Outra pessoa (ou outra conta do Claude) deve conseguir retomar o trabalho só com este arquivo e o repositório `sergiopatrick/cetrus-wordpress`, branch `projeto/black-november-2026`.
-> Última atualização: **22/10/2026** (sessão 1). Nada deste projeto está publicado em produção nem aplicado no staging até agora.
+> Última atualização: **23/10/2026** (sessão 2). Nada deste projeto está publicado em produção. No **staging** está tudo aplicado e visível só em prévia (logado + `?cetrus_black=1`), inerte para visitantes até 01/11.
 
 ## Estado atual em uma tela
 
-| Item | Situação em 22/10/2026 |
+| Item | Situação em 23/10/2026 |
 |---|---|
 | Artifact de referência | Lido por completo (10 artboards, código-fonte). Design system na seção 3. |
 | Auditoria do staging | Feita por leitura (REST autenticada + rastreamento das 432 páginas de produto). |
 | Baseline de SEO da produção | **Concluída**: `black-november-2026/baseline/prod-pre-black-20261022.tsv` (456 URLs, todas HTTP 200; resumo na seção 10). Redirecionamentos: `prod-pre-black-20261022-redirects.tsv`. |
-| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` (templates + páginas), testado com stubs (13 casos). Filtro do Elementor **confirmado** no staging (teste 6a). Cópia 0.1.0 rodando no staging como snippet 116 (inerte fora da janela). **Não implantado em produção.** |
-| Templates Black no Elementor | **25 clones no staging** (header ×4, footer, produto ×10, popups ×4, arquivos ×3, cards ×2, barra de campanha), convertidos para a paleta grafite. Prévia: qualquer página do staging com `?cetrus_black=1` (logado). |
-| Componentes prontos | Formulário "Condições exclusivas" da home e barra de campanha (`black-november-2026/componentes/`). |
-| Bloqueio principal | Nenhum bloqueio de acesso no momento. Pendências de decisão: H1 da home (seção 10) e sync do staging. |
-| Próximo passo exato | Conferir a 2ª varredura; ajustes finos da pós (selo, hero, estrutura v2) e revisão visual de fellowship, intensivos, pacotes, EAD e graduação; depois páginas (Home, Vitrine, Conteúdos gratuitos). Seção 22. |
+| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` (templates + páginas). Rodando no staging como **snippet 116 (idêntico ao arquivo do repositório, SHA-256 `f2f13d56…13f8`)**, inerte fora da janela. **Não implantado em produção.** |
+| Templates Black no Elementor (staging) | **28 modelos `[BLACK-2026]`**: os 25 de 22/10 (header ×4, footer, produto ×10, popups ×4, arquivos ×3, cards ×2, barra) + **3 páginas novas em 23/10**: Home 35650, Vitrine 35655, Conteúdos gratuitos 35661. Mapa: `black-november-2026/staging/clones-staging-20261022.tsv`. |
+| Visual pronto (staging, prévia) | Pós no layout do Artifact (selos, degradê, Pertencimento, barra fixa mobile); fellowship e pacote com a identidade; barra de campanha em todos os headers; **Home, Vitrine e Conteúdos gratuitos no layout do Artifact**; desktop, 390 px e 768 px conferidos nas três páginas. |
+| Componentes (HTML dos widgets) | `black-november-2026/componentes/` (home-hero, home-condicoes-formulario, home-autoridade, home-fechamento, vitrine-eyebrow, vitrine-faixa, vitrine-ajuda, conteudos-ponte, barra-campanha). |
+| Bloqueio principal | Nenhum bloqueio de acesso. Decisões pendentes na seção 14 (H1 da home, opt-in Black na janela do material, sync do staging, responsáveis). |
+| Próximo passo exato | Revisão mobile/tablet de fellowship e pacote; revalidação (mapeamento de templates + SEO por URL, incluindo as 3 páginas); harness do mu-plugin; export JSON dos modelos. Seção 22. |
+
+## 0. Como retomar o trabalho (de outra conta ou sessão)
+
+1. **Repositório:** `C:\Users\joao.faro\repos\cetrus-wordpress`, branch `projeto/black-november-2026` (**só local, sem push**). Tudo o que importa está commitado nela; `git log` mostra a sequência.
+2. **Staging:** https://staging-821d-cetruscombr.wpcomstaging.com/wp-admin/ (logado como administrador no navegador). Ver a versão Black: qualquer URL com `?cetrus_black=1` (logado); `?cetrus_black=0` mostra a original. Ferramentas › Black November 2026 mostra janela, modo e vínculos.
+3. **Ferramentas de console (rodam no wp-admin do staging, aba de Modelos do Elementor):** colar `black-november-2026/ferramentas/transforma-black.js` e depois `black-november-2026/ferramentas/console-staging.js` no console. Expõem `window.cb`: `cb.dados(id)`, `cb.clonar(idOrig, tipo, nome)`, `cb.converter(idOrig, {depois})`, `cb.salvar(idClone, elementos, ps)` (recusa gravar em quem não é clone do mapa `cb.clones`), `cb.acha(elementos, idElemento)`, `cb.uid()`, `cb.rest(caminho, opcoes)`.
+   - **Converter sempre a partir do ORIGINAL** (o transformador não é idempotente). Para ajuste pontual num clone já montado (ex.: Home), ler o clone com `cb.dados(idClone)`, trocar o trecho e `cb.salvar`.
+   - Páginas (Home/Vitrine/Conteúdos): os blocos novos são containers `content_width: full`, padding 0, com 1 widget HTML cujo conteúdo é o arquivo de `componentes/` **sem o comentário de cabeçalho**.
+4. **Sincronia código ⇄ staging (staging não tem Implantações):**
+   - mu-plugin → snippet 116: aplicar a mesma edição textual via REST `code-snippets/v1/snippets/116` e conferir no navegador que `SHA-256('<?php\n' + code)` = SHA-256 do arquivo local.
+   - `black.css` → snippet 117: o snippet é PHP que imprime o CSS **minificado** (heredoc `<<<'CSS'`), só com Black ativa. Não é byte a byte igual ao arquivo: cada regra nova do `black.css` entra minificada (uma regra por linha) **antes** de `body.cetrus-black-2026 #hs-eu-cookie-confirmation`. Em produção não há snippet: o mu-plugin enfileira o `black.css`.
+5. **Lint PHP sem PHP local:** `tests/qa/black/mu-plugin-harness.js` (PHP 8.3 em WebAssembly, aberto em uma aba de `cdn.jsdelivr.net`).
+6. **Mobile/tablet sem DevTools:** iframe de mesma origem dentro de uma aba do staging com largura fixa (390/600/768) e `outline` (não `border`, que rouba 4 px). Não usar o parâmetro `m` na URL (é query var do WP → 404); usar `qa`.
+7. **Ler o Artifact:** ferramenta Artifact, `read` com `paths: ["project/Busca.dc.html", …]` (canvas do tipo Design). Não guardar a chave de compartilhamento.
 
 ---
 
@@ -299,6 +314,18 @@ Este procedimento será validado com um produto de teste por categoria no stagin
 
 **Mudança de SEO a aprovar antes de implementar (home):** o Artifact troca o H1 da home por "Aproveite a melhor oportunidade para estar entre os melhores.". Risco: baixo e temporário (title, description, canonical e schema continuam os da página; a home ranqueia por marca), mas é uma alteração de heading. Mitigação proposta: manter o H1 atual como H1 da versão Black e usar a frase do Artifact com o mesmo visual, como texto de destaque (não heading); ou aceitar a troca por 30 dias. Decisão pendente (seção 14).
 
+**Situação adotada em 23/10 (padrão seguro até decisão):** o H1 da home na versão Black é o **atual** ("No Cetrus, você se desenvolve ao lado dos melhores"), com o visual do Artifact; "BLACK NOVEMBER" e as frases de destaque são parágrafos.
+
+**Mudanças de heading nas páginas Black (registradas antes de publicar; risco baixo, temporário, URL/title/description/canonical/schema intactos):**
+
+| Página | H1 | H2 acrescentados pela versão Black | Motivo / mitigação |
+|---|---|---|---|
+| Home (10946) | igual | "As melhores condições do ano para a sua formação." e "Aprenda com quem é referência." | seções novas do Artifact (formulário e autoridade). A frase de fechamento e o "BLACK NOVEMBER" do hero são `<p>`. Ordem das seções muda (a do Artifact); todos os H2 originais continuam. |
+| Vitrine (11768) | igual ("Encontre o curso ideal para sua carreira", mesmo markup) | "Planeje hoje o médico que você será amanhã." | bloco "Falar com um consultor" do Artifact. Sobretítulo e faixa corrida são `<p>`/decorativos (`aria-hidden`). |
+| Conteúdos gratuitos (27615) | igual | "Do conteúdo gratuito à prática em pacientes reais." | bloco "ponte conteúdo → curso" do Artifact. |
+
+Os textos dos H1 não foram alterados (nem o markup); só peso/cor por CSS. Se o time preferir zero H2 novo, trocar os três `<h2>` dos componentes por `<p>` — sem outro efeito.
+
 **Achados pré-existentes (não são deste projeto; não corrigir sem decisão):**
 
 - ~50 redirecionamentos antigos apontam para `https://cetruscombr.wpcomstaging.com/...` (domínio interno), gerando cadeia de 2 saltos; `/mamografia` termina em **404** depois de 2 saltos.
@@ -344,7 +371,11 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 6f | Visual de fellowship (19225, `fellowship-em-ecocardiografia-dr-luis-guilherme-campos`) e pacote (32359, `formacao-completa-em-ultrassonografia-morfologica`) com Black | Parcial | Estrutura original preservada (D3/regra 4.2). OK: header próprio da fellowship com "Quero me inscrever" claro, hero com foto, diferenciais, acordeão, card do coordenador (após CSS), formulário embutido do pacote, conteúdo dos cursos do pacote. Pendente: card branco dos cursos do pacote (snippet 108), barra de campanha no header da fellowship (20497), selos "Lançamento". |
 | 15 | Formulário da home (busca de curso + HubSpot 6ed56c62) em prévia local | Aprovado | `black-november-2026/componentes/home-condicoes-formulario.html`; prévia headless com o formulário HubSpot real (sem envio): busca "ecocardio fetal" lista 5 cursos; escolher grava `EC FETL` no select; digitar limpa; sem resultado mostra aviso; texto exato grava `EC_AEF1`; UTMs padrão `site-cetrus/organic/navegacao-padrao`; `.hbspt-form` renomeada. Evidências: `black-november-2026/evidencias/20261022-home-formulario-*.png`. **Envio real não testado** (geraria lead). |
 | 7 | Lint PHP e lógica do mu-plugin com stubs do WordPress (PHP 8.3.33 em WebAssembly) | Aprovado | `tests/qa/black/mu-plugin-harness.js`, 22/10: MD5 `3461d17e…f9e6`, lint OK; janela (31/10 23:59:59 fora, 01/11 00:00 dentro, 30/11 23:59:59 dentro, 01/12 00:00 fora), modos ligado/desligado, prévia só para editor logado, desligado no editor do Elementor, vínculos e 4 alertas esperados, troca 12073→clone, classe no body e CSS só quando ligado. **Não exercita o Elementor real** (isso é o teste 6). |
-| 8 | Visual (desktop/tablet/mobile) dos clones × Artifact | — | |
+| 6g | Pós no layout do Artifact (23/10): selos "Inscrições abertas" (escuro) + "Condições exclusivas" (outline lavanda), degradê do hero, seção "Pertencimento" antes de "Quem viu", barra fixa mobile só com "Quero me inscrever"; pacote com cards e pílulas escuros; barra de campanha nos headers 20497, 20396 e 23382; selo no card do loop 35617 | Aprovado | desktop, 390 e 768 px sem rolagem horizontal (pós US-ME); selo do card conferido na vitrine (desktop e 2 colunas no celular, após ajuste de 23/10). |
+| 6h | Home Black (modelo 35650) | Aprovado (prévia) | 23/10: ordem do Artifact (hero → destaques → condições → legado → autoridade → fellowship → depoimentos → conteúdos → newsletter → fechamento); H1 original; busca do hero com autocomplete (`.search-input-cetrus`); formulário HubSpot 6ed56c62 carrega ao rolar, rótulo "Curso de interesse", busca "ultrassom musc" lista cursos e grava o código no select (`US IMES`), **sem envio**; newsletter presente (após correção, seção 13); 390/600/768/1920 px sem rolagem horizontal (descontada a barra de admin). |
+| 6i | Vitrine Black (modelo 35655) | Aprovado (prévia) | 23/10: hero grafite com sobretítulo, texto e busca lado a lado (desktop), faixa corrida, filtros/ordenação/paginação do WP Grid Builder escuros, cards Black com selo, bloco "Planeje hoje…"; 390 px OK; 768 px tem 37 px de rolagem horizontal **igual à vitrine original** (pré-existente, seção 13). |
+| 6j | Conteúdos gratuitos Black (modelo 35661) | Aprovado (prévia) | 23/10: hero grafite, chips por área (ativo claro), prateleiras, bloco ponte, newsletter (slot `conteudos`), Blog; janela do material escura (formulário HubSpot carrega; **sem envio**); 390 px sem rolagem horizontal. 768 px: — |
+| 8 | Visual (desktop/tablet/mobile) dos clones × Artifact | Parcial | pós, Home, Vitrine, Conteúdos (6g–6j). Falta: fellowship e pacote em 390/768, intensivos, EAD, graduação, arquivos/busca. |
 | 9 | Funcional (seletores Lyceum, CTAs, popups HubSpot, CF7, WhatsApp, menus, filtros) | — | |
 | 10 | SEO por página (diff contra a baseline) | — | |
 | 11 | Analytics (GA4/GTM/Pixel/Clarity/HubSpot) com disparo real bloqueado na rede | — | |
@@ -370,6 +401,15 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 22/10 | Páginas (Home, Vitrine, Conteúdos gratuitos) não passam pelo filtro de templates | mu-plugin passou a trocar só o conteúdo do Elementor da página pelo modelo `[BLACK-2026] #<id da página>` (filtros `elementor/frontend/builder_content_data` + `the_content`); URL e todo o SEO do Yoast continuam os da página original |
 | 22/10 | Formulário HubSpot: campo "Curso" (614 opções) é desenhado depois do `onFormReady`, e o vão entre campos vinha dos ~17 campos ocultos somando `gap` | observador no contêiner (não no `<form>`) reaplica a busca/placeholders; layout por margem nos campos visíveis |
 | 22/10 | Bw Modelica no site: Thin, Light, Regular, Medium, Bold, ExtraBold, Black (sem SemiBold) | peso 600 do Artifact vira Bold 700 (é o que o navegador escolhe para 600 sem a face 600) |
+| 23/10 | Newsletter sumia nas páginas trocadas: sem o builder do original, o Elementor devolve o `post_content` (texto reserva com `[cetrus_newsletter]`), o `do_shortcode` (prioridade 11) o executava antes da troca e o shortcode (uma vez por slot por página) voltava vazio no modelo | mu-plugin zera o conteúdo da página principal na prioridade 1 do `the_content` quando há modelo Black; a troca continua na 20 (`cetrus_black_clone_no_conteudo()`). Snippet 116 atualizado (SHA igual). |
+| 23/10 | `ep_custom_footer_script` (busca antiga da home) nas configurações da página seria copiado para o modelo e poderia rodar duas vezes | removido das configurações do modelo 35650; a página original continua imprimindo o seu (ele não acha `.live-search-results` e não faz nada; quem sugere cursos é o mu-plugin `cetrus-busca-autocomplete`) |
+| 23/10 | Peso do H1 por CSS não pegava: o CSS do Elementor usa 4 classes | `!important` só no `font-weight` dos H1 de Vitrine (ebc59a1) e Conteúdos (3a64c09) |
+| 23/10 | Chip ativo "Todos" invisível (regra Black do chip vencia a do plugin `.is-on`) | regra explícita para `.cg-chip.is-on` (fundo claro, texto escuro) |
+| 23/10 | Selo "Condições exclusivas" do card vazava 15 px na grade de 2 colunas do celular | no celular o selo fica com 9 px, `letter-spacing .06em` e `max-width: calc(100% - 20px)` |
+| 23/10 | No celular o original põe H1 e subtítulo da vitrine em `order: start`, e o sobretítulo novo caía abaixo do H1 | sobretítulo com `order: -100000` (via `:has`) |
+| 23/10 | Foto do hero da home cortava o rosto entre 480 e 767 px; cards de professores enormes no tablet | altura da foto `clamp(280px, 60vw, 460px)`; autoridade 4 colunas no desktop, 2×2 no tablet, carrossel de até 300 px no celular |
+| 23/10 | **Pré-existente:** vitrine com 37 px de rolagem horizontal em 768 px (grade de 4 colunas não cabe ao lado dos filtros), também na versão original; e 3 px no celular só por causa da barra de rolagem do navegador desktop | não corrigido (fora do escopo); sugerir correção separada (3 colunas no tablet) |
+| 23/10 | Formulário HubSpot da home só aparece depois que a seção chega perto da tela (carregamento sob demanda) | comportamento esperado; testes precisam rolar até a seção e esperar alguns segundos |
 
 ## 14. Pendências e bloqueios
 
@@ -384,10 +424,21 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | D5 | **Todos os cursos têm condições exclusivas**: o selo "Condições exclusivas" vale para todos os cards e páginas de produto (sem tag de participação). |
 | D6 | Formulário "Receba nossas condições exclusivas" da home: **o mesmo formulário das páginas de curso**, mas o campo "curso de interesse" não vem preenchido: funciona como **busca**, igual ao da LP https://cetrus.com.br/lista-vip-black/. |
 
+**Pendências de decisão abertas em 23/10**
+
+| # | Pendência | Padrão adotado enquanto isso |
+|---|---|---|
+| P1 | H1 da home: atual × frase do Artifact | atual (seção 10) |
+| P2 | Janela do material (Conteúdos gratuitos): o Artifact acrescenta a caixa "Quero receber as condições Black" e um painel de sucesso com curso sugerido. Exige campo novo no formulário HubSpot (fora do WordPress) e regra de curso por material | não implementado; só o visual escuro da janela |
+| P3 | Hero da home: o Artifact mostra o Dr. Marco Demange, que não tem retrato da série LISTA-VIP | Dr. Feres Chaddad no lugar (retratos: Peralta, Queiroz, Prudente, Chaddad) |
+| P4 | Newsletter na home: o Artifact não a mostra | mantida (antes do fechamento), com visual Black |
+| P5 | Modelo Black do 404 (14718) | não clonado: a área de conteúdo do 404 fica clara com header/rodapé Black |
+| P6 | Sync produção → staging | não executado (D1 não cobre) |
+
 **Bloqueios técnicos**
 
-0. **Criar modelos novos no Elementor do staging** (os clones `[BLACK-2026]`, sem tocar nos originais): negado pelo controle de permissões da sessão em 22/10 mesmo com D1. Precisa de autorização explícita do usuário. Sem isso, os testes 6b, 8–13 não andam.
-0b. **H1 da home** (seção 10): decidir entre manter o H1 atual ou usar a frase do Artifact.
+0. ~~Criar modelos novos no Elementor do staging~~ — autorizado pelo usuário em 22/10 ("Autorizo criar modelos novos [BLACK-2026] no Elementor do staging (sem editar os originais) e atualizar o snippet 116"). Resolvido.
+0b. **H1 da home** (seção 10): decidir entre manter o H1 atual ou usar a frase do Artifact (P1).
 
 1. **Executar código no staging.** (Resolvido por D1 para snippets; ver item 0 para modelos.) Para provar o filtro e testar ativação/rollback é preciso rodar o mu-plugin no staging. Caminhos, do mais simples ao mais "limpo": (a) autorizar explicitamente a criação de um snippet de teste no Code Snippets do staging (só reage a `?cetrus_probe=1` com usuário logado); (b) consertar a conexão Jetpack do staging e conectar as Implantações do staging à branch `projeto/black-november-2026`; (c) SFTP/SSH do staging (credenciais com o usuário).
 2. **Staging desatualizado** (~16/10). Recomendado puxar a produção para o staging (WP.com > Sincronizar > puxar da produção) **antes** de criar os clones, para os clones nascerem dos templates atuais (header 11545 mudou em 19/10). Isso sobrescreve o staging; precisa de aprovação.
@@ -476,6 +527,7 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 | Data | Quem | O quê |
 |---|---|---|
+| 23/10/2026 | Claude (sessão 2) | **Staging:** modelos novos `[BLACK-2026] #10946 Home` (35650), `#11768 Vitrine` (35655) e `#27615 Conteúdos Gratuitos` (35661), convertidos dos originais + componentes novos; mu-plugin corrige o shortcode de uma vez por página (snippet 116 = arquivo, SHA `f2f13d56…13f8`); `black.css` ganhou newsletter, vitrine (hero, busca 16821, WP Grid Builder, `.cetrus-inicio-turma`), conteúdos gratuitos (variáveis `--cg-*`, chips, janela) e selo de card no celular, espelhados no snippet 117. Antes disso, na mesma sessão: pós no layout do Artifact (shortcodes `[cetrus_black_selo]` e `[cetrus_black_pertencimento]`), pacote, barra nos headers 20497/20396/23382, selo no loop 35617. Nenhum original editado. |
 | 22/10/2026 | Claude (sessão 1) | **Staging (autorizado):** 25 clones `[BLACK-2026]` criados (mapa em `black-november-2026/staging/clones-staging-20261022.tsv`), convertidos para a paleta pelo `black-november-2026/ferramentas/transforma-black.js` a partir dos originais (nenhum original editado); barra de campanha 35623; snippet 116 atualizado (SHA-256 igual ao arquivo local, decisão desde o `init`); snippet 117 = `black.css` impresso só com Black ativa. Troca comprovada (teste 6b); 1ª varredura de 440 URLs sem diferença de SEO. |
 | 22/10/2026 | Claude (sessão 1) | **Staging:** snippet 115 "[BLACK-2026][QA] Sonda do filtro" (front-end, só reage a `?cetrus_probe=1` logado; pode ser apagado) e snippet 116 "[BLACK-2026] Camada Black November 2026" (cópia do mu-plugin 0.1.0, ainda sem a troca de páginas). Filtro do Elementor confirmado (teste 6a). mu-plugin ganhou a troca de conteúdo das páginas (harness: 13 casos, MD5 `fed39b40…`). Componente do formulário da home (D6) criado e testado em prévia. Baseline de SEO da produção concluída (456 URLs, todas 200). |
 | 22/10/2026 | Claude (sessão 1) | Lint e teste lógico do mu-plugin em PHP-WASM (`tests/qa/black/mu-plugin-harness.js`): aprovado. |
@@ -483,14 +535,13 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 ## 22. Próximas ações priorizadas
 
-1. Conferir a 2ª varredura (template esperado = clone do original em todas as URLs; SEO idêntico, inclusive nº de H2, robots e JSON-LD).
-2. Pós (12073 e variantes 26931/28008): selo "Inscrições abertas" no padrão do Artifact, seta do acordeão, degradê do hero, e a estrutura v2 do Artifact (chips no hero, seção "Pertencimento" só em pós, barra fixa mobile só com "Quero me inscrever").
-3. Revisão visual, desktop e mobile, de fellowship (19225/28779/21114), intensivos (12073), pacotes (32359), EAD (19062) e graduação (19379); incluir a barra de campanha nos headers 20396/20497/23382 (hoje só o header padrão tem a faixa).
-4. Páginas do Artifact: Home (formulário pronto; decidir H1), Vitrine, Conteúdos gratuitos (modelos `[BLACK-2026] #<id da página>`).
-5. Decisão do H1 da home (seção 10) e do sync do staging.
-6. Repetir o harness (`tests/qa/black/mu-plugin-harness.js`) a cada mudança no mu-plugin.
-4. Exportar JSON dos originais (pre-black) para `black-november-2026/elementor/pre-black/`.
-5. Criar os clones na ordem: header 11545 + barra → footer 10919 → produto 12073 (pós v2 + intensivos) → 19225 → 32359 → 26931/28008/28779/21114 → loop 11204 → popups.
-6. Montar o pipeline de comparação (template esperado, SEO, visual por screenshot, rede/analytics com bloqueio) e rodar a cada clone.
-7. Teste de produto novo por categoria; teste de ativação/rollback com tempo.
-8. PR para revisão.
+Feito até 23/10: clones de todos os templates de produto, header, rodapé, popups, cards e arquivos; pós no layout do Artifact; Home, Vitrine e Conteúdos gratuitos Black (prévia no staging).
+
+1. Revisão em 390 e 768 px de fellowship (19225/28779/21114), pacote (32359), intensivos (12073), EAD (19062), graduação (19379), arquivos e busca (12753/25011/12747); Conteúdos gratuitos em 768 px.
+2. Revalidação completa (staging, logado, com e sem `?cetrus_black=1`): template esperado = clone do original em todas as URLs de produto; nas 3 páginas, modelo Black renderizado; SEO idêntico (status, title, description, canonical, robots, H1, JSON-LD) e H2 iguais exceto os acréscimos da seção 10.
+3. Rodar o harness completo do mu-plugin (`tests/qa/black/mu-plugin-harness.js`) com o arquivo atual (em 23/10 só o trecho novo passou pelo lint).
+4. Decisões P1–P6 (seção 14).
+5. Exportar JSON dos 28 modelos `[BLACK-2026]` para `black-november-2026/elementor/black/` e dos originais para `black-november-2026/elementor/pre-black/` (o export é o que vai para a produção; seção 11).
+6. Teste de produto novo por categoria; teste de ativação e rollback no staging com tempo medido (testes 12 e 13).
+7. Funcional e analytics com bloqueio de envio (testes 9 e 11).
+8. Push da branch e PR para revisão (só com autorização).

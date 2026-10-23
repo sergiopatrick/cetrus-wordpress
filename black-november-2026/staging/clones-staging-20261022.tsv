@@ -24,3 +24,6 @@ original	clone_staging	tipo	observacao
 32359	35567	product	Pacotes - Template padrao - Julho de 2026
 34626	35623	container	Barra de campanha Black November (conteudo novo: componentes/barra-campanha.html)
 34795	35570	product	Produto Fellowship - polo adicional (copia de teste)
+10946	35650	page	Home (pagina): hero, condicoes, autoridade e fechamento novos (componentes/home-*.html); demais secoes convertidas e reordenadas como no Artifact; sem ep_custom_footer_script
+11768	35655	page	Vitrine (pagina): sobretitulo, faixa corrida e bloco "Planeje hoje" novos (componentes/vitrine-*.html); resto convertido; hero/busca/filtros por CSS (black.css)
+27615	35661	page	Conteudos gratuitos (pagina): bloco ponte novo apos Lancamentos (componentes/conteudos-ponte.html); resto convertido; .cg-* por CSS (black.css)

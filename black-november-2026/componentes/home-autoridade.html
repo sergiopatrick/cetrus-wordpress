@@ -1,0 +1,40 @@
+<!--
+  Cetrus · Black November 2026 · Home · "Aprenda com quem é referência." (secao AUTORIDADE do
+  Artifact, artboard Home). Widget HTML no modelo "[BLACK-2026] #10946 Home".
+  Professores, especialidades e registros exatamente como no Artifact; retratos da serie
+  LISTA-VIP da campanha. No mobile vira carrossel com arraste lateral (scroll-snap).
+-->
+<section class="cba" aria-labelledby="cba-t">
+	<div class="cba__in">
+		<h2 id="cba-t" class="cba__t">Aprenda com quem é <strong>referência.</strong></h2>
+		<ul class="cba__lista" aria-label="Professores">
+			<li><img src="/wp-content/uploads/2026/10/LISTA-VIP-FERES-CHADDAD.webp" alt="Dr. Feres Chaddad" width="444" height="528" loading="lazy"><div><strong>Dr. Feres Chaddad</strong><span>Microcirurgia Neurológica</span><small>CRM 89100/SP · RQE 69760</small></div></li>
+			<li><img src="/wp-content/uploads/2026/10/LISTA-VIP-DANIELLA-PRUDENTE.webp" alt="Dra. Daniella Prudente" width="444" height="528" loading="lazy"><div><strong>Dra. Daniella Prudente</strong><span>Imagem da Mama</span><small>CRM 11439/BA · RQE 5594</small></div></li>
+			<li><img src="/wp-content/uploads/2026/10/LISTA-VIP-MATEUS-QUEIROZ.webp" alt="Dr. Mateus Queiroz" width="444" height="528" loading="lazy"><div><strong>Dr. Mateus Queiroz</strong><span>Ultrassonografia Musculoesquelética</span><small>CRM 146719/SP · RQE 59021</small></div></li>
+			<li><img src="/wp-content/uploads/2026/10/LISTA-VIP-CARLA-ZUCCHI.webp" alt="Dra. Carla Zucchi" width="444" height="528" loading="lazy"><div><strong>Dra. Carla Zucchi</strong><span>Ginecologia e Obstetrícia</span><small>CRM 126697/SP · RQE 128143</small></div></li>
+		</ul>
+		<a class="cba__cta" href="/vitrine/">Ver cursos com condição Black</a>
+	</div>
+</section>
+<style>
+.cba{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;background:#0E0F12;color:#F3F3F6;font-family:Roboto,"Helvetica Neue",Arial,sans-serif}
+.cba__in{box-sizing:border-box;max-width:1240px;margin:0 auto;padding:72px 20px;display:flex;flex-direction:column;gap:32px}
+.cba__t{margin:0;text-align:center;font-family:var(--ft);font-size:clamp(28px,3vw,40px);font-weight:300;line-height:1.2;color:#F3F3F6}
+.cba__t strong{font-weight:700}
+.cba__lista{list-style:none;margin:0;padding:0;display:grid;gap:20px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.cba__lista li{position:relative;aspect-ratio:4/5;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#191A1E;margin:0}
+.cba__lista img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cba__lista div{position:absolute;left:0;right:0;bottom:0;padding:40px 16px 16px;background:linear-gradient(180deg,rgba(14,15,18,0) 0%,rgba(14,15,18,.94) 65%);display:flex;flex-direction:column;gap:2px}
+.cba__lista strong{font-family:var(--ft);font-size:15px;font-weight:600;color:#F3F3F6}
+.cba__lista span{font-size:13px;color:#D4D5E8}
+.cba__lista small{font-size:11px;color:#A9AAB8}
+.cba__cta{align-self:center;display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border:1px solid rgba(255,255,255,.55);border-radius:4px;color:#fff!important;text-decoration:none!important;font-family:var(--ft);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;transition:background .2s}
+.cba__cta:hover,.cba__cta:focus-visible{background:rgba(255,255,255,.08)}
+@media (min-width:768px) and (max-width:1024px){.cba__lista{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:640px;margin:0 auto}}
+@media (max-width:767px){
+	.cba__in{padding:56px 20px;gap:24px}
+	.cba__lista{margin:0 -20px;padding:0 20px;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:min(78%,300px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;scrollbar-width:none}
+	.cba__lista li{scroll-snap-align:start}
+	.cba__cta{align-self:stretch;justify-content:center;text-align:center}
+}
+</style>

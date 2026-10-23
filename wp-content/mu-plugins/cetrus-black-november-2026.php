@@ -280,11 +280,33 @@ add_action(
 	20
 );
 
+/** @return int Id do clone se este the_content e o da pagina principal, ou 0. */
+function cetrus_black_clone_no_conteudo() {
+	$clone = cetrus_black_clone_da_pagina();
+	if ( ! $clone || ! in_the_loop() || ! is_main_query() || (int) get_the_ID() !== (int) get_queried_object_id() || ! class_exists( '\Elementor\Plugin' ) ) {
+		return 0;
+	}
+	return $clone;
+}
+
+/**
+ * Sem o builder do original, o Elementor devolve o post_content (texto reserva com os
+ * shortcodes) e o do_shortcode (prioridade 11) o executaria antes da troca. Shortcodes que
+ * imprimem uma vez por pagina (cetrus_newsletter) ficariam vazios no clone. Visto em 23/10/2026.
+ */
 add_filter(
 	'the_content',
 	function ( $content ) {
-		$clone = cetrus_black_clone_da_pagina();
-		if ( ! $clone || ! in_the_loop() || ! is_main_query() || (int) get_the_ID() !== (int) get_queried_object_id() || ! class_exists( '\Elementor\Plugin' ) ) {
+		return cetrus_black_clone_no_conteudo() ? '' : $content;
+	},
+	1
+);
+
+add_filter(
+	'the_content',
+	function ( $content ) {
+		$clone = cetrus_black_clone_no_conteudo();
+		if ( ! $clone ) {
 			return $content;
 		}
 		$html = \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $clone );
@@ -298,8 +320,86 @@ add_filter(
 	function ( $classes ) {
 		if ( cetrus_black_ativo() ) {
 			$classes[] = 'cetrus-black-2026';
+			// Modalidade no body (cetrus-black-mod-pos-graduacao...): o template 12073 atende pos E
+			// intensivos, e os ajustes so da pos (Artifact) precisam distinguir os dois.
+			if ( is_singular( 'product' ) ) {
+				$termos = get_the_terms( get_queried_object_id(), 'v2_modalidade' );
+				foreach ( is_array( $termos ) ? $termos : array() as $termo ) {
+					$classes[] = 'cetrus-black-mod-' . sanitize_html_class( $termo->slug );
+				}
+			}
 		}
 		return $classes;
+	}
+);
+
+/**
+ * O curso aberto e de pos-graduacao (modalidade pos-graduacao)?
+ *
+ * @return bool
+ */
+function cetrus_black_e_pos() {
+	return is_singular( 'product' ) && has_term( 'pos-graduacao', 'v2_modalidade', get_queried_object_id() );
+}
+
+/**
+ * [cetrus_black_selo] - selo "Condicoes exclusivas" (decisao D5: vale para todos os cursos).
+ * Fora da versao Black nao imprime nada, entao pode ficar nos clones sem efeito no site normal.
+ */
+add_shortcode(
+	'cetrus_black_selo',
+	function ( $atts ) {
+		if ( ! cetrus_black_ativo() ) {
+			return '';
+		}
+		$atts = shortcode_atts( array( 'texto' => 'Condições exclusivas' ), $atts, 'cetrus_black_selo' );
+		return '<span class="cbn-selo">' . esc_html( $atts['texto'] ) . '</span>';
+	}
+);
+
+/**
+ * [cetrus_black_pertencimento] - frase "Todo <especialidade> que hoje e referencia, um dia precisou
+ * tomar essa decisao." do Artifact (artboard Produto), SO em pos-graduacao. Paragrafo, nao heading,
+ * para nao mudar a estrutura de H2 da pagina (SEO).
+ */
+add_shortcode(
+	'cetrus_black_pertencimento',
+	function () {
+		if ( ! cetrus_black_ativo() || ! cetrus_black_e_pos() ) {
+			return '';
+		}
+		$palavras = (array) apply_filters( 'cetrus_black_pertencimento_palavras', array( 'ultrassonografista', 'cardiologista', 'radiologista', 'ginecologista', 'ortopedista', 'dermatologista' ) );
+		$palavras = array_values( array_filter( array_map( 'sanitize_text_field', $palavras ) ) );
+		if ( ! $palavras ) {
+			return '';
+		}
+		ob_start();
+		?>
+<section class="cbn-pert" aria-label="Pertencimento">
+	<p class="cbn-pert__t">
+		<span class="cbn-sr">Todo <?php echo esc_html( $palavras[0] ); ?> que hoje é referência, um dia precisou tomar essa decisão.</span>
+		<span aria-hidden="true">Todo <span class="cbn-pert__p" data-palavras="<?php echo esc_attr( wp_json_encode( $palavras ) ); ?>"><?php echo esc_html( $palavras[0] ); ?></span> que hoje é referência,<br class="cbn-pert__br"> <strong>um dia precisou tomar essa decisão.</strong></span>
+	</p>
+</section>
+<script>
+(function () {
+	var el = document.currentScript && document.currentScript.previousElementSibling;
+	var p = el && el.querySelector('.cbn-pert__p');
+	if (!p || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+	var lista = JSON.parse(p.getAttribute('data-palavras') || '[]'), i = 0;
+	if (lista.length < 2) return;
+	setInterval(function () {
+		p.classList.add('is-saindo');
+		setTimeout(function () {
+			i = (i + 1) % lista.length;
+			p.textContent = lista[i];
+			p.classList.remove('is-saindo');
+		}, 300);
+	}, 2600);
+})();
+</script>
+		<?php
+		return (string) ob_get_clean();
 	}
 );
 

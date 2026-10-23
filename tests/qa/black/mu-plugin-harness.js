@@ -45,6 +45,7 @@ $GLOBALS['SC']=[]; function add_shortcode($n,$cb){ $GLOBALS['SC'][$n]=$cb; } fun
 function is_singular($t=''){ return $GLOBALS['SINGULAR']??false; } function get_the_terms($id,$tax){ return $GLOBALS['TERMOS']??[]; }
 function has_term($t,$tax,$p=null){ foreach(($GLOBALS['TERMOS']??[]) as $o){ if(in_array($o->slug,(array)$t,true)||in_array($o->term_id,(array)$t,true)) return true; } return false; }
 function sanitize_html_class($c){ return preg_replace('/[^A-Za-z0-9_-]/','',$c); } function esc_html($s){ return htmlspecialchars($s); } function esc_attr($s){ return htmlspecialchars($s); }
+function is_search(){ return false; } function is_post_type_archive($t=''){ return false; } function is_tax($t='',$x=''){ return false; }
 $GLOBALS['QID']=10946;
 function is_page(){ return true; } function get_queried_object_id(){ return $GLOBALS['QID']; } function in_the_loop(){ return true; } function is_main_query(){ return true; } function get_the_ID(){ return $GLOBALS['QID']; }
 function run_filters2($h,$v,$a){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v,$a);} return $v; }
@@ -71,12 +72,13 @@ eval('?>' . $c);
 		pagina_ligada: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters('the_content','ORIGINAL'),' | ',count(run_filters2('elementor/frontend/builder_content_data',[1,2],10946)),',',count(run_filters2('elementor/frontend/builder_content_data',[1,2],905));", '<div data-elementor-id="905">black</div> | 0,2'],
 		pagina_desligada: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters('the_content','ORIGINAL'),' | ',count(run_filters2('elementor/frontend/builder_content_data',[1,2],10946));", 'ORIGINAL | 2'],
 		pagina_sem_clone: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo run_filters('the_content','ORIGINAL');", 'ORIGINAL'],
-		troca: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters(${F},12073),',',run_filters(${F},11545),',',run_filters(${F},99),' ',implode(',',run_filters('body_class',['x']));`, '904,11545,99 x,cetrus-black-2026'],
+		troca: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters(${F},12073),',',run_filters(${F},11545),',',run_filters(${F},99),' ',implode(',',run_filters('body_class',['x']));`, '904,11545,99 x,cetrus-black-2026,cetrus-black-conteudo'],
 		troca_desligada: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters(${F},12073),' ',implode(',',run_filters('body_class',['x']));`, '12073 x'],
 		// 23/10: o 1o filtro do the_content (prioridade 1) zera o texto reserva da pagina com modelo Black
 		conteudo_reserva_zerado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "''"],
 		conteudo_reserva_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "'[cetrus_newsletter]'"],
 		classe_modalidade: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='pos-graduacao'; $o->term_id=147; $GLOBALS['TERMOS']=[$o]; echo implode(',',run_filters('body_class',['x']));", null],
+		conteudo_nao_black: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo implode(',',run_filters('body_class',['x']));", 'x,cetrus-black-2026'],
 		shortcodes: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo implode(',',array_keys($GLOBALS['SC']));", null]
 	};
 	const out = {};

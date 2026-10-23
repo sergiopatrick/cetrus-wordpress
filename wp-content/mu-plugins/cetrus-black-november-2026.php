@@ -315,11 +315,29 @@ add_filter(
 	20
 );
 
+/**
+ * O conteudo principal desta tela tem versao Black? Produto, arquivos e busca de produto (templates
+ * clonados) e as paginas com modelo [BLACK-2026]. Nas demais (institucionais, curriculos, 404) so
+ * header, barra e rodape mudam, e o fundo grafite e as regras de conteudo do black.css (restritas a
+ * body.cetrus-black-conteudo) nao entram: secao de fundo transparente ficaria escuro sobre escuro.
+ *
+ * @return bool
+ */
+function cetrus_black_conteudo_black() {
+	$sim = is_singular( 'product' ) || is_search() || is_post_type_archive( 'product' )
+		|| is_tax( array( 'v2_modalidade', 'v2_especialidade', 'v2_cidade' ) )
+		|| cetrus_black_clone_da_pagina();
+	return (bool) apply_filters( 'cetrus_black_conteudo', $sim );
+}
+
 add_filter(
 	'body_class',
 	function ( $classes ) {
 		if ( cetrus_black_ativo() ) {
 			$classes[] = 'cetrus-black-2026';
+			if ( cetrus_black_conteudo_black() ) {
+				$classes[] = 'cetrus-black-conteudo';
+			}
 			// Modalidade no body (cetrus-black-mod-pos-graduacao...): o template 12073 atende pos E
 			// intensivos, e os ajustes so da pos (Artifact) precisam distinguir os dois.
 			if ( is_singular( 'product' ) ) {

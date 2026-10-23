@@ -1,6 +1,10 @@
 /*
  * Teste do mu-plugin cetrus-black-november-2026.php SEM PHP local (PHP 8.3 em WebAssembly).
  *
+ * Ultima rodada: 23/10/2026, 17 casos, 13 verificados OK + 4 informativos; MD5 143d0675...5ac8
+ * (= arquivo do repositorio = snippet 116). Atalho usado em 23/10: rodar na aba do wp-admin do
+ * staging (o CSP permite o jsDelivr) e montar o base64 a partir de '<?php\n' + code do snippet
+ * 116 lido pela REST, sem colar o plugin.
  * Como rodar (22/10/2026: 13 casos, 11 verificados OK + 2 informativos; MD5 fed39b40...):
  * Dica: declarar como window.cetrusHarness = async function (b64) {...} se o console
  * nao expuser funcoes declaradas no escopo global.
@@ -37,6 +41,10 @@ $GLOBALS['META']=[900=>'product',901=>'header',902=>'product',903=>'header',904=
 function get_post_meta($id,$k,$s){ return $GLOBALS['META'][$id]??''; }
 function get_post_type($id){ if($id===10946) return 'page'; return in_array($id,[12073,11545,19225],true)?'elementor_library':false; }
 function wp_enqueue_style($h,$u,$d,$v){ $GLOBALS['ESTILOS'][]=$u; }
+$GLOBALS['SC']=[]; function add_shortcode($n,$cb){ $GLOBALS['SC'][$n]=$cb; } function shortcode_atts($p,$a,$n=''){ return array_merge($p,(array)$a); }
+function is_singular($t=''){ return $GLOBALS['SINGULAR']??false; } function get_the_terms($id,$tax){ return $GLOBALS['TERMOS']??[]; }
+function has_term($t,$tax,$p=null){ foreach(($GLOBALS['TERMOS']??[]) as $o){ if(in_array($o->slug,(array)$t,true)||in_array($o->term_id,(array)$t,true)) return true; } return false; }
+function sanitize_html_class($c){ return preg_replace('/[^A-Za-z0-9_-]/','',$c); } function esc_html($s){ return htmlspecialchars($s); } function esc_attr($s){ return htmlspecialchars($s); }
 $GLOBALS['QID']=10946;
 function is_page(){ return true; } function get_queried_object_id(){ return $GLOBALS['QID']; } function in_the_loop(){ return true; } function is_main_query(){ return true; } function get_the_ID(){ return $GLOBALS['QID']; }
 function run_filters2($h,$v,$a){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v,$a);} return $v; }
@@ -64,7 +72,12 @@ eval('?>' . $c);
 		pagina_desligada: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters('the_content','ORIGINAL'),' | ',count(run_filters2('elementor/frontend/builder_content_data',[1,2],10946));", 'ORIGINAL | 2'],
 		pagina_sem_clone: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo run_filters('the_content','ORIGINAL');", 'ORIGINAL'],
 		troca: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters(${F},12073),',',run_filters(${F},11545),',',run_filters(${F},99),' ',implode(',',run_filters('body_class',['x']));`, '904,11545,99 x,cetrus-black-2026'],
-		troca_desligada: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters(${F},12073),' ',implode(',',run_filters('body_class',['x']));`, '12073 x']
+		troca_desligada: [`$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters(${F},12073),' ',implode(',',run_filters('body_class',['x']));`, '12073 x'],
+		// 23/10: o 1o filtro do the_content (prioridade 1) zera o texto reserva da pagina com modelo Black
+		conteudo_reserva_zerado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "''"],
+		conteudo_reserva_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "'[cetrus_newsletter]'"],
+		classe_modalidade: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='pos-graduacao'; $o->term_id=147; $GLOBALS['TERMOS']=[$o]; echo implode(',',run_filters('body_class',['x']));", null],
+		shortcodes: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo implode(',',array_keys($GLOBALS['SC']));", null]
 	};
 	const out = {};
 	for (const [nome, [codigo, esperado]] of Object.entries(casos)) {

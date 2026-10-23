@@ -392,9 +392,16 @@ body.cetrus-black-2026 .cetrus-pacote__aba {
 	background: transparent !important;
 }
 body.cetrus-black-2026 .cetrus-pacote__aba.is-ativo,
+body.cetrus-black-2026 .cetrus-pacote__aba.is-ativa,
 body.cetrus-black-2026 .cetrus-pacote__aba[aria-selected="true"] {
 	color: var(--cb-texto) !important;
-	border-color: var(--cb-borda-outline) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-color: var(--cb-lavanda) !important;
+}
+/* seta dos modulos (summary::after desenhada com borda #002452 no snippet 106) */
+body.cetrus-black-2026 .cetrus-pacote__modulo summary::after {
+	border-right-color: var(--cb-lavanda-clara) !important;
+	border-bottom-color: var(--cb-lavanda-clara) !important;
 }
 
 /* ---- Formularios HubSpot dos popups de curso (14050, 29363, 20500, 28094) ---- */

@@ -769,11 +769,11 @@ add_filter(
 		// 2b. Lista "Conteúdos mais acessados" na seção Blog Educa Cetrus, depois do texto.
 		$html = junto_do_widget( $html, BLOG_TEXTO, lista_mais_acessados(), true );
 
-		// 3. Chips e contagem, logo acima da primeira prateleira.
+		// 3. Banner das calculadoras, depois chips e contagem, logo acima da primeira prateleira.
 		$ancora = '<div class="elementor-element elementor-element-531de49';
 		$pos    = strpos( $html, $ancora );
 		if ( false !== $pos ) {
-			$html = substr( $html, 0, $pos ) . barra() . substr( $html, $pos );
+			$html = substr( $html, 0, $pos ) . banner_calculadoras() . barra() . substr( $html, $pos );
 		}
 
 		// 4. O passo 2 falava em "abrir a página": agora a inscrição acontece na própria página.
@@ -837,6 +837,37 @@ function barra() {
 		<p class="cg-barra__olho">Navegue por área médica</p>
 		<div class="cg-chips" role="group" aria-label="Filtrar por especialidade"><?php echo $chips; // phpcs:ignore ?></div>
 		<p class="cg-contagem" role="status" aria-live="polite" data-cg-total="<?php echo (int) $total; ?>"></p>
+	</div>
+</div>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Banner das calculadoras do Educa, acima dos chips. Pedido da Joana Delbone em 27/10/2026
+ * para aproveitar o tráfego da /calculadoras/. Fica antes dos chips para não separar o filtro
+ * das prateleiras que ele filtra. Sem UTM pelo mesmo motivo da lista de mais acessados
+ * (o Yoast do Educa devolve 301 e joga as utm_* para o #); o clique vai para o dataLayer.
+ */
+function banner_calculadoras() {
+	$temas = array( 'Pré-eclâmpsia', 'Translucência nucal', 'Doppler fetal', 'Crescimento fetal', 'Datação gestacional' );
+	$pilulas = '';
+	foreach ( $temas as $t ) {
+		$pilulas .= '<li>' . esc_html( $t ) . '</li>';
+	}
+	ob_start();
+	?>
+<div class="cg-calc" id="cg-calc">
+	<div class="cg-calc__wrap">
+		<a class="cg-calc__card" href="https://educa.cetrus.com.br/calculadoras/" target="_blank" rel="noopener">
+			<div class="cg-calc__txt">
+				<span class="cg-calc__olho">Ferramentas gratuitas</span>
+				<span class="cg-calc__titulo">Calculadoras de medicina fetal e obstetrícia</span>
+				<span class="cg-calc__desc">Os modelos da Fetal Medicine Foundation prontos para usar na rotina do consultório.</span>
+				<ul class="cg-calc__temas" role="list"><?php echo $pilulas; // phpcs:ignore ?></ul>
+			</div>
+			<span class="cg-calc__btn">Acessar as calculadoras<span class="cg-sr"> (abre em nova guia)</span></span>
+		</a>
 	</div>
 </div>
 	<?php
@@ -1373,6 +1404,38 @@ body.elementor-page-27615 .elementor-element .elementor-swiper-button.swiper-but
 	#cgModal .cg-modal__titulo{font-size:19px}
 }
 body.cg-travado{overflow:hidden}
+
+/* ---------- banner das calculadoras do Educa ----------
+   Ancorado no id pelo mesmo motivo da barra: o kit pinta `a` e `ul` com classe. */
+#cg-calc{background:var(--cg-neutral);padding:0 0 28px}
+#cg-calc .cg-calc__wrap{width:min(100%,1170px);margin-inline:auto;box-sizing:border-box}
+#cg-calc a.cg-calc__card{display:flex;align-items:center;gap:32px;padding:28px 32px;border-radius:var(--cg-r4);
+	background:linear-gradient(120deg,var(--cg-dark) 0%,var(--cg-medium) 100%);color:#fff;text-decoration:none;
+	box-shadow:0 10px 30px rgba(0,36,82,.18);transition:transform .2s ease,box-shadow .2s ease}
+#cg-calc a.cg-calc__card:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,36,82,.26);color:#fff}
+#cg-calc a.cg-calc__card:focus-visible{outline:3px solid var(--cg-light);outline-offset:3px}
+#cg-calc .cg-calc__txt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+#cg-calc .cg-calc__olho{display:inline-block;padding:5px 12px;border-radius:var(--cg-pill);background:rgba(255,255,255,.12);
+	font-family:var(--cg-corpo);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cg-cetrus-lighter)}
+#cg-calc .cg-calc__titulo{font-family:var(--cg-titulo);font-size:clamp(22px,2.2vw,28px);font-weight:700;line-height:1.2;color:#fff}
+#cg-calc .cg-calc__desc{font-family:var(--cg-corpo);font-size:16px;line-height:1.5;color:rgba(255,255,255,.82)}
+#cg-calc ul.cg-calc__temas{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0;padding:0;list-style:none}
+#cg-calc ul.cg-calc__temas li{margin:0;padding:6px 12px;border:1px solid rgba(155,177,223,.45);border-radius:var(--cg-pill);
+	font-family:var(--cg-corpo);font-size:13px;line-height:1.2;color:#fff;list-style:none}
+#cg-calc .cg-calc__btn{flex:none;display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;border-radius:var(--cg-r2);
+	background:#fff;color:var(--cg-dark);font-family:var(--cg-corpo);font-size:15px;font-weight:700;line-height:1;white-space:nowrap}
+#cg-calc a.cg-calc__card:hover .cg-calc__btn{background:var(--cg-cetrus-lighter)}
+@media(max-width:1218px){
+	#cg-calc .cg-calc__wrap{width:100%;padding-inline:24px}
+}
+@media(max-width:767px){
+	#cg-calc{padding-bottom:22px}
+	#cg-calc a.cg-calc__card{flex-direction:column;align-items:stretch;gap:18px;padding:22px 20px}
+	#cg-calc .cg-calc__desc{font-size:15px}
+	#cg-calc ul.cg-calc__temas li{font-size:12px;padding:5px 10px}
+	#cg-calc .cg-calc__btn{width:100%}
+}
+@media(prefers-reduced-motion:reduce){#cg-calc a.cg-calc__card{transition:none}#cg-calc a.cg-calc__card:hover{transform:none}}
 CSS;
 }
 
@@ -1797,6 +1860,14 @@ function giraDocentes(){
 			}, 300);
 		});
 	}, 2600);
+}
+
+var calc = document.querySelector('#cg-calc .cg-calc__card');
+if(calc){
+	calc.addEventListener('click', function(){
+		window.dataLayer = window.dataLayer || [];
+		window.dataLayer.push({ event: 'cg_banner_calculadoras', destino: calc.href });
+	});
 }
 
 marcaChips();

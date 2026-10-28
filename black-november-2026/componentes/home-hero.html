@@ -1,0 +1,136 @@
+<!--
+  Cetrus · Black November 2026 · Home · hero (widget HTML no modelo "[BLACK-2026] #10946 Home").
+  Referencia: Artifact, artboard Home (HERO BLACK desktop e mobile, v2: sem faixa de numeros,
+  busca logo abaixo dos botoes, cronometro desligado).
+
+  SEO: o H1 e o MESMO da home atual ("No Cetrus, você se desenvolve ao lado dos melhores"),
+  com o visual do H1 do Artifact. A frase do Artifact ("Aproveite a melhor oportunidade para
+  estar entre os melhores.") fica pendente de decisao (PROJETO_..., secao 10).
+  "BLACK NOVEMBER" e paragrafo (nao heading).
+
+  Busca: mesmo formulario da home atual (GET / ?s=) e mesma classe .search-input-cetrus, entao o
+  mu-plugin cetrus-busca-autocomplete continua sugerindo cursos.
+
+  Retratos: serie LISTA-VIP da campanha (uploads 2026/10). O Artifact usa o Dr. Marco Demange,
+  que nao tem retrato nessa serie; no lugar entra o Dr. Feres Chaddad (que o Artifact mostra na
+  secao de autoridade), com os dados que o Artifact traz dele.
+-->
+<section class="cbh" aria-labelledby="cbh-t">
+	<div class="cbh__fotos">
+		<img class="is-ativa" src="/wp-content/uploads/2026/10/LISTA-VIP_-FABIO-PERALTA.webp" alt="" width="444" height="528" fetchpriority="high">
+		<img src="/wp-content/uploads/2026/10/LISTA-VIP-MATEUS-QUEIROZ.webp" alt="" width="444" height="528" loading="lazy">
+		<img src="/wp-content/uploads/2026/10/LISTA-VIP-DANIELLA-PRUDENTE.webp" alt="" width="444" height="528" loading="lazy">
+		<img src="/wp-content/uploads/2026/10/LISTA-VIP-FERES-CHADDAD.webp" alt="" width="444" height="528" loading="lazy">
+		<div class="cbh__veu" aria-hidden="true"></div>
+		<div class="cbh__prof">
+			<p class="cbh__nome"><strong>Dr. Fábio Peralta</strong><span class="cbh__esp">Medicina Fetal</span><span class="cbh__cred">King’s College Hospital</span></p>
+			<div class="cbh__barras" role="group" aria-label="Escolher professor">
+				<button type="button" aria-pressed="true" aria-label="Mostrar Dr. Fábio Peralta"><span></span></button>
+				<button type="button" aria-pressed="false" aria-label="Mostrar Dr. Mateus Queiroz"><span></span></button>
+				<button type="button" aria-pressed="false" aria-label="Mostrar Dra. Daniella Prudente"><span></span></button>
+				<button type="button" aria-pressed="false" aria-label="Mostrar Dr. Feres Chaddad"><span></span></button>
+			</div>
+		</div>
+	</div>
+	<div class="cbh__in">
+		<span class="cbh__pill">Condições exclusivas</span>
+		<p class="cbh__black"><strong>BLACK</strong> <span>NOVEMBER</span></p>
+		<h1 id="cbh-t" class="cbh__h1">No Cetrus, você se desenvolve <strong>ao lado dos melhores</strong></h1>
+		<div class="cbh__ctas">
+			<a class="cbh__btn cbh__btn--claro" href="/vitrine/">Ver cursos</a>
+			<a class="cbh__btn cbh__btn--outline" href="https://api.whatsapp.com/send/?phone=5511982450256&amp;text=Ol%C3%A1!%20Acessei%20o%20site%20do%20Cetrus%20e%20gostaria%20de%20obter%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20cursos&amp;type=phone_number&amp;app_absent=0" target="_blank" rel="noopener">Falar com um consultor</a>
+		</div>
+		<form class="cbh__busca" role="search" action="/" method="get">
+			<label class="cbn-sr" for="cbh-busca">Nome do curso ou coordenador(a)</label>
+			<input id="cbh-busca" class="search-input-cetrus" type="search" name="s" placeholder="Nome do curso ou coordenador(a)" autocomplete="off">
+			<button type="submit">Pesquisar</button>
+		</form>
+	</div>
+</section>
+<style>
+.cbh{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;position:relative;overflow:hidden;min-height:600px;background:#0B0C0E;color:#F3F3F6;font-family:Roboto,"Helvetica Neue",Arial,sans-serif;display:flex}
+.cbh .cbn-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cbh__fotos{position:absolute;top:0;right:0;bottom:0;width:58%;background:#191A1E}
+.cbh__fotos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;opacity:0;transition:opacity 1.2s ease}
+.cbh__fotos img.is-ativa{opacity:1}
+.cbh__veu{position:absolute;inset:0;background:linear-gradient(90deg,#0B0C0E 0%,rgba(11,12,14,.55) 28%,rgba(11,12,14,0) 60%),linear-gradient(0deg,#0B0C0E 0%,rgba(11,12,14,0) 35%)}
+.cbh__in{position:relative;z-index:1;box-sizing:border-box;width:100%;max-width:1240px;margin:0 auto;padding:56px 20px 112px;display:flex;flex-direction:column;align-items:flex-start;gap:22px}
+.cbh__pill{padding:7px 14px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(10,10,12,.45);font-family:var(--ft);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(243,243,246,.85)}
+.cbh__black{margin:0;font-family:var(--ft);font-size:64px;line-height:1;letter-spacing:.02em;white-space:nowrap;color:#F3F3F6}
+.cbh__black strong{font-weight:700;background:linear-gradient(100deg,#8C8EB6 0%,#D4D5E8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cbh__black span{font-weight:300}
+.cbh__h1{max-width:660px;margin:-8px 0 0;font-family:var(--ft);font-size:clamp(22px,2.2vw,30px);font-weight:300;line-height:1.3;color:rgba(243,243,246,.92)}
+.cbh__h1 strong{font-weight:700;color:#fff}
+.cbh__ctas{display:flex;flex-wrap:wrap;gap:12px}
+.cbh__btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border-radius:4px;font-family:var(--ft);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none!important;white-space:nowrap;transition:background .2s,color .2s}
+.cbh__btn--claro{background:#F3F3F6;color:#111214!important}
+.cbh__btn--claro:hover,.cbh__btn--claro:focus-visible{background:#fff}
+.cbh__btn--outline{border:1px solid rgba(255,255,255,.45);color:#fff!important}
+.cbh__btn--outline:hover,.cbh__btn--outline:focus-visible{background:rgba(255,255,255,.08)}
+.cbh__busca{box-sizing:border-box;width:100%;max-width:660px;display:flex;gap:8px;padding:8px;background:rgba(14,15,18,.72);border:1px solid rgba(255,255,255,.16);border-radius:10px;position:relative}
+.cbh__busca input{flex:1 1 auto;min-width:0;min-height:46px;padding:0 14px;background:transparent!important;border:0!important;color:#F3F3F6!important;font:inherit;font-size:15px;box-shadow:none!important}
+.cbh__busca input::placeholder{color:#A9AAB8}
+.cbh__busca button{min-height:46px;padding:0 20px;border:0;border-radius:6px;background:#F3F3F6!important;color:#111214!important;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.cbh__prof{position:absolute;right:max(20px,calc((100vw - 1240px) / 2 + 20px));bottom:32px;z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:2px;max-width:380px}
+.cbh__nome{margin:0;text-align:right;font-size:13px;line-height:1.45;color:rgba(243,243,246,.8)}
+.cbh__nome strong{display:block;font-family:var(--ft);font-size:15px;font-weight:600;color:#fff}
+.cbh__nome span{display:block}
+.cbh__barras{display:flex;margin-right:-4px}
+.cbh__barras button{width:36px;height:44px;padding:0;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.cbh__barras span{display:block;width:28px;height:3px;border-radius:2px;background:rgba(243,243,246,.32);transition:background .4s}
+.cbh__barras button[aria-pressed="true"] span{background:#F3F3F6}
+.cbh__barras button:focus-visible{outline:2px solid #D4D5E8;outline-offset:-4px}
+@media (max-width:1024px){.cbh__black{font-size:52px}.cbh__fotos{width:50%}}
+@media (max-width:767px){
+	.cbh{display:flex;flex-direction:column;min-height:0}
+	.cbh__in{display:contents}
+	.cbh__pill{order:1;margin:18px 20px 0;align-self:flex-start;font-size:11px;padding:5px 12px}
+	.cbh__black{order:2;margin:12px 20px 0;font-size:32px}
+	.cbh__h1{order:3;margin:12px 20px 0;font-size:18px;line-height:1.35}
+	.cbh__fotos{order:4;position:relative;width:auto;height:clamp(280px,60vw,460px);margin-top:12px}
+	.cbh__fotos img{object-position:50% 12%}
+	.cbh__veu{background:linear-gradient(180deg,#0B0C0E 0%,rgba(11,12,14,0) 18%,rgba(11,12,14,0) 50%,#0B0C0E 100%)}
+	.cbh__prof{left:20px;right:12px;bottom:0;flex-direction:row;align-items:flex-end;justify-content:space-between;max-width:none}
+	.cbh__nome{text-align:left;font-size:12px;margin-bottom:8px;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+	.cbh__nome strong{font-size:14px}
+	.cbh__nome span{display:inline}
+	.cbh__nome .cbh__cred::before{content:" · "}
+	.cbh__barras button{width:26px}
+	.cbh__barras span{width:18px}
+	.cbh__ctas{order:5;margin:12px 20px 0;flex-wrap:nowrap;gap:8px}
+	.cbh__btn{min-height:48px;padding:0 14px;font-size:12px;letter-spacing:.08em}
+	.cbh__btn--outline{flex:1 1 auto;white-space:normal;text-align:center}
+	.cbh__busca{order:6;margin:12px 20px 20px;width:auto;padding:6px}
+	.cbh__busca input{min-height:44px;padding:0 10px}
+	.cbh__busca button{min-height:44px;padding:0 14px}
+}
+</style>
+<script>
+(function () {
+	var raiz = document.querySelector('.cbh');
+	if (!raiz) return;
+	var profs = [
+		{ nome: 'Dr. Fábio Peralta', esp: 'Medicina Fetal', cred: 'King’s College Hospital' },
+		{ nome: 'Dr. Mateus Queiroz', esp: 'Ultrassonografia Musculoesquelética', cred: 'Membro titular do Colégio Brasileiro de Radiologia' },
+		{ nome: 'Dra. Daniella Prudente', esp: 'Imagem da Mama', cred: 'Head do serviço de imagem do Instituto de Radiodiagnóstico da Bahia' },
+		{ nome: 'Dr. Feres Chaddad', esp: 'Microcirurgia Neurológica', cred: 'CRM 89100/SP · RQE 69760' }
+	];
+	var fotos = raiz.querySelectorAll('.cbh__fotos img');
+	var botoes = raiz.querySelectorAll('.cbh__barras button');
+	var nome = raiz.querySelector('.cbh__nome');
+	var atual = 0, timer = null;
+	function mostra(i) {
+		atual = i;
+		fotos.forEach(function (f, k) { f.classList.toggle('is-ativa', k === i); if (k === i && f.loading === 'lazy') f.loading = 'eager'; });
+		botoes.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+		nome.innerHTML = '<strong></strong><span class="cbh__esp"></span><span class="cbh__cred"></span>';
+		nome.querySelector('strong').textContent = profs[i].nome;
+		nome.querySelector('.cbh__esp').textContent = profs[i].esp;
+		nome.querySelector('.cbh__cred').textContent = profs[i].cred;
+	}
+	botoes.forEach(function (b, k) { b.addEventListener('click', function () { mostra(k); reinicia(); }); });
+	var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	function reinicia() { clearInterval(timer); if (!reduz) timer = setInterval(function () { mostra((atual + 1) % profs.length); }, 5000); }
+	reinicia();
+})();
+</script>

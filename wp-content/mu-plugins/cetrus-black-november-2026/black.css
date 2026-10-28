@@ -1,0 +1,775 @@
+/*
+ * Cetrus - Black November 2026: camada visual (rascunho 0.1.0, 22/10/2026).
+ * Carregado por ../cetrus-black-november-2026.php SO dentro da janela da campanha
+ * (ou na previa ?cetrus_black=1). Tudo fica sob body.cetrus-black-2026.
+ *
+ * O grosso do visual vai nos clones [BLACK-2026] dos templates do Elementor.
+ * Este arquivo cobre o que o Elementor nao controla: HTML gerado por shortcodes
+ * do Code Snippets, seletores do Lyceum, cards do WP Grid Builder e formularios.
+ *
+ * Tokens: Artifact "Cetrus - Black November 2026 - v2", artboard Tokens
+ * (secao 3 do PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md).
+ */
+
+body.cetrus-black-2026 {
+	--cb-grafite: #0e0f12;      /* base: faixas, barra, fundo */
+	--cb-grafite-2: #141518;    /* secoes alternadas */
+	--cb-grafite-3: #121316;    /* secoes alternadas (vitrine, docentes) */
+	--cb-topo: #0b0c0e;         /* header, rodape, hero da home */
+	--cb-rodape-base: #070809;  /* faixa legal do rodape */
+	--cb-superficie: #191a1e;   /* cards e formulario */
+	--cb-hero-a: #23242a;       /* degrade do hero de produto (topo) */
+	--cb-hero-b: #121316;       /* degrade do hero de produto (base) */
+	--cb-lavanda: #8c8eb6;
+	--cb-lavanda-clara: #d4d5e8;
+	--cb-texto: #f3f3f6;        /* titulos */
+	--cb-corpo: #c9cad6;        /* texto corrido */
+	--cb-apoio: #a9aab8;        /* legendas */
+	--cb-link-rodape: #d6deec;
+	--cb-botao-form: #3a3b4e;
+	--cb-borda: rgba(255, 255, 255, 0.10);
+	--cb-borda-suave: rgba(255, 255, 255, 0.06);
+	--cb-borda-campo: rgba(255, 255, 255, 0.14);
+	--cb-borda-outline: rgba(255, 255, 255, 0.55);
+	--cb-degrade-black: linear-gradient(100deg, #8c8eb6 0%, #d4d5e8 100%);
+	--cb-raio-botao: 4px;
+	--cb-raio-card: 12px;
+	--cb-raio-card-curso: 4px;
+	--cb-raio-campo: 6px;
+	--cb-fonte-titulo: "BwModelica", "Bw Modelica", Montserrat, sans-serif;
+	--cb-fonte-corpo: Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Pagina (so onde o conteudo tem versao Black: body.cetrus-black-conteudo, ver o mu-plugin) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo {
+	background-color: var(--cb-grafite);
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-text-editor a:not(.elementor-button),
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-shortcode a:not(.elementor-button) {
+	color: var(--cb-lavanda-clara);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-text-editor a:not(.elementor-button):hover {
+	color: #fff;
+}
+
+/* ---- Seletores de unidade/turma do Lyceum ([lyceum_course_selects]) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .course-selection select.custom-select,
+body.cetrus-black-2026.cetrus-black-conteudo select.unit-select,
+body.cetrus-black-2026.cetrus-black-conteudo select.course-select {
+	background-color: var(--cb-superficie) !important;
+	color: var(--cb-texto) !important;
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+	border-radius: var(--cb-raio-campo) !important;
+	color-scheme: dark;
+}
+body.cetrus-black-2026.cetrus-black-conteudo select.course-select:disabled {
+	color: var(--cb-apoio) !important;
+	opacity: 0.7;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .course-selection option {
+	background: var(--cb-superficie);
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .course-selection svg,
+body.cetrus-black-2026.cetrus-black-conteudo .course-selection i {
+	color: var(--cb-apoio);
+	fill: currentColor;
+}
+
+/* ---- Botao de inscricao do Lyceum ([lyceum_course_button] / fellowship): primario claro do Artifact ---- */
+body.cetrus-black-2026.cetrus-black-conteudo a.lyceum-course-btn,
+body.cetrus-black-2026.cetrus-black-conteudo [class*="lyceum"] a.elementor-button,
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-shortcode a.elementor-button {
+	background-color: var(--cb-texto) !important;
+	border-color: var(--cb-texto) !important;
+	color: #111214 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo a.lyceum-course-btn .elementor-button-text,
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-shortcode a.elementor-button .elementor-button-text {
+	color: #111214 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo a.lyceum-course-btn:hover,
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-shortcode a.elementor-button:hover {
+	background-color: #fff !important;
+}
+
+/* ---- Cards de professores ([mostrar-cards-professores]) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .relative-profile-card {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .floating-tag {
+	background-color: var(--cb-superficie) !important;
+	color: var(--cb-texto) !important;
+	border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* ---- Cards de diferenciais ([mostrar-cards-diferenciais]) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .card-diferencial {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	border-radius: var(--cb-raio-card) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .card-diferencial .card-title {
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .card-diferencial p {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .card-diferencial svg,
+body.cetrus-black-2026.cetrus-black-conteudo .card-diferencial img {
+	filter: none;
+	color: var(--cb-lavanda-clara);
+}
+
+/* ---- Acordeao do conteudo programatico ([mostrar-produto-accordion]) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button,
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-header {
+	background-color: var(--cb-superficie) !important;
+	color: var(--cb-texto) !important;
+	border-color: var(--cb-borda) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button span,
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button::after {
+	color: var(--cb-texto) !important;
+	filter: invert(1);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button span {
+	filter: none;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-collapse,
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-body,
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-item {
+	background-color: var(--cb-grafite-2) !important;
+	color: var(--cb-corpo) !important;
+	border-color: var(--cb-borda) !important;
+}
+
+/* ---- Abas do Elementor (nested tabs): aba inativa em cinza de apoio ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .e-n-tab-title[aria-selected="false"],
+body.cetrus-black-2026.cetrus-black-conteudo .e-n-tab-title[aria-selected="false"] .e-n-tab-title-text {
+	color: var(--cb-apoio) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-n-tab-title[aria-selected="true"],
+body.cetrus-black-2026.cetrus-black-conteudo .e-n-tab-title[aria-selected="true"] .e-n-tab-title-text {
+	color: var(--cb-texto) !important;
+}
+
+/* ---- Pecas novas do Artifact (artboard Produto) nos clones de produto ---- */
+.cbn-sr {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+/* selo "Condições exclusivas" ([cetrus_black_selo]) ao lado de "Inscrições abertas" */
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo {
+	display: inline-flex;
+	align-items: center;
+	padding: 5px 12px;
+	border-radius: 999px;
+	background: var(--cb-grafite);
+	border: 1px solid rgba(212, 213, 232, 0.4);
+	color: var(--cb-lavanda-clara);
+	font-family: var(--cb-fonte-titulo);
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+/* selo no canto superior da imagem dos cards de curso (clone do loop 11204), sem cobrir a
+ * faixa de selo que o site ja usa embaixo da imagem; nao bloqueia o clique do card */
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo-card-wrap {
+	position: relative;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo-card {
+	position: absolute !important;
+	top: 10px;
+	left: 10px;
+	z-index: 3;
+	width: auto !important;
+	margin: 0 !important;
+	pointer-events: none;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo-card .cbn-selo {
+	padding: 5px 10px;
+	border-radius: 3px;
+	border-color: rgba(212, 213, 232, 0.35);
+	font-size: 10px;
+}
+/* grade de 2 colunas no celular (vitrine): card de ~185px, o selo nao pode passar da borda */
+@media (max-width: 767px) {
+	body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo-card {
+		max-width: calc(100% - 20px);
+	}
+	body.cetrus-black-2026.cetrus-black-conteudo .cbn-selo-card .cbn-selo {
+		padding: 4px 7px;
+		font-size: 9px;
+		letter-spacing: 0.06em;
+	}
+}
+/* hero do produto: degrade grafite com brilho no canto (Artifact) */
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-hero-produto {
+	background-image: radial-gradient(60% 70% at 0% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 60%), linear-gradient(180deg, #23242a 0%, #121316 100%) !important;
+}
+/* "Pertencimento" ([cetrus_black_pertencimento], so pos) */
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert-wrap:not(:has(.cbn-pert)) {
+	display: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert {
+	background: radial-gradient(60% 80% at 50% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 70%), var(--cb-grafite-2);
+	text-align: center;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__t {
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 80px 20px;
+	font-family: var(--cb-fonte-titulo);
+	font-size: clamp(26px, 3vw, 40px);
+	font-weight: 300;
+	line-height: 1.25;
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__t strong {
+	font-weight: 700;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__p {
+	display: inline-block;
+	font-weight: 700;
+	white-space: nowrap;
+	background: var(--cb-degrade-black);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__p.is-saindo {
+	opacity: 0;
+	transform: translateY(-0.4em);
+}
+@media (max-width: 767px) {
+	body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__br {
+		display: none;
+	}
+	body.cetrus-black-2026.cetrus-black-conteudo .cbn-pert__t {
+		padding: 56px 20px;
+	}
+}
+/* barra fixa do mobile na POS: so "Quero me inscrever" (Artifact v2). Intensivos mantem os dois botoes. */
+body.cetrus-black-2026.cetrus-black-mod-pos-graduacao .cbn-oculto-na-pos {
+	display: none !important;
+}
+body.cetrus-black-2026.cetrus-black-mod-pos-graduacao .cbn-barra-mobile .elementor-widget-shortcode {
+	flex: 1 1 auto;
+	width: 100%;
+}
+
+/* ---- HTML de snippets com estilo INLINE (cards e pilulas dos pacotes, selo do hero
+ * "Inscrições abertas", etc.). Sem mexer nos snippets: casa o texto do atributo style.
+ * Variantes com e sem espaco porque cada snippet escreve de um jeito. ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget :is(
+	[style*="background:#fff" i], [style*="background: #fff" i], [style*="background:white" i], [style*="background: white" i],
+	[style*="background-color:#fff" i], [style*="background-color: #fff" i], [style*="background-color:white" i], [style*="background-color: white" i],
+	[style*="background:#F2F4F8" i], [style*="background: #F2F4F8" i], [style*="background:#F2F3FB" i], [style*="background: #F2F3FB" i],
+	[style*="background:#F9FAFB" i], [style*="background: #F9FAFB" i]) {
+	background: var(--cb-superficie) !important;
+	border-color: var(--cb-borda) !important;
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget :is(
+	[style*="background:#123D7A" i], [style*="background: #123D7A" i], [style*="background:#002452" i], [style*="background: #002452" i],
+	[style*="background:#003B6C" i], [style*="background: #003B6C" i], [style*="background-color:#002452" i], [style*="background-color: #002452" i],
+	[style*="background-color:rgb(0, 36, 82)" i], [style*="background-color: rgb(0, 36, 82)" i]) {
+	background: var(--cb-grafite) !important;
+	border: 1px solid rgba(212, 213, 232, 0.35) !important;
+	color: var(--cb-lavanda-clara) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget :is(
+	[style*="color:#16181A" i], [style*="color: #16181A" i], [style*="color:#002452" i], [style*="color: #002452" i],
+	[style*="color:#003B6C" i], [style*="color: #003B6C" i], [style*="color:#1a1a1a" i], [style*="color: #1a1a1a" i],
+	[style*="color:#404444" i], [style*="color: #404444" i], [style*="color:#333" i], [style*="color: #333" i]):not([style*="background"]) {
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-heading div[style*="background"] p {
+	color: var(--cb-texto) !important;
+}
+
+/* ---- Selos dos shortcodes de destaque ("Inscrições abertas", "Lançamento", modalidade):
+ * vem com background inline (branco ou #002452); no Black viram o chip escuro do Artifact. ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-shortcode > div[style*="background"] {
+	background: var(--cb-superficie) !important;
+	border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-shortcode > div[style*="background"] p,
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-shortcode > div[style*="background"] span {
+	color: var(--cb-texto) !important;
+}
+
+/* ---- Card do coordenador da fellowship (snippets V3) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card .fellow-name {
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card,
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card p,
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card li,
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-description {
+	color: var(--cb-corpo) !important;
+}
+
+/* ---- Seta do acordeao (icone escuro) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button i,
+body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button svg {
+	color: var(--cb-texto) !important;
+	fill: currentColor !important;
+}
+
+/* ---- Formulario HubSpot embutido na pagina (pacotes: snippet 109, .cetrus-hs-form--inline) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form--inline {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	box-shadow: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-form label,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-form legend,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-field-desc {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-input:not([type=checkbox]):not([type=radio]) {
+	background-color: var(--cb-grafite) !important;
+	color: var(--cb-texto) !important;
+	border: 1px solid var(--cb-borda-campo) !important;
+	border-radius: var(--cb-raio-campo) !important;
+	color-scheme: dark;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-button {
+	background: #3a3b4e !important;
+	border: 1px solid rgba(212, 213, 232, 0.4) !important;
+	color: #fff !important;
+	font-family: var(--cb-fonte-titulo);
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .legal-consent-container,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form .hs-richtext {
+	color: var(--cb-apoio) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-hs-form a {
+	color: var(--cb-lavanda-clara) !important;
+}
+
+/* ---- Conteudo dos cursos do pacote (snippet 106, .cetrus-pacote__*) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__painel,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__nav {
+	background-color: var(--cb-superficie) !important;
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__modulo {
+	background-color: var(--cb-grafite-2) !important;
+	border: 1px solid var(--cb-borda) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__modulo summary,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__modulo summary * {
+	color: var(--cb-texto) !important;
+	background: transparent !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__modulo > :not(summary) {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__aba {
+	color: var(--cb-apoio) !important;
+	background: transparent !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__aba.is-ativo,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__aba.is-ativa,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__aba[aria-selected="true"] {
+	color: var(--cb-texto) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-color: var(--cb-lavanda) !important;
+}
+/* seta dos modulos (summary::after desenhada com borda #002452 no snippet 106) */
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-pacote__modulo summary::after {
+	border-right-color: var(--cb-lavanda-clara) !important;
+	border-bottom-color: var(--cb-lavanda-clara) !important;
+}
+
+/* ---- Formularios HubSpot dos popups de curso (14050, 29363, 20500, 28094) ---- */
+body.cetrus-black-2026 .elementor-location-popup .hs-form label,
+body.cetrus-black-2026 .elementor-location-popup .hs-form legend {
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026 .elementor-location-popup .hs-form .hs-input:not([type=checkbox]):not([type=radio]) {
+	background: var(--cb-grafite);
+	color: var(--cb-texto);
+	border: 1px solid var(--cb-borda-campo);
+	border-radius: var(--cb-raio-campo);
+	color-scheme: dark;
+}
+body.cetrus-black-2026 .elementor-location-popup .hs-form .hs-button {
+	background: #3a3b4e;
+	border: 1px solid rgba(212, 213, 232, 0.4);
+	border-radius: var(--cb-raio-campo);
+	color: #fff;
+	font-family: var(--cb-fonte-titulo);
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+body.cetrus-black-2026 .elementor-location-popup .hs-form .legal-consent-container,
+body.cetrus-black-2026 .elementor-location-popup .hs-form .hs-richtext {
+	color: var(--cb-apoio);
+}
+body.cetrus-black-2026 .elementor-location-popup .hs-form a {
+	color: var(--cb-lavanda-clara);
+}
+
+/* ---- Newsletter ([cetrus_newsletter], mu-plugin cetrus-newsletter: slots home e conteudos) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-92454f4,
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-916341e {
+	background-color: var(--cb-grafite-2) !important;
+	border-top: 1px solid var(--cb-borda-suave);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter__eyebrow,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter__sub,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter__fina,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter .legal-consent-container {
+	color: var(--cb-apoio);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter__titulo {
+	color: var(--cb-texto);
+	font-family: var(--cb-fonte-titulo);
+	font-weight: 300;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter input[type=text],
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter input[type=email] {
+	background: var(--cb-grafite);
+	color: var(--cb-texto);
+	border-color: var(--cb-borda-campo);
+	border-radius: var(--cb-raio-campo);
+	color-scheme: dark;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter input::placeholder {
+	color: #7d7e8c;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter input[type=text]:focus,
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter input[type=email]:focus {
+	outline-color: var(--cb-lavanda-clara);
+	border-color: transparent;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter form.hs-form .hs-button {
+	background: var(--cb-botao-form);
+	border: 1px solid rgba(212, 213, 232, 0.4);
+	border-radius: var(--cb-raio-campo);
+	color: #fff;
+	font-family: var(--cb-fonte-titulo);
+	font-size: 13px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter form.hs-form .hs-button:hover {
+	background-color: #4a4b62;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter .legal-consent-container a {
+	color: var(--cb-lavanda-clara);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter .hs-form-booleancheckbox-display input[type=checkbox] {
+	accent-color: var(--cb-lavanda);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter .hs-error-msg {
+	color: #f0b6c2;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-newsletter .submitted-message {
+	background: var(--cb-superficie);
+	color: var(--cb-texto);
+	border: 1px solid var(--cb-borda);
+}
+
+/* ---- Inicio da turma nos cards de curso (shortcode .cetrus-inicio-turma, azul no original) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .cetrus-inicio-turma {
+	color: var(--cb-lavanda-clara) !important;
+}
+
+/* ---- Vitrine (pagina 11768): hero baixo em grafite do artboard Busca. Ids de elemento da
+   pagina original, iguais no clone e em producao (o clone de producao copia a mesma pagina). ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-3c002a0 {
+	background: radial-gradient(60% 120% at 90% -20%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 60%), linear-gradient(180deg, #24252a 0%, #16171b 100%) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-ebc59a1 .elementor-heading-title {
+	color: var(--cb-texto) !important;
+	font-family: var(--cb-fonte-titulo);
+	font-weight: 300 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-06d4a46 .elementor-heading-title {
+	color: rgba(243, 243, 246, 0.82) !important;
+}
+@media (min-width: 1025px) {
+	body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-75980fa {
+		width: 100% !important; /* original: 70% (840px), estreito para texto e busca lado a lado */
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		gap: 24px !important;
+	}
+	body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-dead37d {
+		flex: 1 1 440px !important;
+		width: auto !important;
+	}
+	body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-835d06d {
+		flex: 1 1 420px !important;
+		width: auto !important;
+		max-width: 560px !important;
+	}
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-835d06d {
+	background: transparent !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-bb6a0a7 {
+	background: rgba(255, 255, 255, 0.06) !important;
+	border: 1px solid var(--cb-borda-campo) !important;
+	border-radius: 10px !important;
+}
+
+/* ---- Busca do template 16821 (#searchForm): campo escuro e botao claro (Artifact) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm #search-input {
+	background: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm #search-input::placeholder {
+	color: var(--cb-apoio);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm .search-icon {
+	color: var(--cb-apoio);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm svg [stroke]:not([stroke="none"]) {
+	stroke: currentColor;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm svg [fill]:not([fill="none"]) {
+	fill: currentColor;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #searchForm .mobile-custom-search-button {
+	background: var(--cb-texto) !important;
+	color: #111214 !important;
+	border-radius: var(--cb-raio-campo) !important;
+	font-weight: 600;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #live-search-results {
+	background: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda-campo);
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #live-search-results a {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #live-search-results a:hover,
+body.cetrus-black-2026.cetrus-black-conteudo #live-search-results a:focus-visible {
+	background: #26272d;
+	color: var(--cb-texto) !important;
+}
+
+/* ---- Filtros, ordenacao e paginacao do WP Grid Builder (vitrine) ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-facet .wpgb-facet-title {
+	color: var(--cb-texto) !important;
+	border-color: var(--cb-borda) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-facet .wpgb-reset {
+	background: transparent !important;
+	border: 0 !important;
+	color: var(--cb-lavanda-clara) !important;
+	text-decoration: underline;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-checkbox-control {
+	background: transparent !important;
+	border-color: var(--cb-borda-outline) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-checkbox[aria-pressed="true"] .wpgb-checkbox-control {
+	background: var(--cb-lavanda) !important;
+	border-color: var(--cb-lavanda) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-select-dropdown {
+	background: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda-campo) !important;
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-select-dropdown .wpgb-select-item.wpgb-focused,
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-select-dropdown .wpgb-select-item[aria-selected="true"] {
+	background: #26272d !important;
+	color: var(--cb-texto) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo select.wpgb-sort {
+	background-color: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	color: var(--cb-texto) !important;
+	color-scheme: dark;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-pagination a {
+	background: transparent !important;
+	color: var(--cb-texto) !important;
+	border-radius: var(--cb-raio-botao);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-pagination a[aria-current="true"] {
+	background: var(--cb-texto) !important;
+	color: #111214 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .wpgb-pagination .wpgb-dots-page {
+	color: var(--cb-apoio) !important;
+}
+
+/* ---- Graduacao (template 19379, hero 57692513): a imagem de fundo e azul-marinho e o veu do
+   original tem opacidade .2; no Black o veu grafite cobre quase tudo ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-57692513::before {
+	opacity: 0.88 !important;
+	--overlay-opacity: 0.88;
+}
+
+/* ---- Conteudos gratuitos (pagina 27615; mu-plugin cetrus-conteudos-gratuitos, classes .cg-*).
+   O plugin le as cores de variaveis --cg-* do :root: no Black elas sao redefinidas aqui e so os
+   brancos fixos do plugin ganham regra propria. ---- */
+body.cetrus-black-2026 {
+	--cg-dark: #f3f3f6;
+	--cg-medium: #d4d5e8;
+	--cg-light: rgba(212, 213, 232, 0.5);
+	--cg-cetrus-lighter: rgba(255, 255, 255, 0.10);
+	--cg-lighter: #26272d;
+	--cg-neutral: #121316;
+	--cg-linha: rgba(255, 255, 255, 0.14);
+	--cg-cinza-md: #7d7e8c;
+	--cg-cinza: #a9aab8;
+	--cg-cinza-esc: #c9cad6;
+	--cg-erro: #f0b6c2;
+}
+/* hero em grafite (artboard Material) */
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-1e8309c {
+	background: radial-gradient(60% 70% at 90% -10%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 60%), linear-gradient(180deg, #24252a 0%, #121316 100%) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-3a64c09 .elementor-heading-title {
+	color: var(--cb-texto) !important;
+	font-weight: 300 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cg-hero-selo {
+	background: rgba(10, 10, 12, 0.35);
+	border-color: rgba(255, 255, 255, 0.18);
+	color: rgba(243, 243, 246, 0.85);
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+/* filtros por area */
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip {
+	background: var(--cb-superficie);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip:hover {
+	background: #26272d;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip.is-on,
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip.is-on:hover {
+	background: var(--cb-texto);
+	border-color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip.is-on,
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-chip.is-on:hover,
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-semnada button {
+	color: #111214;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra .cg-busca__campo {
+	background: var(--cb-superficie);
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cg-sug {
+	background: var(--cb-superficie) !important;
+	box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cg-card .cg-card__formato {
+	color: var(--cb-lavanda-clara);
+	background: rgba(14, 15, 18, 0.7);
+}
+/* setas das prateleiras (o plugin usa --cg-medium de fundo, que no Black e claro) */
+body.cetrus-black-2026.elementor-page-27615 .elementor-element .elementor-swiper-button {
+	background: var(--cb-superficie);
+	border-color: rgba(255, 255, 255, 0.3);
+}
+/* banner das calculadoras do Educa (#cg-calc, producao desde 27/10): o degrade dele usa
+   --cg-dark/--cg-medium, que no Black sao claros; aqui vira cartao grafite */
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card {
+	background: radial-gradient(60% 90% at 100% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 60%), linear-gradient(180deg, #23242a 0%, #141518 100%);
+	border: 1px solid var(--cb-borda);
+	box-shadow: none;
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card:hover {
+	box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__olho {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--cb-lavanda-clara);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__titulo {
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__desc {
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc ul.cg-calc__temas li {
+	border-color: rgba(212, 213, 232, 0.35);
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__btn {
+	background: var(--cb-texto);
+	color: #111214;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card:hover .cg-calc__btn {
+	background: #fff;
+}
+/* janela do material (#cgModal) */
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__fundo {
+	background: rgba(0, 0, 0, 0.8);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__caixa,
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__x {
+	background: var(--cb-superficie);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__caixa {
+	box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__capa {
+	background: var(--cb-grafite-2);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__img {
+	background-color: var(--cb-superficie);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo input[type=text],
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo input[type=email],
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo input[type=tel],
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo input[type=number],
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo select,
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo textarea {
+	background: var(--cb-grafite);
+	color: var(--cb-texto);
+	color-scheme: dark;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo .hs-button {
+	color: #111214;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__alvo a {
+	color: var(--cb-lavanda-clara);
+}
+
+/* ---- Barra de cookies do HubSpot: neutra, sem azul ---- */
+body.cetrus-black-2026 #hs-eu-cookie-confirmation #hs-eu-confirmation-button {
+	background-color: var(--cb-texto) !important;
+	border-color: var(--cb-texto) !important;
+	color: var(--cb-botao-texto, #111214) !important;
+}

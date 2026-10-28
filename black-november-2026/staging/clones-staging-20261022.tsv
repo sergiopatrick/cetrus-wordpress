@@ -1,0 +1,29 @@
+original	clone_staging	tipo	observacao
+10919	35510	footer	Footer 1 - Default
+11204	35617	loop-item	Card Produto - v1 (referenciado pelos carrosseis dos produtos)
+11545	35507	header	Header 1 - Default - Fale Conosco; faixa f611309 sempre visivel e apontando para 35623
+12073	35513	product	[Post Individual] - Produto (pos, intensivos, preparatorios, monitoria)
+12747	35516	search-results	[Arquivo] Resultado Pesquisa
+12753	35519	product-archive	[Arquivo] Modalidades
+14050	35522	popup	Formulario
+19062	35525	product	[Post Individual] - Produto EAD
+19225	35528	product	Produto Fellowship
+19379	35531	product	[Produto Individual] - Graduacao
+20396	35534	header	Header 3 - Pacote
+20497	35537	header	Header 4 - Fellowship
+20500	35540	popup	Formulario - Produto Fellowship
+21114	35543	product	Produto Fellow - Especial - Mais 4 Profs
+23382	35546	header	Header - Graduacao
+25011	35549	product-archive	[Arquivo] Especialidades
+26931	35552	product	[POST] - Produto individual - Pediatria
+28008	35555	product	[POST] - Produto individual [Sanar Pos]
+28094	35558	popup	Formulario - Produto Sanar Pos
+28779	35561	product	[FELLOWSHIP] Pagina de Produto v2 (popup 29363 remapeado para 35564)
+29363	35564	popup	Formulario Fellow
+29791	35620	loop-item	Coordenador - Fellow - Produto v3
+32359	35567	product	Pacotes - Template padrao - Julho de 2026
+34626	35623	container	Barra de campanha Black November (conteudo novo: componentes/barra-campanha.html)
+34795	35570	product	Produto Fellowship - polo adicional (copia de teste)
+10946	35650	page	Home (pagina): hero, condicoes, autoridade e fechamento novos (componentes/home-*.html); demais secoes convertidas e reordenadas como no Artifact; sem ep_custom_footer_script
+11768	35655	page	Vitrine (pagina): sobretitulo, faixa corrida e bloco "Planeje hoje" novos (componentes/vitrine-*.html); resto convertido; hero/busca/filtros por CSS (black.css)
+27615	35661	page	Conteudos gratuitos (pagina): bloco ponte novo apos Lancamentos (componentes/conteudos-ponte.html); resto convertido; .cg-* por CSS (black.css)

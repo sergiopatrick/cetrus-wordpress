@@ -73,6 +73,8 @@
 .cbn-hs .input{margin:0!important}
 .cbn-hs input.hs-input:not([type=checkbox]):not([type=radio]),.cbn-hs select.hs-input,.cbn-ac input{box-sizing:border-box;width:100%!important;min-height:46px;padding:0 14px;background:var(--g);border:1px solid var(--bc);border-radius:6px;color:var(--t);font:inherit;font-size:15px;letter-spacing:0;text-transform:none}
 .cbn-hs select.hs-input{padding:0 12px;appearance:auto}
+/* o ed32406c injeta o estilo proprio (".hs-custom-style > div input:not(...)": min-height 27px, padding 0 15px), mais especifico */
+.cbn-hs input.hs-input:not([type=checkbox]):not([type=radio]),.cbn-hs .cbn-ac input{min-height:46px!important;padding:0 14px!important}
 .cbn-hs input.hs-input::placeholder,.cbn-ac input::placeholder{color:#7d7e8c}
 .cbn-hs input.hs-input:focus,.cbn-hs select.hs-input:focus,.cbn-ac input:focus{outline:2px solid var(--l);outline-offset:1px;border-color:transparent}
 .cbn-hs .hs-error-msgs{list-style:none;margin:6px 0 0;padding:0;font-size:12px;color:#F0B6C2}

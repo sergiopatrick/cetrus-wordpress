@@ -1,10 +1,14 @@
 <?php
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
- * Description: Versao Black do site, ligada e desligada MANUALMENTE em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.3.0
+ * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
+ * Version:     0.4.0
  * Author:      Cetrus / Sanar
  *
+ * 0.4.0 (28/10/2026, noite): a virada passa a ser por commit no GitHub. A chave CETRUS_BLACK_VIRADA
+ * (logo abaixo) vem "desligado"; o commit de 01/11 a muda para "ligado" e o de 01/12 a devolve para
+ * "desligado", cada um seguido de implantacao manual. O painel continua com dois modos de
+ * emergencia que valem por cima do codigo (forcar desligado / forcar ligado), sem deploy.
  * 0.3.0 (28/10/2026): SEM virada automatica. Nao ha data de inicio nem de fim no codigo: uma pessoa
  * liga a versao Black (modo "ligado") e depois a desliga (modo "desligado"). Padrao = desligado.
  * 0.2.0 (28/10/2026): validado no staging (filtro do Elementor Pro 4.1.3 confirmado, varredura de
@@ -16,7 +20,7 @@
  *   com o titulo "[BLACK-2026] #12073 <qualquer texto>" (12073 = id do original
  *   NAQUELE site; os ids dos modelos mudam de um site para outro, por isso o
  *   vinculo e pelo titulo e nao por id fixo no codigo).
- * - Com o modo "ligado", quando o Elementor escolhe o template de uma localizacao
+ * - Com a versao Black ligada, quando o Elementor escolhe o template de uma localizacao
  *   (header, footer, single product...), este arquivo devolve o id do modelo no
  *   lugar do original. Produto novo cadastrado em novembro cai na condicao do
  *   original (modalidade, tag...) e, por isso, recebe a versao Black sozinho.
@@ -24,20 +28,21 @@
  *   pagina com titulo "[BLACK-2026] #<id da pagina>". A pagina original continua
  *   sendo servida (URL e todo o SEO do Yoast sao dela); so o conteudo do Elementor
  *   e trocado pelo do modelo.
- * - Com o modo "desligado" o filtro devolve o id original: o rollback nao apaga
- *   nada do banco (produtos, leads, pedidos e edicoes continuam).
+ * - Desligada, o filtro devolve o id original: o rollback nao apaga nada do banco
+ *   (produtos, leads, pedidos e edicoes continuam).
  *
- * CHAVES (todas manuais)
- * - Ferramentas > Black November 2026: modo "ligado" ou "desligado" (cada troca fica
- *   registrada com usuario e horario), ou WP-CLI:
- *     wp option update cetrus_black_2026_modo ligado
- *     wp option update cetrus_black_2026_modo desligado
+ * CHAVES (todas manuais; nada liga ou desliga sozinho)
+ * - GitHub (padrao): CETRUS_BLACK_VIRADA abaixo. "ligado" = versao Black para todos.
+ *   Vale depois da implantacao (WP.com > Implantacoes) do commit que a altera.
+ * - Painel, Ferramentas > Black November 2026 (cada troca fica registrada com usuario e horario):
+ *     "seguir o GitHub" (padrao) | "forcar desligado" (emergencia) | "forcar ligado".
+ *   Ou WP-CLI: wp option update cetrus_black_2026_modo desligado (github | ligado).
  * - Previa so para quem esta logado com permissao de edicao:
  *     ?cetrus_black=1 (forca ligado) e ?cetrus_black=0 (forca desligado).
  *   Logado nao passa pelo cache de pagina, entao a previa nao vaza.
  *
- * REVERTER DE VEZ: modo "desligado" (efeito imediato, ate ~5 min de cache de
- * borda) e depois remover este arquivo e a pasta cetrus-black-november-2026/ do
+ * REVERTER DE VEZ: chave em "desligado" (efeito na implantacao, ate ~5 min de cache
+ * de borda) e depois remover este arquivo e a pasta cetrus-black-november-2026/ do
  * repositorio e do servidor. Os modelos [BLACK-2026] podem ficar como rascunho.
  */
 
@@ -45,9 +50,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const CETRUS_BLACK_VERSAO   = '0.3.0';
+/*
+ * CHAVE DA VIRADA PELO GITHUB: "desligado" ou "ligado".
+ * 01/11/2026: commit que troca "desligado" por "ligado" + implantacao. 01/12/2026: commit que volta
+ * para "desligado" + implantacao. Nada mais precisa mudar no codigo para ligar ou desligar.
+ */
+if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
+	define( 'CETRUS_BLACK_VIRADA', 'desligado' );
+}
+
+const CETRUS_BLACK_VERSAO   = '0.4.0';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
-const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo';
+const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
 const CETRUS_BLACK_CACHE    = 'cetrus_black_2026_mapa';
 // Tipos de modelo do Elementor aceitos como versao Black de uma PAGINA (Home, Vitrine...).
@@ -57,13 +71,27 @@ const CETRUS_BLACK_FORA_MODALIDADES = array( 149 );  // v2_modalidade graduacao 
 const CETRUS_BLACK_FORA_TAGS        = array( 1262 ); // product_tag teste-fellow -> template 28779 (fellowship v2)
 
 /**
- * Modo gravado no banco: "ligado" ou "desligado" (padrao). Qualquer outro valor, inclusive o
- * "auto" da versao 0.2.0, conta como desligado: nada liga sozinho.
+ * Modo escolhido no painel: "github" (padrao: vale CETRUS_BLACK_VIRADA), "desligado" ou "ligado"
+ * (manuais, por cima do codigo). Qualquer outro valor, inclusive o "auto" da 0.2.0, conta como github.
+ *
+ * @return string
+ */
+function cetrus_black_modo_painel() {
+	$modo = get_option( CETRUS_BLACK_OPCAO, 'github' );
+	return in_array( $modo, array( 'ligado', 'desligado' ), true ) ? $modo : 'github';
+}
+
+/**
+ * Modo que vale agora para visitantes: "ligado" ou "desligado".
  *
  * @return string
  */
 function cetrus_black_modo() {
-	return 'ligado' === get_option( CETRUS_BLACK_OPCAO, 'desligado' ) ? 'ligado' : 'desligado';
+	$painel = cetrus_black_modo_painel();
+	if ( 'github' !== $painel ) {
+		return $painel;
+	}
+	return 'ligado' === CETRUS_BLACK_VIRADA ? 'ligado' : 'desligado';
 }
 
 /**
@@ -554,7 +582,7 @@ add_action(
 		}
 		check_admin_referer( 'cetrus_black_modo' );
 		$modo = isset( $_POST['modo'] ) ? sanitize_key( wp_unslash( $_POST['modo'] ) ) : '';
-		if ( in_array( $modo, array( 'ligado', 'desligado' ), true ) && $modo !== cetrus_black_modo() ) {
+		if ( in_array( $modo, array( 'github', 'ligado', 'desligado' ), true ) && $modo !== cetrus_black_modo_painel() ) {
 			update_option( CETRUS_BLACK_OPCAO, $modo, false );
 			// Registro da virada manual: quem, quando (Brasilia) e para qual modo. Guarda as 30 ultimas.
 			$registro   = (array) get_option( CETRUS_BLACK_REGISTRO, array() );
@@ -577,26 +605,37 @@ function cetrus_black_tela() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$dados = cetrus_black_mapa( true );
-	$modo  = cetrus_black_modo();
+	$dados  = cetrus_black_mapa( true );
+	$modo   = cetrus_black_modo();
+	$painel = cetrus_black_modo_painel();
+	$github = 'ligado' === CETRUS_BLACK_VIRADA ? 'ligado' : 'desligado';
 
 	echo '<div class="wrap"><h1>Black November 2026</h1>';
 	if ( isset( $_GET['salvo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		echo '<div class="notice notice-success"><p>Modo gravado. Visitantes veem a mudanca em ate ~5 minutos (cache de borda).</p></div>';
 	}
 	printf(
-		'<p style="font-size:15px">Versao Black para visitantes: <strong>%s</strong>. Nada liga ou desliga sozinho: a virada e feita aqui, por uma pessoa.</p>',
+		'<p style="font-size:15px">Versao Black para visitantes: <strong>%s</strong>. Nada liga ou desliga sozinho.</p>',
 		'ligado' === $modo ? 'LIGADA' : 'desligada'
 	);
+	printf(
+		'<p>Chave do GitHub (<code>CETRUS_BLACK_VIRADA</code> em <code>wp-content/mu-plugins/cetrus-black-november-2026.php</code>, no codigo implantado): <strong>%s</strong>. Quem decide agora: <strong>%s</strong>.</p>',
+		esc_html( $github ),
+		'github' === $painel ? 'o GitHub' : esc_html( 'o painel (forcado ' . $painel . ')' )
+	);
+	if ( 'github' !== $painel ) {
+		echo '<div class="notice notice-warning inline"><p>O painel esta forcando a versao Black ' . esc_html( $painel ) . '. Enquanto isso, um commit que mude a chave do GitHub nao tem efeito. Para voltar a seguir o GitHub, escolha "seguir o GitHub".</p></div>';
+	}
 	echo '<p>Ficam iguais a producao mesmo com a versao Black ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cetrus_black_modo' );
 	echo '<input type="hidden" name="action" value="cetrus_black_modo"><select name="modo">';
 	foreach ( array(
-		'desligado' => 'desligado (site normal / rollback)',
-		'ligado'    => 'ligado (versao Black para todos)',
+		'github'    => 'seguir o GitHub (padrao; hoje: ' . $github . ')',
+		'desligado' => 'forcar desligado (emergencia / rollback sem implantacao)',
+		'ligado'    => 'forcar ligado (sem implantacao)',
 	) as $valor => $rotulo ) {
-		printf( '<option value="%s"%s>%s</option>', esc_attr( $valor ), selected( $modo, $valor, false ), esc_html( $rotulo ) );
+		printf( '<option value="%s"%s>%s</option>', esc_attr( $valor ), selected( $painel, $valor, false ), esc_html( $rotulo ) );
 	}
 	echo '</select> ';
 	submit_button( 'Gravar modo', 'primary', 'submit', false );

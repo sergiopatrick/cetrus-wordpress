@@ -24,7 +24,7 @@ window.__val = { feitos: 0, total: 0, linhas: [], erros: [], inicio: Date.now(),
 	var clones = {}, paginasBlack = {}, nonceRest = null;
 	var SEM_BLACK = [28779, 19379, 25011, 14718]; // templates das telas iguais a producao
 	var h2Extra = {
-		'/': ['As melhores condições do ano para a sua formação.', 'Aprenda com quem é referência.'],
+		'/': ['As melhores condições do ano para a sua formação.', 'Há mais de 30 anos construindo um legado na educação médica.', 'Aprenda com quem é referência.'],
 		'/vitrine/': ['Planeje hoje o médico que você será amanhã.'],
 		'/conteudos-gratuitos/': ['Do conteúdo gratuito à prática em pacientes reais.']
 	};

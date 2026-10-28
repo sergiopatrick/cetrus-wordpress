@@ -634,6 +634,29 @@ body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-57692513::before
 	--overlay-opacity: 0.88;
 }
 
+/* ---- Home (modelo da pagina 10946): fundos das secoes originais como no artboard Home (pedido de
+   28/10, noite). As classes sao postas pelo montar-black.js; as secoes novas (hero, condicoes,
+   legado, autoridade, depoimentos, fechamento) trazem o fundo no proprio componente. ---- */
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-home-destaques,
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-home-conteudos {
+	background: #121316 !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+/* fellowship: secao no grafite base e cartao em superficie com borda, para destacar do fundo */
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-home-fellowship {
+	background: var(--cb-grafite) !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-home-fellowship__card {
+	background: var(--cb-superficie) !important;
+	border: 1px solid var(--cb-borda) !important;
+	border-radius: 12px !important;
+	overflow: hidden;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-home-fellowship__img {
+	background: #141518 !important;
+}
+
 /* ---- Conteudos gratuitos (pagina 27615; mu-plugin cetrus-conteudos-gratuitos, classes .cg-*).
    O plugin le as cores de variaveis --cg-* do :root: no Black elas sao redefinidas aqui e so os
    brancos fixos do plugin ganham regra propria. ---- */
@@ -657,6 +680,69 @@ body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-1e8309c {
 body.cetrus-black-2026.cetrus-black-conteudo .elementor-element-3a64c09 .elementor-heading-title {
 	color: var(--cb-texto) !important;
 	font-weight: 300 !important;
+}
+/* hero como no artboard Material (pedido de 28/10, noite): coluna de texto ~660 px e imagem ate
+   520 px com 40 px entre elas; H1 em Montserrat 300, 2 linhas, "gratuitos do Cetrus" em 600.
+   Classes postas pelo montar-black.js (a fonte e carregada pelo proprio Elementor, no widget) */
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-linha {
+	--column-gap: 40px !important;
+	--row-gap: 32px !important;
+	--gap: 32px 40px !important;
+	gap: 32px 40px !important;
+	flex-wrap: wrap !important;
+	align-items: center !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-txt {
+	flex: 1 1 520px !important;
+	width: auto !important;
+	max-width: none !important;
+	min-width: 0;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-cg-hero-txt .e-con,
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-cg-hero-txt .cbn-cg-h1 {
+	width: 100% !important;
+	max-width: none !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-img {
+	flex: 1 1 360px !important;
+	width: auto !important;
+	max-width: 520px !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-cg-h1 .elementor-heading-title {
+	font-family: "Montserrat", "BwModelica", sans-serif !important;
+	font-size: clamp(30px, 3.4vw, 46px) !important;
+	font-weight: 300 !important;
+	line-height: 1.12 !important;
+	letter-spacing: 0 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .cbn-cg-h1 .elementor-heading-title strong {
+	font-weight: 600;
+}
+@media (max-width: 767px) {
+	body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-img {
+		max-width: 100% !important;
+	}
+}
+/* fundos alternados das secoes, como no artboard Material (classes postas pelo montar-black.js) */
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-00 {
+	background: #000000 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-0e,
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-12,
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-14 {
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-0e {
+	background: var(--cb-grafite) !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-12 {
+	background: #121316 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-14 {
+	background: #141518 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-barra {
+	border-bottom: 1px solid var(--cb-borda);
 }
 body.cetrus-black-2026.cetrus-black-conteudo .cg-hero-selo {
 	background: rgba(10, 10, 12, 0.35);

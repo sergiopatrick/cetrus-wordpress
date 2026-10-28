@@ -67,6 +67,12 @@ eval('?>' . $c);
 		// 28/10 (0.3.0): sem virada automatica; padrao e valor antigo "auto" = desligado
 		padrao_desligado: ["echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
 		auto_legado_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='auto'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
+		// 28/10 noite (0.4.0): virada pelo GitHub (CETRUS_BLACK_VIRADA); o painel forca por cima do codigo
+		github_ligado: ["echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada', "define('CETRUS_BLACK_VIRADA','ligado');"],
+		github_explicito_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='github'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
+		github_explicito_ligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='github'; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada', "define('CETRUS_BLACK_VIRADA','ligado');"],
+		painel_forca_desligado_sobre_github: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada', "define('CETRUS_BLACK_VIRADA','ligado');"],
+		painel_forca_ligado_sobre_github: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_editor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_anonimo: ["$_GET['cetrus_black']='1'; echo cetrus_black_ativo()?'ligada':'desligada';", null],
 		editor_elementor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $_GET['elementor-preview']='123'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
@@ -90,8 +96,8 @@ eval('?>' . $c);
 		shortcodes: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo implode(',',array_keys($GLOBALS['SC']));", null]
 	};
 	const out = {};
-	for (const [nome, [codigo, esperado]] of Object.entries(casos)) {
-		const r = await php.run({ code: `<?php require '/tmp/stubs.php'; ${codigo}` });
+	for (const [nome, [codigo, esperado, antes]] of Object.entries(casos)) {
+		const r = await php.run({ code: `<?php ${antes || ''} require '/tmp/stubs.php'; ${codigo}` });
 		const t = (r.text || '').trim();
 		out[nome] = (esperado === null ? 'INFO ' : (t === esperado ? 'OK   ' : 'FALHA ')) + t + (r.errors ? ' ERR:' + r.errors : '');
 	}

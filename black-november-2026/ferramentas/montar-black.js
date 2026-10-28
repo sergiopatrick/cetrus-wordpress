@@ -61,7 +61,7 @@
 		{ orig: 11768, pagina: true, nome: 'Vitrine', montar: 'vitrine' },
 		{ orig: 27615, pagina: true, nome: 'Conteúdos Gratuitos', montar: 'conteudos' }
 	];
-	M.COMPONENTES = ['barra-campanha', 'home-hero', 'home-condicoes-formulario', 'home-autoridade', 'home-depoimentos', 'home-fechamento', 'vitrine-eyebrow', 'vitrine-faixa', 'vitrine-ajuda', 'conteudos-ponte'];
+	M.COMPONENTES = ['barra-campanha', 'home-hero', 'home-condicoes-formulario', 'home-legado', 'home-autoridade', 'home-depoimentos', 'home-conteudos-destaque', 'home-fechamento', 'vitrine-eyebrow', 'vitrine-faixa', 'vitrine-ajuda', 'conteudos-ponte'];
 
 	/* ---------------- acesso ao WordPress ---------------- */
 	var nonceRest = null;
@@ -137,7 +137,13 @@
 	function widgetShortcode(sc, nome, classes) { return { id: uid(), elType: 'widget', widgetType: 'shortcode', settings: { shortcode: sc, _title: 'BLACK · ' + nome, _css_classes: classes || '' }, elements: [] }; }
 	function esc(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 	function semTags(s) { var d = document.createElement('div'); d.innerHTML = String(s || ''); return (d.textContent || '').replace(/\s+/g, ' ').trim(); }
-	function addClasse(el, c) { var s = el.settings || (el.settings = {}); var atual = (s._css_classes || '').split(/\s+/).filter(Boolean); if (atual.indexOf(c) < 0) atual.push(c); s._css_classes = atual.join(' '); }
+	// widget usa _css_classes; container usa css_classes (com _css_classes o Elementor ignora a classe no container)
+	function addClasse(el, c) {
+		var s = el.settings || (el.settings = {}), k = el.elType === 'widget' ? '_css_classes' : 'css_classes';
+		var atual = (s[k] || '').split(/\s+/).filter(Boolean);
+		if (atual.indexOf(c) < 0) atual.push(c);
+		s[k] = atual.join(' ');
+	}
 
 	/* ---------------- passos por template (ajustes do Artifact por cima da conversao) ----------------
 	   Localizam os pontos pela ESTRUTURA (shortcode, posicao fixa, texto do titulo), nao por id: os
@@ -155,7 +161,7 @@
 			var w = idBarra
 				? { id: uid(), elType: 'widget', widgetType: 'template', settings: { template_id: String(idBarra), _title: 'BLACK · barra de campanha' }, elements: [] }
 				: widgetHtml(ctx.comp['barra-campanha'], 'barra de campanha');
-			els.push({ id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · barra de campanha', _css_classes: 'cbn-barra-header' }, elements: [w] });
+			els.push({ id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · barra de campanha', css_classes: 'cbn-barra-header' }, elements: [w] });
 		},
 
 		// Produto (12073 pos+intensivos, 26931 pediatria, 28008 Sanar): pecas do artboard Produto.
@@ -183,7 +189,7 @@
 			} else av('barra fixa do celular nao achada');
 			// 4. "Pertencimento" (so imprime em pos) antes de "Quem viu este curso"
 			var iq = els.findIndex(function (e) { return /Quem viu este curso/.test(JSON.stringify(e)); });
-			var pert = { id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · pertencimento', _css_classes: 'cbn-pert-wrap' }, elements: [widgetShortcode('[cetrus_black_pertencimento]', 'pertencimento')] };
+			var pert = { id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · pertencimento', css_classes: 'cbn-pert-wrap' }, elements: [widgetShortcode('[cetrus_black_pertencimento]', 'pertencimento')] };
 			if (iq >= 0) els.splice(iq, 0, pert); else { av('"Quem viu este curso" nao achado; pertencimento no fim'); els.push(pert); }
 		}
 	};
@@ -198,25 +204,37 @@
 
 		home: function (els, comp, ctx) {
 			var por = {}; els.forEach(function (e) { por[e.id] = e; });
-			var conhecidos = ['75c936f', 'f4ad350', '0fe805b', 'ddd2426', '287991c'];
+			var conhecidos = ['75c936f', '0fe805b', 'ddd2426', '287991c'];
 			exige(por, conhecidos, 'Home', ctx.rel);
 			// saem: faixa Lista VIP (76b95fe, a barra do header ocupa o lugar), hero e buscas antigos
 			// (5c98cd0, 317b4e0, d3db8d1: substituidos pelo hero do Artifact), newsletter (92454f4, pedido
-			// de 28/10) e depoimentos originais (ddd2426: entram no formato do Artifact, com os mesmos textos).
-			var saem = ['76b95fe', '5c98cd0', '317b4e0', 'd3db8d1', '92454f4', 'ddd2426'];
+			// de 28/10), depoimentos originais (ddd2426: entram no formato do Artifact, com os mesmos textos)
+			// e numeros originais (f4ad350: no lugar entra a secao "Legado" do Artifact, pedido de 28/10 a noite).
+			var saem = ['76b95fe', '5c98cd0', '317b4e0', 'd3db8d1', '92454f4', 'ddd2426', 'f4ad350'];
 			var depo = depoimentos(ctx.original.elementos.filter(function (e) { return e.id === 'ddd2426'; }), comp['home-depoimentos']);
 			if (!depo.n) ctx.rel.avisos.push('Home: nenhum depoimento achado em ddd2426; secao de depoimentos ficou vazia.');
 			var extras = els.filter(function (e) { return conhecidos.concat(saem).indexOf(e.id) < 0; });
 			extras.forEach(function (e) { ctx.rel.avisos.push('Home: container novo na pagina original (' + e.id + '), mantido antes do fechamento. Conferir.'); });
-			// numeros (f4ad350): no original sobem 80 px sobre o hero (margem negativa em fa12234); depois do
-			// formulario isso comeria o respiro pedido em 28/10, entao a margem de cima volta a 0 so no modelo
-			var subia = 0;
-			cada([por['f4ad350']], function (e) {
-				var s = e.settings || {};
-				Object.keys(s).forEach(function (k) { if (/^_?margin(_|$)/.test(k) && s[k] && parseFloat(s[k].top) < 0) { s[k] = Object.assign({}, s[k], { top: '0', isLinked: false }); subia++; } });
-			});
-			if (!subia) ctx.rel.avisos.push('Home: numeros (f4ad350) sem margem negativa; conferir o espaco depois do formulario.');
-			return [caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), por['f4ad350'],
+			// fundos das secoes como no artboard Home (regras no black.css, bloco "Home")
+			addClasse(por['75c936f'], 'cbn-home-destaques');
+			addClasse(por['287991c'], 'cbn-home-conteudos');
+			addClasse(por['0fe805b'], 'cbn-home-fellowship');
+			var cartao = (por['0fe805b'].elements || [])[0], colImg = null;
+			if (cartao && cartao.elType === 'container') {
+				addClasse(cartao, 'cbn-home-fellowship__card');
+				colImg = (cartao.elements || []).filter(function (e) { return e.elType === 'container' && /"widgetType":"image"/.test(JSON.stringify(e)); })[0];
+				if (colImg) addClasse(colImg, 'cbn-home-fellowship__img');
+			}
+			if (!colImg) ctx.rel.avisos.push('Home: cartao da secao fellowship (0fe805b) com estrutura diferente; fundos do Artifact so na secao.');
+			// "Explore conteudos gratuitos": o 1o card (em 10/2026, Especial Outubro Rosa, que abre um modal)
+			// vira o destaque da biblioteca de conteudos gratuitos, como no Artifact; os 3 artigos continuam
+			var cg = acha([por['287991c']], 'dd26583');
+			var velho = cg && (cg.el.elements || [])[0];
+			if (velho && velho.elType === 'container') {
+				var vs = velho.settings || {};
+				cg.el.elements[0] = { id: uid(), elType: 'container', isInner: true, settings: { content_width: 'full', width: vs.width, width_tablet: vs.width_tablet, width_mobile: vs.width_mobile, padding: ZERO, margin: ZERO, _title: 'BLACK · destaque conteudos gratuitos', css_classes: 'cbn-home-cg-destaque' }, elements: [widgetHtml(comp['home-conteudos-destaque'], 'destaque conteudos gratuitos')] };
+			} else ctx.rel.avisos.push('Home: card de destaque de "Explore conteudos gratuitos" (dd26583) nao achado; ficou o original.');
+			return [caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), caixa('legado', comp['home-legado']),
 				caixa('autoridade', comp['home-autoridade']), por['0fe805b'], caixa('depoimentos', depo.html), por['287991c']]
 				.concat(extras, [caixa('fechamento', comp['home-fechamento'])]);
 		},
@@ -237,6 +255,39 @@
 			var i = els.findIndex(function (e) { return e.id === '531de49'; });
 			if (i < 0) throw new Error('Conteudos gratuitos: prateleira 531de49 (Lancamentos) nao existe mais');
 			els.splice(i + 1, 0, caixa('ponte conteudo curso', comp['conteudos-ponte']));
+			// hero: H1 e colunas como no artboard Material (pedido de 28/10 a noite; regras no black.css)
+			var hero = els[0], h1 = null;
+			cada([hero], function (e) { if (!h1 && e.widgetType === 'heading' && (e.settings || {}).header_size === 'h1') h1 = e; });
+			if (h1) {
+				var s = h1.settings, t = String(s.title || '');
+				// so marca o negrito do Artifact; o texto do H1 nao muda (SEO)
+				if (t.indexOf('<strong') < 0 && /gratuitos do Cetrus\s*$/.test(t)) s.title = t.replace(/gratuitos do Cetrus\s*$/, '<strong>gratuitos do Cetrus</strong>');
+				else ctx.rel.avisos.push('Conteudos: H1 diferente do esperado ("' + semTags(t) + '"); negrito do Artifact nao aplicado.');
+				// fonte do Artifact (Montserrat): o Elementor so carrega a fonte se ela estiver no widget
+				s.typography_typography = 'custom';
+				s.typography_font_family = 'Montserrat';
+				s.typography_font_weight = '300';
+				if (s.__globals__) delete s.__globals__.typography_typography;
+				addClasse(h1, 'cbn-cg-h1');
+			} else ctx.rel.avisos.push('Conteudos: H1 do hero nao achado.');
+			var linha = (hero.elements || [])[0];
+			if (linha && h1) {
+				addClasse(hero, 'cbn-cg-hero');
+				addClasse(linha, 'cbn-cg-hero-linha');
+				(linha.elements || []).forEach(function (col) {
+					var js = JSON.stringify(col);
+					if (js.indexOf('"id":"' + h1.id + '"') >= 0) addClasse(col, 'cbn-cg-hero-txt');
+					else if (/"widgetType":"image"/.test(js)) addClasse(col, 'cbn-cg-hero-img');
+				});
+			}
+			// fundos alternados das secoes, como no artboard Material
+			var fundos = [[/Como acessar/, 'cbn-cg-fundo-0e'], [/Lançamentos/, 'cbn-cg-fundo-00'], [/Aulas e cursos gratuitos/, 'cbn-cg-fundo-12'],
+				[/Masterclasses/, 'cbn-cg-fundo-00'], [/E-books/, 'cbn-cg-fundo-12'], [/cetrus_newsletter/, 'cbn-cg-fundo-14'], [/Blog Educa/, 'cbn-cg-fundo-0e']];
+			els.forEach(function (e, k) {
+				if (k === 0 || /^BLACK · /.test((e.settings || {})._title || '')) return;
+				var js = JSON.stringify(e), f = fundos.filter(function (p) { return p[0].test(js); })[0];
+				if (f) addClasse(e, f[1]); else ctx.rel.avisos.push('Conteudos: secao ' + e.id + ' sem fundo do Artifact (secao nova?).');
+			});
 			return els;
 		}
 	};

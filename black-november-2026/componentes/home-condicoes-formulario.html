@@ -3,10 +3,13 @@
   Conteudo de UM widget HTML do Elementor, dentro do modelo "[BLACK-2026] #10946 Home".
 
   Referencia visual: Artifact "Cetrus · Black November 2026 · v2", artboard Home (secao
-  CONDICOES EXCLUSIVAS). Decisao D6 (22/10/2026): mesmo formulario HubSpot das paginas
-  de curso (6ed56c62..., popups 14050/29363), mas o campo "Curso" NAO vem preenchido:
-  vira uma busca, igual a da LP /lista-vip-black/ (mesma logica de pontuacao e o mesmo
-  jeito de gravar no select controlado pelo React do HubSpot).
+  CONDICOES EXCLUSIVAS). Formulario HubSpot ed32406c-f2c8-4420-8c29-4f7803b434c2 (pedido de
+  28/10/2026, noite; antes era o 6ed56c62 das paginas de curso, decisao D6). Embed v2 com o
+  codigo enviado pelo time (portal 9321751, region na1) + css: '' para o formulario sair no
+  documento e nao num iframe. Mesmos campos do formulario de curso (nome, e-mail, telefone,
+  etapa de carreira, contact__ct__product_from_site com ~400 cursos, ocultos de turma/unidade/UTM).
+  O campo "Curso" NAO vem preenchido: vira uma busca, igual a da LP /lista-vip-black/ (mesma
+  logica de pontuacao e o mesmo jeito de gravar no select controlado pelo React do HubSpot).
 
   Diferencas conhecidas em relacao ao Artifact (limitacoes do formulario HubSpot):
   - a ordem dos campos e a do formulario de curso (etapa de carreira primeiro);
@@ -100,7 +103,7 @@
 <script>
 (function () {
 	var CFG = {
-		hs: { portal: '9321751', form: '6ed56c62-7cf9-4d1d-843f-a4c0a35cc926', region: 'na1' },
+		hs: { portal: '9321751', form: 'ed32406c-f2c8-4420-8c29-4f7803b434c2', region: 'na1' },
 		botao: 'Receber minha condição',
 		campoCurso: 'contact__ct__product_from_site',
 		placeholders: { fullname: 'Seu nome completo', email: 'seu@email.com', phone: '(11) 99999-9999' },

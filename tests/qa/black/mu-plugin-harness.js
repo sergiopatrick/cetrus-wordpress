@@ -80,10 +80,10 @@ eval('?>' . $c);
 		classe_modalidade: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='pos-graduacao'; $o->term_id=147; $GLOBALS['TERMOS']=[$o]; echo implode(',',run_filters('body_class',['x']));", null],
 		conteudo_nao_black: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo implode(',',run_filters('body_class',['x']));", 'x'],
 		// 28/10: telas que ficam iguais a producao (cetrus_black_tela_fora)
-		graduacao_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='graduacao'; $o->term_id=149; $GLOBALS['TERMOS']=[$o]; echo run_filters(${F},12073),' ',implode(',',run_filters('body_class',['x']));", '12073 x'],
-		fellowship_v2_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='teste-fellow'; $o->term_id=1262; $GLOBALS['TERMOS']=[$o]; echo run_filters(${F},12073);", '12073'],
-		especialidade_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_especialidade'; echo run_filters(${F},12073);", '12073'],
-		modalidade_dentro: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_modalidade'; $GLOBALS['QID']=11768; echo run_filters(${F},12073);", '904'],
+		graduacao_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='graduacao'; $o->term_id=149; $GLOBALS['TERMOS']=[$o]; echo run_filters('elementor/theme/get_location_templates/template_id',12073),' ',implode(',',run_filters('body_class',['x']));", '12073 x'],
+		fellowship_v2_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='teste-fellow'; $o->term_id=1262; $GLOBALS['TERMOS']=[$o]; echo run_filters('elementor/theme/get_location_templates/template_id',12073);", '12073'],
+		especialidade_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_especialidade'; echo run_filters('elementor/theme/get_location_templates/template_id',12073);", '12073'],
+		modalidade_dentro: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_modalidade'; $GLOBALS['QID']=11768; echo run_filters('elementor/theme/get_location_templates/template_id',12073);", '904'],
 		pagina_antes_do_wp: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['ACOES']=['wp'=>0]; $GLOBALS['QID']=11768; echo cetrus_black_na_tela()?'indefinido-segue':'fora';", 'indefinido-segue'],
 		shortcodes: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo implode(',',array_keys($GLOBALS['SC']));", null]
 	};

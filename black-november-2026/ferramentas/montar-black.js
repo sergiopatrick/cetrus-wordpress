@@ -40,6 +40,7 @@
 	// headers e rodape: fundo do 1o nivel = #0B0C0E (Artifact)
 	M.fundoTopo = { 10919: '#0B0C0E', 11545: '#0B0C0E', 20396: '#0B0C0E', 20497: '#0B0C0E' };
 	// ajustes pontuais por template original: { idOriginal: { idElemento: { chave: valor } } }
+	// (a faixa f611309 do header 11545 nao existe mais na producao desde 19/10; o ajuste fica inerte)
 	M.ajustes = { 11545: { f611309: { custom_css: '' } } };
 	// referencias que, nos modelos, apontam para outros modelos (popups, cards, faixa)
 	M.REFERENCIADOS = [34626, 11204, 29791, 14050, 29363, 20500, 28094];
@@ -50,7 +51,7 @@
 		{ orig: 11204, nome: 'Card Produto - v1' },
 		{ orig: 29791 },
 		{ orig: 14050 }, { orig: 29363 }, { orig: 20500 }, { orig: 28094 },
-		{ orig: 11545 }, { orig: 20497, passos: ['barraNoHeader'] }, { orig: 20396, passos: ['barraNoHeader'] },
+		{ orig: 11545, passos: ['barraNoHeader'] }, { orig: 20497, passos: ['barraNoHeader'] }, { orig: 20396, passos: ['barraNoHeader'] },
 		{ orig: 10919 },
 		{ orig: 12073, passos: ['pos'] }, { orig: 26931, passos: ['pos'] }, { orig: 28008, passos: ['pos'] },
 		{ orig: 19225 }, { orig: 21114 }, { orig: 34795 }, { orig: 32359 }, { orig: 19062 },
@@ -137,8 +138,49 @@
 	function semTags(s) { var d = document.createElement('div'); d.innerHTML = String(s || ''); return (d.textContent || '').replace(/\s+/g, ' ').trim(); }
 	function addClasse(el, c) { var s = el.settings || (el.settings = {}); var atual = (s._css_classes || '').split(/\s+/).filter(Boolean); if (atual.indexOf(c) < 0) atual.push(c); s._css_classes = atual.join(' '); }
 
-	/* ---------------- passos por template (ajustes do Artifact por cima da conversao) ---------------- */
-	M.passos = {};
+	/* ---------------- passos por template (ajustes do Artifact por cima da conversao) ----------------
+	   Localizam os pontos pela ESTRUTURA (shortcode, posicao fixa, texto do titulo), nao por id: os
+	   templates 12073, 26931 e 28008 sao copias com ids diferentes e a producao muda com o tempo. */
+	M.passos = {
+		// Barra de campanha logo abaixo do menu (nos headers da producao a faixa antiga nao existe mais).
+		barraNoHeader: function (els, ctx) {
+			if (JSON.stringify(els).indexOf('BLACK · barra de campanha') >= 0) return;
+			var idBarra = ctx.remap[34626];
+			var w = idBarra
+				? { id: uid(), elType: 'widget', widgetType: 'template', settings: { template_id: String(idBarra), _title: 'BLACK · barra de campanha' }, elements: [] }
+				: widgetHtml(ctx.comp['barra-campanha'], 'barra de campanha');
+			els.push({ id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · barra de campanha', _css_classes: 'cbn-barra-header' }, elements: [w] });
+		},
+
+		// Produto (12073 pos+intensivos, 26931 pediatria, 28008 Sanar): pecas do artboard Produto.
+		pos: function (els, ctx) {
+			var av = function (m) { ctx.rel.avisos.push('#' + ctx.item.orig + ': ' + m); };
+			// 1. degrade grafite do hero: 1o container de nivel 0
+			if (els[0] && els[0].elType === 'container') addClasse(els[0], 'cbn-hero-produto'); else av('hero nao achado (degrade)');
+			// 2. selo "Condicoes exclusivas" ao lado de "Inscricoes abertas" ([mostrar_destaque_produto_hero])
+			var selo = 0;
+			cada(els, function (e, pai) {
+				if (selo || !pai || e.elType !== 'widget') return;
+				var s = e.settings || {};
+				if (/\[mostrar_destaque_produto_hero\]/.test(String(s.title || s.shortcode || s.editor || ''))) {
+					var i = pai.elements.indexOf(e);
+					pai.elements.splice(i + 1, 0, widgetShortcode('[cetrus_black_selo]', 'selo condicoes exclusivas', 'cbn-selo-hero'));
+					selo = 1;
+				}
+			});
+			if (!selo) av('chip "Inscricoes abertas" nao achado (selo)');
+			// 3. barra fixa do celular: so "Quero me inscrever" na pos (o CSS esconde o resto so na pos)
+			var barra = els.filter(function (e) { var s = e.settings || {}; return e.elType === 'container' && (s.position === 'fixed' || s._position === 'fixed') && JSON.stringify(e).indexOf('[lyceum_course_button]') >= 0; })[0];
+			if (barra) {
+				addClasse(barra, 'cbn-barra-mobile');
+				barra.elements.forEach(function (w) { if (w.widgetType === 'button' && /falar/i.test(String((w.settings || {}).text || ''))) addClasse(w, 'cbn-oculto-na-pos'); });
+			} else av('barra fixa do celular nao achada');
+			// 4. "Pertencimento" (so imprime em pos) antes de "Quem viu este curso"
+			var iq = els.findIndex(function (e) { return /Quem viu este curso/.test(JSON.stringify(e)); });
+			var pert = { id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · pertencimento', _css_classes: 'cbn-pert-wrap' }, elements: [widgetShortcode('[cetrus_black_pertencimento]', 'pertencimento')] };
+			if (iq >= 0) els.splice(iq, 0, pert); else { av('"Quem viu este curso" nao achado; pertencimento no fim'); els.push(pert); }
+		}
+	};
 
 	/* ---------------- montagem das paginas ---------------- */
 	function exige(por, ids, nome, rel) {
@@ -236,7 +278,7 @@
 					ajustes: M.ajustes[item.orig] || {}, remap: remap
 				});
 				var els = r.elementos;
-				var ctx = { rel: rel, original: o, item: item };
+				var ctx = { rel: rel, original: o, item: item, remap: remap, comp: comp };
 				if (item.montar) els = M.montar[item.montar](els, comp, ctx);
 				(item.passos || []).forEach(function (p) {
 					if (!M.passos[p]) throw new Error('passo ' + p + ' nao definido');

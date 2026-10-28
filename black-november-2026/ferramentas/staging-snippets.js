@@ -44,11 +44,29 @@
 		if (plugin.indexOf('<?php') !== 0 || css.indexOf('\nCSS\n') >= 0) throw new Error('arquivos inesperados');
 		var codigo116 = plugin.replace(/^<\?php\s*\n/, '');
 		var codigo117 = "add_action( 'wp_head', function () {\n\tif ( ! function_exists( 'cetrus_black_na_tela' ) || ! cetrus_black_na_tela() ) {\n\t\treturn;\n\t}\n\techo \"<style id='cetrus-black-2026-css'>\\n\" . <<<'CSS'\n" + css.replace(/\s+$/, '') + "\nCSS\n\t. \"\\n</style>\\n\";\n}, 30 );";
-		var lista = await rest('/code-snippets/v1/snippets?per_page=200');
-		lista = Array.isArray(lista) ? lista : [];
+		// o Code Snippets aceita no maximo 100 por pagina
+		var lista = [];
+		for (var p = 1; p < 10; p++) {
+			var pag = await rest('/code-snippets/v1/snippets?per_page=100&page=' + p);
+			if (!Array.isArray(pag) || !pag.length) break;
+			lista = lista.concat(pag);
+			if (pag.length < 100) break;
+		}
+		var NOMES = ['[BLACK-2026] Camada Black November 2026', '[BLACK-2026] CSS da camada Black (staging)'];
+		// snippets [BLACK-2026] antigos com outro nome (ex.: CSS minificado de 22/10) saem do ar para nao duplicar
+		var desligados = [];
+		for (var i = 0; i < lista.length; i++) {
+			var s = lista[i];
+			if (/^\[BLACK-2026\]/.test(s.name) && NOMES.indexOf(s.name.trim()) < 0 && s.active) {
+				await rest('/code-snippets/v1/snippets/' + s.id, { method: 'POST', body: JSON.stringify({ active: false }) });
+				desligados.push(s.id + ' ' + s.name);
+			}
+		}
+		lista.forEach(function (s) { s.name = s.name.trim(); });
 		return {
-			plugin: await grava(lista, '[BLACK-2026] Camada Black November 2026', codigo116, 'global'),
-			css: await grava(lista, '[BLACK-2026] CSS da camada Black (staging)', codigo117, 'front-end'),
+			desligados: desligados,
+			plugin: await grava(lista, NOMES[0], codigo116, 'global'),
+			css: await grava(lista, NOMES[1], codigo117, 'front-end'),
 			sha_plugin_arquivo: await sha(plugin)
 		};
 	};

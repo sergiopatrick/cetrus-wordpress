@@ -9,7 +9,8 @@
  * - so grava em posts do tipo elementor_library cujo titulo comeca com "[BLACK-2026] #<id>";
  *   nunca em original, pagina, produto ou configuracao;
  * - modo simulacao ({ simular: true }) so le e devolve o relatorio;
- * - fora da janela (ou com o mu-plugin desligado) os modelos sao inertes: ninguem os ve.
+ * - com o mu-plugin no modo "desligado" (padrao) os modelos sao inertes: ninguem os ve; a virada
+ *   e manual (Ferramentas > Black November 2026).
  *
  * Uso (console de /wp-admin/edit.php?post_type=elementor_library, logado como administrador):
  *   var BASE = 'https://raw.githubusercontent.com/sergiopatrick/cetrus-wordpress/<commit>/black-november-2026/';

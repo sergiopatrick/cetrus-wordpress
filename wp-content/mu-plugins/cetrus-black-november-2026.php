@@ -1,35 +1,36 @@
 <?php
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
- * Description: Liga a versao Black do site so dentro da janela da campanha. Troca, na hora de renderizar, cada template do Elementor pelo clone "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Fora da janela nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.2.0
+ * Description: Versao Black do site, ligada e desligada MANUALMENTE em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
+ * Version:     0.3.0
  * Author:      Cetrus / Sanar
  *
+ * 0.3.0 (28/10/2026): SEM virada automatica. Nao ha data de inicio nem de fim no codigo: uma pessoa
+ * liga a versao Black (modo "ligado") e depois a desliga (modo "desligado"). Padrao = desligado.
  * 0.2.0 (28/10/2026): validado no staging (filtro do Elementor Pro 4.1.3 confirmado, varredura de
  * 438 URLs com SEO identico); telas que ficam iguais a producao em cetrus_black_tela_fora().
- * Ainda nao implantado em producao.
  *
  * COMO FUNCIONA
  * - Os templates originais NAO sao editados e continuam donos das condicoes de
  *   exibicao. Cada versao Black e um template novo do Elementor, sem condicoes,
  *   com o titulo "[BLACK-2026] #12073 <qualquer texto>" (12073 = id do original
- *   NAQUELE site; em producao os ids dos clones mudam na importacao, por isso o
+ *   NAQUELE site; os ids dos modelos mudam de um site para outro, por isso o
  *   vinculo e pelo titulo e nao por id fixo no codigo).
- * - Dentro da janela, quando o Elementor escolhe o template de uma localizacao
- *   (header, footer, single product...), este arquivo devolve o id do clone no
+ * - Com o modo "ligado", quando o Elementor escolhe o template de uma localizacao
+ *   (header, footer, single product...), este arquivo devolve o id do modelo no
  *   lugar do original. Produto novo cadastrado em novembro cai na condicao do
  *   original (modalidade, tag...) e, por isso, recebe a versao Black sozinho.
- * - Paginas do Artifact (Home, Vitrine, Conteudos gratuitos): o clone e um modelo
- *   do Elementor (tipo pagina/secao/container) com titulo "[BLACK-2026] #<id da
- *   pagina>". A pagina original continua sendo servida (URL e todo o SEO do Yoast
- *   sao dela); so o conteudo do Elementor e trocado pelo do modelo.
- * - Fora da janela o filtro devolve o id original: o rollback e automatico e
- *   nao apaga nada do banco (produtos, leads, pedidos e edicoes continuam).
+ * - Paginas do Artifact (Home, Vitrine, Conteudos gratuitos): o modelo e do tipo
+ *   pagina com titulo "[BLACK-2026] #<id da pagina>". A pagina original continua
+ *   sendo servida (URL e todo o SEO do Yoast sao dela); so o conteudo do Elementor
+ *   e trocado pelo do modelo.
+ * - Com o modo "desligado" o filtro devolve o id original: o rollback nao apaga
+ *   nada do banco (produtos, leads, pedidos e edicoes continuam).
  *
- * CHAVES
- * - Janela: CETRUS_BLACK_INICIO / CETRUS_BLACK_FIM (horario de Brasilia).
- * - Emergencia, sem deploy: Ferramentas > Black November 2026 (modo auto,
- *   ligado ou desligado), ou WP-CLI:
+ * CHAVES (todas manuais)
+ * - Ferramentas > Black November 2026: modo "ligado" ou "desligado" (cada troca fica
+ *   registrada com usuario e horario), ou WP-CLI:
+ *     wp option update cetrus_black_2026_modo ligado
  *     wp option update cetrus_black_2026_modo desligado
  * - Previa so para quem esta logado com permissao de edicao:
  *     ?cetrus_black=1 (forca ligado) e ?cetrus_black=0 (forca desligado).
@@ -37,19 +38,18 @@
  *
  * REVERTER DE VEZ: modo "desligado" (efeito imediato, ate ~5 min de cache de
  * borda) e depois remover este arquivo e a pasta cetrus-black-november-2026/ do
- * repositorio e do servidor. Os clones [BLACK-2026] podem ficar como rascunho.
+ * repositorio e do servidor. Os modelos [BLACK-2026] podem ficar como rascunho.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const CETRUS_BLACK_VERSAO  = '0.2.0';
-const CETRUS_BLACK_INICIO  = '2026-11-01T00:00:00-03:00';
-const CETRUS_BLACK_FIM     = '2026-12-01T00:00:00-03:00'; // PENDENTE: confirmar a data de encerramento com o comercial.
-const CETRUS_BLACK_PREFIXO = '[BLACK-2026]';
-const CETRUS_BLACK_OPCAO   = 'cetrus_black_2026_modo';
-const CETRUS_BLACK_CACHE   = 'cetrus_black_2026_mapa';
+const CETRUS_BLACK_VERSAO   = '0.3.0';
+const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
+const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo';
+const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
+const CETRUS_BLACK_CACHE    = 'cetrus_black_2026_mapa';
 // Tipos de modelo do Elementor aceitos como versao Black de uma PAGINA (Home, Vitrine...).
 const CETRUS_BLACK_TIPOS_PAGINA = array( 'page', 'section', 'container' );
 // Telas que ficam iguais a producao (cetrus_black_tela_fora): graduacao e fellowship v2.
@@ -57,22 +57,13 @@ const CETRUS_BLACK_FORA_MODALIDADES = array( 149 );  // v2_modalidade graduacao 
 const CETRUS_BLACK_FORA_TAGS        = array( 1262 ); // product_tag teste-fellow -> template 28779 (fellowship v2)
 
 /**
- * Modo gravado no banco: auto (segue a janela), ligado ou desligado.
+ * Modo gravado no banco: "ligado" ou "desligado" (padrao). Qualquer outro valor, inclusive o
+ * "auto" da versao 0.2.0, conta como desligado: nada liga sozinho.
  *
  * @return string
  */
 function cetrus_black_modo() {
-	$modo = get_option( CETRUS_BLACK_OPCAO, 'auto' );
-	return in_array( $modo, array( 'auto', 'ligado', 'desligado' ), true ) ? $modo : 'auto';
-}
-
-/**
- * @param int|null $agora Timestamp; padrao = agora.
- * @return bool
- */
-function cetrus_black_na_janela( $agora = null ) {
-	$agora = null === $agora ? time() : (int) $agora;
-	return $agora >= strtotime( CETRUS_BLACK_INICIO ) && $agora < strtotime( CETRUS_BLACK_FIM );
+	return 'ligado' === get_option( CETRUS_BLACK_OPCAO, 'desligado' ) ? 'ligado' : 'desligado';
 }
 
 /**
@@ -91,9 +82,9 @@ function cetrus_black_previa() {
 }
 
 /**
- * A versao Black vale nesta requisicao?
+ * A versao Black vale nesta requisicao? So com o modo "ligado" (ou na previa de quem edita).
  *
- * Nunca no painel, no editor/preview do Elementor (para nao misturar o clone
+ * Nunca no painel, no editor/preview do Elementor (para nao misturar o modelo
  * com o original que esta sendo editado), em REST ou feed.
  *
  * @return bool
@@ -118,16 +109,8 @@ function cetrus_black_ativo() {
 	}
 
 	$previa = cetrus_black_previa();
-	if ( null !== $previa ) {
-		$ativo = $previa;
-	} elseif ( 'ligado' === cetrus_black_modo() ) {
-		$ativo = true;
-	} elseif ( 'desligado' === cetrus_black_modo() ) {
-		$ativo = false;
-	} else {
-		$ativo = cetrus_black_na_janela();
-	}
-	$ativo = (bool) apply_filters( 'cetrus_black_ativo', $ativo );
+	$ativo  = null !== $previa ? $previa : 'ligado' === cetrus_black_modo();
+	$ativo  = (bool) apply_filters( 'cetrus_black_ativo', $ativo );
 	return $ativo;
 }
 
@@ -349,7 +332,7 @@ function cetrus_black_tela_fora() {
 }
 
 /**
- * A versao Black vale NESTA TELA? Campanha ligada (janela, modo ou previa) e tela fora da lista
+ * A versao Black vale NESTA TELA? Modo "ligado" (ou previa de quem edita) e tela fora da lista
  * de cetrus_black_tela_fora(). E o que decide troca de template, classe, CSS e shortcodes.
  *
  * @return bool
@@ -562,9 +545,18 @@ add_action(
 			wp_die( 'Sem permissao.' );
 		}
 		check_admin_referer( 'cetrus_black_modo' );
-		$modo = isset( $_POST['modo'] ) ? sanitize_key( wp_unslash( $_POST['modo'] ) ) : 'auto';
-		if ( in_array( $modo, array( 'auto', 'ligado', 'desligado' ), true ) ) {
+		$modo = isset( $_POST['modo'] ) ? sanitize_key( wp_unslash( $_POST['modo'] ) ) : '';
+		if ( in_array( $modo, array( 'ligado', 'desligado' ), true ) && $modo !== cetrus_black_modo() ) {
 			update_option( CETRUS_BLACK_OPCAO, $modo, false );
+			// Registro da virada manual: quem, quando (Brasilia) e para qual modo. Guarda as 30 ultimas.
+			$registro   = (array) get_option( CETRUS_BLACK_REGISTRO, array() );
+			$usuario    = wp_get_current_user();
+			$registro[] = array(
+				'quando'  => ( new DateTime( 'now', new DateTimeZone( 'America/Sao_Paulo' ) ) )->format( 'd/m/Y H:i:s' ),
+				'usuario' => $usuario ? $usuario->user_login : '?',
+				'modo'    => $modo,
+			);
+			update_option( CETRUS_BLACK_REGISTRO, array_slice( $registro, -30 ), false );
 		}
 		delete_transient( CETRUS_BLACK_CACHE );
 		wp_safe_redirect( admin_url( 'tools.php?page=cetrus-black-2026&salvo=1' ) );
@@ -577,41 +569,39 @@ function cetrus_black_tela() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$dados  = cetrus_black_mapa( true );
-	$modo   = cetrus_black_modo();
-	$janela = cetrus_black_na_janela();
-	$efeito = 'ligado' === $modo || ( 'auto' === $modo && $janela );
-	$fuso   = new DateTimeZone( 'America/Sao_Paulo' );
-	$fmt    = function ( $iso ) use ( $fuso ) {
-		return ( new DateTime( $iso ) )->setTimezone( $fuso )->format( 'd/m/Y H:i' );
-	};
+	$dados = cetrus_black_mapa( true );
+	$modo  = cetrus_black_modo();
 
 	echo '<div class="wrap"><h1>Black November 2026</h1>';
 	if ( isset( $_GET['salvo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		echo '<div class="notice notice-success"><p>Modo gravado. Visitantes veem a mudanca em ate ~5 minutos (cache de borda).</p></div>';
 	}
 	printf(
-		'<p>Janela: <strong>%s</strong> a <strong>%s</strong> (Brasilia). Agora: <strong>%s</strong>. Modo: <strong>%s</strong>. Versao Black para visitantes: <strong>%s</strong>.</p>',
-		esc_html( $fmt( CETRUS_BLACK_INICIO ) ),
-		esc_html( $fmt( CETRUS_BLACK_FIM ) ),
-		$janela ? 'dentro da janela' : 'fora da janela',
-		esc_html( $modo ),
-		$efeito ? 'LIGADA' : 'desligada'
+		'<p style="font-size:15px">Versao Black para visitantes: <strong>%s</strong>. Nada liga ou desliga sozinho: a virada e feita aqui, por uma pessoa.</p>',
+		'ligado' === $modo ? 'LIGADA' : 'desligada'
 	);
-	echo '<p>Ficam iguais a producao mesmo com a campanha ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
+	echo '<p>Ficam iguais a producao mesmo com a versao Black ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cetrus_black_modo' );
 	echo '<input type="hidden" name="action" value="cetrus_black_modo"><select name="modo">';
 	foreach ( array(
-		'auto'      => 'auto (segue a janela)',
-		'ligado'    => 'ligado (forca a versao Black)',
-		'desligado' => 'desligado (rollback imediato)',
+		'desligado' => 'desligado (site normal / rollback)',
+		'ligado'    => 'ligado (versao Black para todos)',
 	) as $valor => $rotulo ) {
 		printf( '<option value="%s"%s>%s</option>', esc_attr( $valor ), selected( $modo, $valor, false ), esc_html( $rotulo ) );
 	}
 	echo '</select> ';
 	submit_button( 'Gravar modo', 'primary', 'submit', false );
 	echo '</form>';
+
+	$registro = array_reverse( (array) get_option( CETRUS_BLACK_REGISTRO, array() ) );
+	if ( $registro ) {
+		echo '<h2>Registro das viradas</h2><table class="widefat striped" style="max-width:640px"><thead><tr><th>Quando (Brasilia)</th><th>Usuario</th><th>Modo</th></tr></thead><tbody>';
+		foreach ( $registro as $r ) {
+			printf( '<tr><td>%s</td><td>%s</td><td>%s</td></tr>', esc_html( $r['quando'] ?? '' ), esc_html( $r['usuario'] ?? '' ), esc_html( $r['modo'] ?? '' ) );
+		}
+		echo '</tbody></table>';
+	}
 
 	printf(
 		'<p>Previa (so logado): <a href="%1$s" target="_blank">home com Black</a> | <a href="%2$s" target="_blank">home sem Black</a>. Em qualquer pagina: <code>?cetrus_black=1</code> ou <code>?cetrus_black=0</code>.</p>',

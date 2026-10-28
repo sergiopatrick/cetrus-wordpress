@@ -62,9 +62,11 @@ eval('?>' . $c);
 	const F = "'elementor/theme/get_location_templates/template_id'";
 	const casos = {
 		lint_md5: ["echo md5(base64_decode(file_get_contents('/tmp/p.b64')));", null],
-		janela: ["$t=fn($s)=>cetrus_black_na_janela(strtotime($s))?'1':'0'; echo $t('2026-10-31T23:59:59-03:00'),$t('2026-11-01T00:00:00-03:00'),$t('2026-11-30T23:59:59-03:00'),$t('2026-12-01T00:00:00-03:00');", '0110'],
 		ligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
+		// 28/10 (0.3.0): sem virada automatica; padrao e valor antigo "auto" = desligado
+		padrao_desligado: ["echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
+		auto_legado_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='auto'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
 		previa_editor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_anonimo: ["$_GET['cetrus_black']='1'; echo cetrus_black_ativo()?'ligada':'desligada';", null],
 		editor_elementor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $_GET['elementor-preview']='123'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],

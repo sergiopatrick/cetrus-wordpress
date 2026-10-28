@@ -82,7 +82,7 @@ window.__val = { feitos: 0, total: 0, linhas: [], erros: [], inicio: Date.now(),
 	window.__valP = (async function () {
 		nonceRest = await fetch('/wp-admin/admin-ajax.php?action=rest-nonce', { credentials: 'include' }).then(function (r) { return r.text(); });
 		var lib = await fetch('/wp-json/wp/v2/elementor_library?context=edit&per_page=100&status=publish&search=' + encodeURIComponent('[BLACK-2026]') + '&_fields=id,title', { credentials: 'include', headers: { 'X-WP-Nonce': nonceRest } }).then(function (r) { return r.json(); });
-		(Array.isArray(lib) ? lib : []).forEach(function (p) { var m = /^[BLACK-2026]s*#(d+)/.exec(p.title.raw || ''); if (m) clones[m[1]] = p.id; });
+		(Array.isArray(lib) ? lib : []).forEach(function (p) { var m = /^\[BLACK-2026\]\s*#(\d+)\b/.exec(p.title.raw || ''); if (m) clones[m[1]] = p.id; });
 		[10946, 11768, 27615].forEach(function (id) { if (clones[id]) paginasBlack[id] = clones[id]; });
 		__val.modelos = Object.keys(clones).length;
 		var urls = ['/', '/vitrine/', '/conteudos-gratuitos/', '/?s=ultrassonografia', '/modalidades/pos-graduacao/', '/modalidades/fellowship/', '/especialidades/', '/especialidades/radiologia-e-diagnostico-por-imagem/', '/institucional/', '/pagina-que-nao-existe-qa/'];

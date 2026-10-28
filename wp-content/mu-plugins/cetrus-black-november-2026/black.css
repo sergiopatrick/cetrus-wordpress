@@ -700,6 +700,39 @@ body.cetrus-black-2026.elementor-page-27615 .elementor-element .elementor-swiper
 	background: var(--cb-superficie);
 	border-color: rgba(255, 255, 255, 0.3);
 }
+/* banner das calculadoras do Educa (#cg-calc, producao desde 27/10): o degrade dele usa
+   --cg-dark/--cg-medium, que no Black sao claros; aqui vira cartao grafite */
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card {
+	background: radial-gradient(60% 90% at 100% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 60%), linear-gradient(180deg, #23242a 0%, #141518 100%);
+	border: 1px solid var(--cb-borda);
+	box-shadow: none;
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card:hover {
+	box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__olho {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--cb-lavanda-clara);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__titulo {
+	color: var(--cb-texto);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__desc {
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc ul.cg-calc__temas li {
+	border-color: rgba(212, 213, 232, 0.35);
+	color: var(--cb-corpo);
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc .cg-calc__btn {
+	background: var(--cb-texto);
+	color: #111214;
+}
+body.cetrus-black-2026.cetrus-black-conteudo #cg-calc a.cg-calc__card:hover .cg-calc__btn {
+	background: #fff;
+}
 /* janela do material (#cgModal) */
 body.cetrus-black-2026.cetrus-black-conteudo #cgModal .cg-modal__fundo {
 	background: rgba(0, 0, 0, 0.8);

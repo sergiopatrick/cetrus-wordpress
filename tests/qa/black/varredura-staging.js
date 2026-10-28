@@ -1,9 +1,10 @@
 /*
  * Cetrus · Black November 2026 · varredura original × Black no staging.
  *
- * Como rodar: no wp-admin do staging (logado), colar antes
- * black-november-2026/ferramentas/transforma-black.js e console-staging.js (window.cb), depois
- * este arquivo. Roda em segundo plano (~20 min para 439 URLs) e guarda tudo em window.__val:
+ * Como rodar: no wp-admin do staging (logado), colar este arquivo (ou carregar do GitHub raw).
+ * Os modelos [BLACK-2026] sao descobertos pelo titulo (os ids mudam a cada montagem).
+ * 28/10: telas iguais a producao (fellowship v2 28779, graduacao 19379, especialidade 25011,
+ * 404 e paginas sem modelo) precisam sair SEM troca e SEM classe Black. Roda em segundo plano (~20 min para 439 URLs) e guarda tudo em window.__val:
  *   __val.feitos / __val.total, __val.fim (fim), __val.erros, __val.linhas (TSV:
  *   caminho, status orig, status black, templates orig, templates black, nº H1, nº H2 orig,
  *   nº H2 black, problemas ou "OK").
@@ -16,13 +17,15 @@
  */
 window.__val = { feitos: 0, total: 0, linhas: [], erros: [], inicio: Date.now(), fim: null };
 (function () {
-	var clones = Object.assign({}, cb.clones);
-	var paginasBlack = { 10946: 35650, 11768: 35655, 27615: 35661 };
+	var clones = {}, paginasBlack = {}, nonceRest = null;
+	var SEM_BLACK = [28779, 19379, 25011, 14718]; // templates das telas iguais a producao
 	var h2Extra = {
 		'/': ['As melhores condições do ano para a sua formação.', 'Aprenda com quem é referência.'],
 		'/vitrine/': ['Planeje hoje o médico que você será amanhã.'],
 		'/conteudos-gratuitos/': ['Do conteúdo gratuito à prática em pacientes reais.']
 	};
+	// H2 que saem de proposito na versao Black (28/10: newsletter fora da Home)
+	var h2Removidos = { '/': ['Assine a newsletter do Cetrus'] };
 	function txt(s) { return s.replace(/<[^>]+>/g, '').replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/&#8211;/g, '–').replace(/\s+/g, ' ').trim(); }
 	function meta(t, re) { var m = t.match(re); return m ? m[1] : ''; }
 	function analisa(t) {
@@ -52,8 +55,18 @@ window.__val = { feitos: 0, total: 0, linhas: [], erros: [], inicio: Date.now(),
 			if (JSON.stringify(a.h1) !== JSON.stringify(k.h1)) prob.push('h1');
 			var path = new URL(u, location.origin).pathname, extra = h2Extra[path] || [];
 			var h2b = k.h2.filter(function (x) { return !extra.includes(x); }), faltam = extra.filter(function (x) { return !k.h2.includes(x); });
-			if ([...a.h2].sort().join('|') !== [...h2b].sort().join('|') || faltam.length) prob.push('h2(' + a.h2.length + '/' + k.h2.length + ')');
+			var rem = h2Removidos[path] || [], h2a = a.h2.filter(function (x) { return rem.indexOf(x) < 0; });
+			if ([...h2a].sort().join('|') !== [...h2b].sort().join('|') || faltam.length) prob.push('h2(' + a.h2.length + '/' + k.h2.length + ')');
 			if (a.black) prob.push('orig-com-classe');
+			var ids = a.tpl.map(function (x) { return +x.split(':')[1]; });
+			var telaBlack = !ids.some(function (id) { return SEM_BLACK.indexOf(id) >= 0; }) && (a.tpl.some(function (x) { return /^(product|search-results|product-archive):/.test(x); }) || ids.some(function (id) { return paginasBlack[id]; }));
+			if (!telaBlack) {
+				if (k.black) prob.push('tela-igual-a-producao-com-classe-black');
+				if (a.tpl.join(' ') !== k.tpl.join(' ')) prob.push('tela-igual-a-producao-com-troca: ' + k.tpl.join(' '));
+				__val.linhas.push([path, o.st, b.st, a.tpl.join(' '), k.tpl.join(' '), a.h1.length, a.h2.length, k.h2.length, (prob.join('; ') || 'OK') + ' (igual a producao)'].join('	'));
+				__val.feitos++;
+				return;
+			}
 			if (!k.black) prob.push('black-sem-classe');
 			var esperado = a.tpl.map(function (x) { var p = x.split(':'), id = +p[1]; return paginasBlack[id] ? null : p[0] + ':' + (clones[id] || id); }).filter(Boolean);
 			var falta = esperado.filter(function (x) { return !k.tpl.includes(x); });
@@ -67,9 +80,14 @@ window.__val = { feitos: 0, total: 0, linhas: [], erros: [], inicio: Date.now(),
 		__val.feitos++;
 	}
 	window.__valP = (async function () {
-		var urls = ['/', '/vitrine/', '/conteudos-gratuitos/', '/?s=ultrassonografia', '/modalidades/pos-graduacao/', '/modalidades/fellowship/', '/especialidades/', '/pagina-que-nao-existe-qa/'];
+		nonceRest = await fetch('/wp-admin/admin-ajax.php?action=rest-nonce', { credentials: 'include' }).then(function (r) { return r.text(); });
+		var lib = await fetch('/wp-json/wp/v2/elementor_library?context=edit&per_page=100&status=publish&search=' + encodeURIComponent('[BLACK-2026]') + '&_fields=id,title', { credentials: 'include', headers: { 'X-WP-Nonce': nonceRest } }).then(function (r) { return r.json(); });
+		(Array.isArray(lib) ? lib : []).forEach(function (p) { var m = /^[BLACK-2026]s*#(d+)/.exec(p.title.raw || ''); if (m) clones[m[1]] = p.id; });
+		[10946, 11768, 27615].forEach(function (id) { if (clones[id]) paginasBlack[id] = clones[id]; });
+		__val.modelos = Object.keys(clones).length;
+		var urls = ['/', '/vitrine/', '/conteudos-gratuitos/', '/?s=ultrassonografia', '/modalidades/pos-graduacao/', '/modalidades/fellowship/', '/especialidades/', '/especialidades/radiologia-e-diagnostico-por-imagem/', '/institucional/', '/pagina-que-nao-existe-qa/'];
 		for (var p = 1; p < 10; p++) {
-			var r = await fetch('/wp-json/wp/v2/product?per_page=100&status=publish&_fields=link&page=' + p, { credentials: 'include', headers: { 'X-WP-Nonce': cb.nonceRest } });
+			var r = await fetch('/wp-json/wp/v2/product?per_page=100&status=publish&_fields=link&page=' + p, { credentials: 'include', headers: { 'X-WP-Nonce': nonceRest } });
 			if (!r.ok) break;
 			var l = await r.json();
 			if (!l.length) break;

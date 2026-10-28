@@ -163,6 +163,7 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | [2dd15ad](https://github.com/sergiopatrick/cetrus-wordpress/commit/2dd15ad) | ajustes de 28/10 à noite (Home, Conteúdos, produto) e chave de virada pelo GitHub (mu-plugin 0.4.0) |
 | [c1d9a7a](https://github.com/sergiopatrick/cetrus-wordpress/commit/c1d9a7a) | trava: chave ligada sem modelos publicados não liga |
 | [cbf4938](https://github.com/sergiopatrick/cetrus-wordpress/commit/cbf4938) | Home: cor do CTA do destaque de conteúdos e altura dos campos do formulário ed32406c |
+| [a69d95c](https://github.com/sergiopatrick/cetrus-wordpress/commit/a69d95c) | formulário da Home: obrigado sem duplicar (texto novo), curso sem campo repetido, botão grafite |
 
 ## 7. Ajustes de 28/10 à noite e virada pelo GitHub
 
@@ -174,7 +175,7 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | Home | números idênticos ao Artifact | componente `home-legado` no lugar dos números originais (f4ad350): título "Há mais de 30 anos construindo um legado na educação médica.", 4 colunas com linha em cima, "+" lavanda e os textos do Artifact. Acrescenta 1 H2 à Home Black |
 | Home | contraste da seção "Pós em Formato Fellowship" | seção no grafite base `#0E0F12`; cartão em `#191A1E` com borda; coluna da imagem `#141518` (como no Artifact; a imagem é a mesma do site) |
 | Home | "Explore conteúdos gratuitos" sem o modal do Outubro Rosa | componente `home-conteudos-destaque`: cartão que leva para `/conteudos-gratuitos/`, com a imagem, o rótulo, a chamada e o CTA da própria página; os 3 artigos continuam |
-| Home | formulário ed32406c | `formId` trocado; mesmo embed v2 (portal 9321751, na1) com `css: ''`; mesmos campos (403 cursos na busca), UTMs padrão; o estilo que o HubSpot injeta nesse formulário foi neutralizado no componente. **Envio não testado** (geraria lead) |
+| Home | formulário ed32406c | `formId` trocado; mesmo embed v2 (portal 9321751, na1) com `css: ''`; mesmos campos (403 cursos na busca), UTMs padrão; o estilo que o HubSpot injeta nesse formulário foi neutralizado no componente. Envio testado pelo time em 28/10: funciona. Ajustes depois do teste (a69d95c): obrigado sem repetir o formulário, com o texto "Obrigado! Em breve, um consultor do Cetrus entrará em contato com você para apresentar a condição exclusiva da Black November para o curso escolhido."; curso escolhido sem o campo repetido (o React do HubSpot reescreve a classe do select); botão no grafite do Artifact |
 | Conteúdos gratuitos | H1 igual ao Artifact | Montserrat 300, 46 px, entrelinha 1,12, em 2 linhas com "gratuitos do Cetrus" em 600; coluna de texto de ~650 px e imagem de até 520 px. O texto do H1 não mudou (SEO) |
 | Conteúdos gratuitos | fundos das seções diferenciados como no Artifact | Como acessar e Blog `#0E0F12`; filtros e Aulas e E-books `#121316`; Lançamentos e Masterclasses `#000000`; Newsletter `#141518`; ponte Black com o degradê dela |
 | pós US-ME | degradê cinza no hero | o degradê já existia no CSS, mas a classe não chegava ao container: o `montar-black.js` gravava a classe na chave de widget (`_css_classes`). Corrigido (`css_classes`); isso também devolveu a barra fixa do celular só com "Quero me inscrever" e o invólucro do "Pertencimento" em todas as pós |

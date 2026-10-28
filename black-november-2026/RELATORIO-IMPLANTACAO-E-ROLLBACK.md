@@ -1,6 +1,6 @@
 # Black November 2026 · Relatório do processo, implantação manual e rollback
 
-> Documento de apoio ao `PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md` (raiz do repositório). Versão de 28/10/2026 (ativação manual).
+> Documento de apoio ao `PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md` (raiz do repositório). Versão de 28/10/2026, noite (virada manual por commit no GitHub; passo a passo em [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md)).
 > **Branch para revisão e merge: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual), um commit com o projeto inteiro sobre a `main`. O histórico detalhado fica na branch `projeto/black-november-2026`.
 
 ## 1. Como o trabalho foi feito
@@ -11,7 +11,7 @@
 4. **Arquitetura (temporária e reversível):**
    - templates e páginas **originais nunca são editados**;
    - cada versão Black é um **modelo novo do Elementor**, `[BLACK-2026] #<id do original>`, sem condições de exibição;
-   - o **mu-plugin** `wp-content/mu-plugins/cetrus-black-november-2026.php` troca, na hora de renderizar, o original pelo modelo Black **só quando uma pessoa liga o modo "ligado"**. Nas páginas Home, Vitrine e Conteúdos gratuitos troca só o conteúdo do Elementor, e URL, title, description, canonical e schema do Yoast continuam os da página;
+   - o **mu-plugin** `wp-content/mu-plugins/cetrus-black-november-2026.php` troca, na hora de renderizar, o original pelo modelo Black **só quando uma pessoa liga a chave** (desde 28/10 à noite: a linha `CETRUS_BLACK_VIRADA` do próprio arquivo, por commit no GitHub; o painel tem modos de emergência). Nas páginas Home, Vitrine e Conteúdos gratuitos troca só o conteúdo do Elementor, e URL, title, description, canonical e schema do Yoast continuam os da página;
    - o **CSS** da campanha (`cetrus-black-november-2026/black.css`) só entra nas telas com versão Black;
    - produto novo cadastrado durante a campanha cai na condição do original (modalidade, tag) e recebe a versão Black sozinho.
 5. **Construção e validação no staging (22–23/10):** transformador de cores por papel (fundo, texto, borda, botão) sem mexer em estrutura, textos, links ou shortcodes; componentes do Artifact versionados em `componentes/`; filtro do Elementor confirmado; varredura original × Black em 438 URLs com SEO idêntico; revisão em 390, 600, 768 px e desktop.
@@ -24,10 +24,11 @@
    - **imagens e cards diferentes no staging:** o staging era uma cópia parcial de ~16/10 (mídia ausente, conteúdo e mu-plugins antigos). Na produção as imagens existem. Resolução: sincronizar produção → staging (autorizada) e remontar a versão Black por script;
    - **montagem por script** (`ferramentas/montar-black.js`): recria os 24 modelos a partir dos originais do site em que roda. É o mesmo procedimento no staging e na produção, e por isso a versão Black nasce do conteúdo atual da produção. Simulação na produção (só leitura) em 28/10: 24 de 24 sem erro.
 7. **Validação no staging em 28/10** (depois da sincronização de arquivos): seção 5.
+8. **Ajustes de 28/10 à noite e virada pelo GitHub:** seção 7.
 
-## 2. Implantação na produção (ativação MANUAL)
+## 2. Implantação na produção (ativação MANUAL pelo GitHub)
 
-**Nada liga sozinho.** O código e os modelos são instalados antes, desligados, e uma pessoa liga a versão Black quando a campanha começar. Ela também a desliga quando a campanha acabar.
+**Nada liga sozinho.** O código e os modelos são instalados antes, desligados. Em 01/11 uma pessoa faz o merge do commit que liga a chave e implanta; em 01/12 faz o merge do commit que a desliga e implanta. Passo a passo com links: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md).
 
 ### 2.1 Preparação (até 31/10, com o site normal no ar)
 
@@ -36,7 +37,7 @@
 | 1 | Revisar e aprovar o PR `black-november-2026-ativacao-manual` → `main` | GitHub | fechar o PR |
 | 2 | Tag `PRE-BLACK-2026` no último commit da `main` antes do merge | `git tag PRE-BLACK-2026 <sha> && git push origin PRE-BLACK-2026` | — |
 | 3 | Confirmar o backup do Jetpack do dia | painel do WP.com | — |
-| 4 | Merge do PR; tag `BLACK-NOVEMBER-2026` no commit do merge | GitHub | `git revert` do merge |
+| 4 | Merge do PR com **"Create a merge commit"** (as branches de 01/11 e 01/12 nascem desta); tag `BLACK-NOVEMBER-2026` no commit do merge | GitHub | `git revert` do merge |
 | 5 | WP.com › Implantações › Acionar implantação (branch `main`). **Publica todos os mu-plugins da `main`**, não só este | painel do WP.com | implantar o commit anterior |
 | 6 | Conferir Ferramentas › Black November 2026: "Versão Black para visitantes: **desligada**" | wp-admin | — |
 | 7 | Linha de base dos originais: `await cetrusMontar.verificarOriginais()`; salvar em `baseline/originais-prod-AAAAMMDD.tsv` | console do wp-admin (só leitura) | — |
@@ -46,13 +47,13 @@
 
 `base` na produção: `https://raw.githubusercontent.com/sergiopatrick/cetrus-wordpress/<sha da tag BLACK-NOVEMBER-2026>/black-november-2026/`.
 
-### 2.2 Virada (dia e hora decididos pelo time, ex.: 01/11)
+### 2.2 Virada · 01/11 (commit no GitHub)
 
-1. A pessoa responsável entra no wp-admin da produção (administrador).
-2. Ferramentas › Black November 2026 › modo **ligado** › Gravar modo. Fica registrado quem virou e quando.
-   - Alternativa por WP-CLI: `wp option update cetrus_black_2026_modo ligado`.
+1. Abrir o PR https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111. O diff é uma linha: `define( 'CETRUS_BLACK_VIRADA', 'ligado' )`.
+2. Merge na `main` e WP.com › Implantações › implantar a `main`.
 3. Esperar ~5 min (cache de borda) e validar em janela anônima com `?x=<aleatório>`: Home, Vitrine, Conteúdos, produtos, formulário da Home (sem enviar), WhatsApp, popups; e as telas iguais à produção (fellowship v2, graduação, especialidade, institucional, 404) **sem** Black.
-4. Se algo crítico falhar: modo **desligado** (seção 3).
+4. Se algo crítico falhar: Ferramentas › Black November 2026 › **forçar desligado** (imediato, sem deploy; seção 3).
+5. Plano B se o PR não estiver limpo: editar a linha direto na `main` pelo GitHub (guia, seção 2).
 
 ## 3. Rollback (volta à versão anterior sem reconstruir páginas)
 
@@ -60,8 +61,8 @@
 
 | Nível | Quando | Como | Efeito | Tempo |
 |---|---|---|---|---|
-| 1. Fim da campanha (manual) | data combinada (ex.: 01/12) | Ferramentas › Black November 2026 › modo **desligado** (ou `wp option update cetrus_black_2026_modo desligado`) | o filtro devolve os originais; classe e CSS saem | imediato; visitantes em até ~5 min (cache) |
-| 2. Emergência | a qualquer momento | igual ao nível 1 | igual | igual |
+| 1. Fim da campanha (manual, GitHub) | 01/12 | PR https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-rollback-0112 (uma linha: `'desligado'`), merge e implantação da `main` | o filtro devolve os originais; classe e CSS saem | minutos (implantação) + até ~5 min de cache |
+| 2. Emergência | a qualquer momento | Ferramentas › Black November 2026 › **forçar desligado** (ou `wp option update cetrus_black_2026_modo desligado`) | igual, por cima do código | imediato; visitantes em até ~5 min (cache) |
 | 3. Código | se o mu-plugin der problema | `git revert` do merge + nova implantação, ou remover o arquivo e a pasta `cetrus-black-november-2026/` | some a camada inteira | minutos (deploy manual) |
 | 4. Limpeza | 7 dias depois do nível 1, estável | `await cetrusMontar.desmontar()`: os 24 modelos `[BLACK-2026]` viram rascunho (não apaga; base para 2027) | nenhum efeito visível | — |
 | Contingência | original alterado por engano | comparar com `baseline/originais-prod-*.tsv`; restaurar pela revisão do Elementor; backup do Jetpack só em último caso (apaga pedidos/leads posteriores) | — | — |
@@ -72,12 +73,12 @@
 
 ## 4. Problemas que podem acontecer
 
-Os riscos 17 a 20 entraram com a validação de 28/10 (seção 5).
+Os riscos 17 a 20 entraram com a validação de 28/10 (seção 5) e os riscos 21 a 25 com os ajustes de 28/10 à noite (seção 7).
 
 | # | Problema | Probabilidade / impacto | Prevenção / resposta |
 |---|---|---|---|
-| 1 | Ninguém desliga na data combinada (não há desligamento automático) | média / médio | responsável nomeado + lembrete de agenda; a tela mostra o estado e o registro das viradas |
-| 2 | Virada feita no horário errado ou por quem não devia | baixa / médio | só administrador; registro com usuário e horário; desfazer é o mesmo botão |
+| 1 | Ninguém faz o PR de 01/12 (não há desligamento automático) | média / médio | responsável nomeado + lembrete de agenda; o PR de rollback já está pronto (guia); a tela mostra o estado |
+| 2 | Virada feita no horário errado ou por quem não devia | baixa / médio | merge e implantação só por quem tem acesso ao GitHub e ao WP.com; o painel registra usuário e horário das viradas manuais; desfazer = "forçar desligado" |
 | 3 | Alguém edita um template original depois da montagem e a versão Black fica com o conteúdo antigo | média / médio | congelamento; rodar `executar` de novo (sempre parte do original) |
 | 4 | Home, Vitrine ou Conteúdos mudam de estrutura e um container esperado some | baixa / médio | o script **para aquela página com erro** e não grava; ela fica com a versão original até ajustar o script |
 | 5 | Template ou condição nova criada durante a campanha | baixa / baixo | sem modelo Black, a página sai na versão normal; acrescentar à lista do `montar-black.js` e rodar de novo |
@@ -90,12 +91,17 @@ Os riscos 17 a 20 entraram com a validação de 28/10 (seção 5).
 | 12 | "Quem viu" automático mostra curso que o comercial não queria destacar | média / baixo | só entra quando o curso não tem upsell; excluídos os ocultos do catálogo; cadastrar upsell resolve |
 | 13 | SEO: +2 H2 na Home (e −1 da newsletter), +1 na Vitrine, +1 em Conteúdos | baixa / baixo | H1, title, description, canonical e schema intactos; temporário |
 | 14 | Telas iguais à produção dependem dos ids de termo 149 (graduação) e 1262 (fellowship v2) | baixa / baixo | constantes no topo do mu-plugin |
-| 15 | Erro de PHP no mu-plugin | muito baixa / alto | lint e 24 casos de teste aprovados; resposta: implantação sem o arquivo |
+| 15 | Erro de PHP no mu-plugin | muito baixa / alto | lint e 31 casos de teste aprovados (28/10 à noite); resposta: implantação sem o arquivo |
 | 16 | Staging desatualizado de novo e validação sem refletir a produção | média / médio | sincronizar produção → staging antes de validar e remontar por script |
 | 17 | "Quem viu" automático puxa curso sem `v2_miniatura_titulo` (o card sai sem nome) | baixa / baixo | desde 28/10 a busca exige o campo preenchido (mu-plugin, `cetrus_black_relacionados()`) |
 | 18 | Margem negativa dos números da Home (sobem 80 px sobre o hero no original) volta se o original mudar de estrutura | baixa / baixo | o script zera a margem no modelo e avisa no relatório da montagem se não achar a margem |
 | 19 | No staging, imagens em tamanho reduzido dão 404 (o WP.com só gera esses tamanhos na CDN da produção) | certa no staging / nenhum na produção | snippet **só de staging** `[STAGING] Imagens no tamanho original` (seção 5); não implantar na produção |
 | 20 | A sincronização de banco produção → staging pedida em 28/10 continua "Sincronizando…" no painel do WP.com; se concluir, substitui o banco do staging e apaga modelos e snippets da validação | média / baixo | rodar de novo `staging-snippets.js`, o snippet de imagens e `montar-black.js` (seção 0 do documento central); a produção não é afetada |
+| 21 | Commit de virada implantado antes de montar os modelos na produção | baixa / alto | trava no mu-plugin 0.4.0: sem modelo `[BLACK-2026]` publicado a versão Black não liga; a tela mostra aviso vermelho; rodar o `montar-black.js` |
+| 22 | Painel deixado em "forçar desligado"/"forçar ligado" e o commit do GitHub sem efeito | baixa / médio | a tela mostra quem decide e um aviso; voltar para "seguir o GitHub" |
+| 23 | PR da branch do código entra com "Squash" e o PR de 01/11 aparece com conflito | média / baixo | merge com "Create a merge commit"; plano B: editar a linha da chave na `main` pelo GitHub |
+| 24 | Formulário novo da Home (ed32406c): fluxo do CRM diferente do 6ed56c62 ou estilo injetado pelo HubSpot mudar | média / médio | validar com o time de CRM antes de 01/11 (destino dos leads, automações, UTMs); o CSS do componente força altura e espaçamento dos campos |
+| 25 | Montserrat no H1 de Conteúdos gratuitos (pedido de 28/10): uma fonte a mais nessa página | baixa / baixo | o Elementor a hospeda no próprio site (sem chamar o Google); some com o rollback |
 
 ## 5. Validação no staging (28/10/2026, depois da sincronização)
 
@@ -154,3 +160,34 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | [1464cda](https://github.com/sergiopatrick/cetrus-wordpress/commit/1464cda) | snippet só de staging para imagens em tamanho reduzido |
 | [ac4ebef](https://github.com/sergiopatrick/cetrus-wordpress/commit/ac4ebef) | "Quem viu" automático só com cursos que têm título de miniatura |
 | [b33c7fb](https://github.com/sergiopatrick/cetrus-wordpress/commit/b33c7fb) | varredura reconhece os H2 do "Quem viu" automático e aceita lista de URLs |
+| [2dd15ad](https://github.com/sergiopatrick/cetrus-wordpress/commit/2dd15ad) | ajustes de 28/10 à noite (Home, Conteúdos, produto) e chave de virada pelo GitHub (mu-plugin 0.4.0) |
+| [c1d9a7a](https://github.com/sergiopatrick/cetrus-wordpress/commit/c1d9a7a) | trava: chave ligada sem modelos publicados não liga |
+| [cbf4938](https://github.com/sergiopatrick/cetrus-wordpress/commit/cbf4938) | Home: cor do CTA do destaque de conteúdos e altura dos campos do formulário ed32406c |
+
+## 7. Ajustes de 28/10 à noite e virada pelo GitHub
+
+**Pedidos e resultado no staging** (prévia `?cetrus_black=1`, conferido em 28/10 por volta das 17h):
+
+| Página | Pedido | O que foi feito |
+|---|---|---|
+| Home | fundo do carrossel como no Artifact | seção de destaques em `#121316` com linha superior; o mesmo em "Explore conteúdos gratuitos" |
+| Home | números idênticos ao Artifact | componente `home-legado` no lugar dos números originais (f4ad350): título "Há mais de 30 anos construindo um legado na educação médica.", 4 colunas com linha em cima, "+" lavanda e os textos do Artifact. Acrescenta 1 H2 à Home Black |
+| Home | contraste da seção "Pós em Formato Fellowship" | seção no grafite base `#0E0F12`; cartão em `#191A1E` com borda; coluna da imagem `#141518` (como no Artifact; a imagem é a mesma do site) |
+| Home | "Explore conteúdos gratuitos" sem o modal do Outubro Rosa | componente `home-conteudos-destaque`: cartão que leva para `/conteudos-gratuitos/`, com a imagem, o rótulo, a chamada e o CTA da própria página; os 3 artigos continuam |
+| Home | formulário ed32406c | `formId` trocado; mesmo embed v2 (portal 9321751, na1) com `css: ''`; mesmos campos (403 cursos na busca), UTMs padrão; o estilo que o HubSpot injeta nesse formulário foi neutralizado no componente. **Envio não testado** (geraria lead) |
+| Conteúdos gratuitos | H1 igual ao Artifact | Montserrat 300, 46 px, entrelinha 1,12, em 2 linhas com "gratuitos do Cetrus" em 600; coluna de texto de ~650 px e imagem de até 520 px. O texto do H1 não mudou (SEO) |
+| Conteúdos gratuitos | fundos das seções diferenciados como no Artifact | Como acessar e Blog `#0E0F12`; filtros e Aulas e E-books `#121316`; Lançamentos e Masterclasses `#000000`; Newsletter `#141518`; ponte Black com o degradê dela |
+| pós US-ME | degradê cinza no hero | o degradê já existia no CSS, mas a classe não chegava ao container: o `montar-black.js` gravava a classe na chave de widget (`_css_classes`). Corrigido (`css_classes`); isso também devolveu a barra fixa do celular só com "Quero me inscrever" e o invólucro do "Pertencimento" em todas as pós |
+| pós US-ME | imagem do Dr. Ronaldo Lins | a foto (`2024/12/cetrus-ronaldo-lins.jpg`) aparece no "Corpo docente" no staging, em 390 px e 1280 px, nas versões Black e normal; na produção ela também existe |
+
+**Virada pelo GitHub (mu-plugin 0.4.0):**
+- chave `CETRUS_BLACK_VIRADA` no próprio arquivo;
+- branches prontas para 01/11 (`black-november-2026-virada-0111`) e 01/12 (`black-november-2026-rollback-0112`);
+- o painel passa a "seguir o GitHub" por padrão, com "forçar desligado" e "forçar ligado" para emergência;
+- **trava:** sem modelos publicados, a chave ligada não liga nada.
+
+**Testes:**
+- harness com 31 casos (27 OK + 4 informativos), sem falha;
+- montagem dos 24 modelos no staging sem erro (1 aviso conhecido: a pós Sanar não tem barra fixa no celular).
+
+Passo a passo do dia: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md).

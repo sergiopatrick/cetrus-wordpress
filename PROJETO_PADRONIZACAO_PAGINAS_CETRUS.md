@@ -1,7 +1,7 @@
 # Projeto Cetrus — Padronização de páginas (Elementor) e Black November 2026
 
 > **Documento central do projeto.** Outra pessoa (ou outra conta do Claude) deve conseguir retomar o trabalho só com este arquivo e o repositório `sergiopatrick/cetrus-wordpress`, branch `black-november-2026-ativacao-manual` (a antiga `projeto/black-november-2026` fica como histórico).
-> Última atualização: **28/10/2026, fim da tarde** (sessão 4: validação no staging sincronizado). **Branch do PR: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
+> Última atualização: **28/10/2026, noite** (sessão 4: ajustes da noite e virada pelo GitHub; guia em `black-november-2026/GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`). **Branch do PR: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
 
 ## Estado atual em uma tela
 
@@ -9,13 +9,13 @@
 |---|---|
 | Artifact de referência | Lido por completo (10 artboards, código-fonte). Design system na seção 3. |
 | Baseline da produção | SEO: `black-november-2026/baseline/prod-pre-black-20261022.tsv` (456 URLs). **Originais (hash do Elementor de cada um dos 24 templates/páginas): `baseline/originais-prod-20261028.tsv`.** |
-| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.3.0**: **ativação e desativação MANUAIS** (Ferramentas › Black November 2026, padrão desligado, registro de quem virou; sem data no código), troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade (só cursos com `v2_miniatura_titulo`). Harness: 24 casos aprovados (28/10). **Liga/desliga testado no staging em 28/10 (teste 13).** **Não implantado em produção.** |
+| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.4.0**: **ativação e desativação MANUAIS por commit no GitHub** (chave `CETRUS_BLACK_VIRADA`; branches `black-november-2026-virada-0111` e `black-november-2026-rollback-0112`), painel com "seguir o GitHub" (padrão) e modos de emergência, trava sem modelos publicados, troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade (só cursos com `v2_miniatura_titulo`). Harness: 31 casos aprovados (28/10, noite). **Liga/desliga testado no staging em 28/10 (teste 13).** **Não implantado em produção.** |
 | Montagem dos modelos | **`black-november-2026/ferramentas/montar-black.js`** recria os 24 modelos `[BLACK-2026]` a partir dos originais do site em que roda. **Ensaio (simulação) na produção em 28/10: 24 de 24 sem erro**; 1 aviso (pós Sanar sem barra fixa no celular). |
 | Telas SEM versão Black (iguais à produção, D7) | fellowship v2 (tag 1262 / 28779), graduação (modalidade 149 / 19379), arquivo de especialidade (25011), institucional, 404 e qualquer página sem modelo Black. |
 | Staging | **Arquivos sincronizados com a produção em 28/10** (mídia, mu-plugins); **banco ainda o de 19/10** (a sincronização só de banco segue "Sincronizando…" no painel do WP.com; se concluir, apaga modelos e snippets da validação e é preciso reinstalar, seção 0). Snippets 118 (mu-plugin) e 119 (CSS) iguais ao commit `ac4ebef`; snippet 120 `[STAGING] Imagens no tamanho original` (só staging). 24 modelos remontados por script; 4 modelos das telas iguais à produção em rascunho. **Modo: desligado.** |
 | Validação de 28/10 | Páginas pedidas conferidas e corrigidas: relatório, seção 5. |
 | Bloqueio principal | Nenhum para o PR. Na produção: revisão/merge, implantação e montagem (relatório, seção 2). |
-| Próximo passo exato | PR `black-november-2026-ativacao-manual` → `main`; depois o roteiro do relatório, seção 2.1. Seção 22. |
+| Próximo passo exato | Até 31/10: PR `black-november-2026-ativacao-manual` → `main` ("Create a merge commit"), implantação e montagem na produção. 01/11: PR da `virada-0111`. 01/12: PR da `rollback-0112`. Guia `black-november-2026/GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`. |
 
 ## 0. Como retomar o trabalho (de outra conta ou sessão)
 
@@ -450,6 +450,8 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | D8 | (28/10) Home: mais respiro entre formulário e números; depoimentos como no Artifact; **newsletter removida**; **sem a etiqueta "Condições exclusivas" nos cards de curso** (Home, Vitrine e demais grades; o selo continua no topo das páginas de produto). "Quem viu" vazio recebe cursos relacionados (só no Black). |
 | D9 | (28/10) **Sincronização produção → staging autorizada** pelo usuário, para o staging ficar igual à produção (mídia, conteúdo, mu-plugins); a versão Black é remontada por script depois. |
 | D10 | (28/10) **Sem virada automática**: a versão Black é ligada e desligada manualmente por uma pessoa (substitui D2, que previa rollback automático em 01/12 00:00). Branch nova para o PR: `black-november-2026-ativacao-manual`. |
+| D11 | (28/10, noite) **Virada pelo GitHub**: a ativação em 01/11 e o rollback em 01/12 são commits manuais (merge + implantação) que mudam a chave `CETRUS_BLACK_VIRADA`; o painel fica para emergência. Substitui o modo do painel como chave principal (D10 continua: nada é automático). |
+| D12 | (28/10, noite) Home: números e destaque de conteúdos **idênticos ao Artifact** (textos do Artifact nos números); formulário HubSpot **ed32406c**; H1 de Conteúdos gratuitos em **Montserrat** (como no Artifact; exceção à D4 só nesse H1). |
 
 **Pendências de decisão abertas em 23/10**
 
@@ -559,6 +561,7 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 | Data | Quem | O quê |
 |---|---|---|
+| 28/10/2026 | Claude (sessão 4, noite) | Pedidos da noite: carrossel, números (home-legado), fellowship e destaque de conteúdos (home-conteudos-destaque) na Home; formulário ed32406c; H1 e fundos de Conteúdos; correção de `css_classes` nos containers (degradê do hero da pós, barra fixa, pertencimento). mu-plugin 0.4.0 com chave pelo GitHub e trava; harness 31 casos; 24 modelos remontados no staging; painel do staging em "seguir o GitHub". Commits 2dd15ad, c1d9a7a, cbf4938 e o de documentação. |
 | 28/10/2026 | Claude (sessão 4) | Staging sincronizado (arquivos) com a produção; snippets 118/119 reinstalados por script e 24 modelos remontados; páginas pedidas conferidas (relatório, seção 5). Correções: respiro formulário → números e rolagem horizontal na Home (25a70ad), snippet só de staging para imagens em tamanho reduzido (1464cda, snippet 120), "Quem viu" só com cursos com título de miniatura (ac4ebef). Teste de liga/desliga aprovado; staging deixado desligado. 4ª varredura. |
 | 28/10/2026 | Claude (sessão 3) | Pedidos de 28/10: telas iguais à produção (D7), ajustes da Home/Vitrine/Conteúdos (D8), "Quem viu" com cursos relacionados, banner das calculadoras no Black; montagem por script (`montar-black.js`, ensaio na produção 24/24), instalação no staging por script (`staging-snippets.js`), linha de base dos originais (`baseline/originais-prod-20261028.tsv`), relatório de implantação/rollback/riscos; branch publicada no GitHub; `main` mesclada. Staging à espera de login para a sincronização autorizada (D9). |
 | 23/10/2026 | Claude (sessão 2, tarde) | Escopo da camada CSS restrito a `body.cetrus-black-conteudo` (mu-plugin + `black.css`, snippets 116/117 atualizados); pacote (aba ativa, seta), graduação (véu do hero); harness 18 casos aprovado; 3ª varredura (438 URLs) aprovada; telas em 390/768 px; documento com seção 0 (retomada). Commits dfd4bcc, 232c5a7, 0445bc9 e seguinte. |

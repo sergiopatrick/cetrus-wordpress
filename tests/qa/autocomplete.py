@@ -19,7 +19,7 @@ Armadilhas ja pagas e tratadas aqui:
   * o painel so e injetado na home. Em modo preview ele exige ?ac=1 na URL, que e
     tambem o que fura o edge cache.
 """
-import json, random, re, sys, unicodedata, urllib.error, urllib.request
+import json, random, re, sys, unicodedata, urllib.error, urllib.parse, urllib.request
 
 HOME  = "https://cetrus.com.br/"
 REST  = "https://cetrus.com.br/wp-json/cetrus/v1/busca-indice"
@@ -32,6 +32,9 @@ AMOSTRA    = 12           # destinos sorteados para conferir HTTP 200
 
 # Termos que precisam continuar achando curso. Sao as buscas reais do campo:
 # nome de especialidade, nome de coordenador e a abreviacao que o medico digita.
+PLANO_B = ["dopller", "ginecolgia", "presencial", "residencia"]
+BUSCA   = "https://cetrus.com.br/wp-json/cetrus/v1/busca"
+
 GOLDEN = {
     "ultrassom":   1,     # so casa via apelido; sem ele somem ~140 cursos de USG
     "usg":         1,
@@ -40,6 +43,8 @@ GOLDEN = {
     "pediatria":   3,
     "dor":         3,
     "doppler":     3,
+    "mamas":       1,
+    "residencia":  1,
 }
 
 
@@ -50,6 +55,21 @@ def baixa(url, bruto=False):
     with urllib.request.urlopen(req, timeout=60) as r:
         dado = r.read()
     return dado if bruto else dado.decode("utf-8", "replace")
+
+
+class _SemRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *a, **k):
+        return None
+
+
+def sem_seguir(url):
+    """Location do primeiro redirect, ou '' se nao houver."""
+    req = urllib.request.Request(f"{url}&qa={random.randint(1, 10**9)}", headers={"User-Agent": UA})
+    try:
+        urllib.request.build_opener(_SemRedirect).open(req, timeout=60)
+        return ""
+    except urllib.error.HTTPError as e:
+        return e.headers.get("Location", "") if e.code in (301, 302) else ""
 
 
 def normaliza(s):
@@ -129,6 +149,24 @@ def main():
                        f"(o painel deduplica, mas sao paginas duplicadas de verdade)")
         for (t, _), slugs in list(repetidos.items())[:5]:
             alertas.append(f"    {t[:52]} -> {', '.join(slugs)}")
+
+    # 8. plano B: o que o indice nao acha, o motor da pagina de resultados acha.
+    #    Erros de digitacao e intencoes do estudo de busca de out/2026.
+    for termo in PLANO_B:
+        try:
+            r = json.loads(baixa(f"{BUSCA}?q={urllib.parse.quote(termo)}"))
+        except Exception as e:
+            falhas.append(f"rota de busca nao respondeu para {termo!r}: {e}")
+            continue
+        if not r.get("p"):
+            falhas.append(f"plano B vazio para {termo!r}")
+        elif mostrar:
+            print(f"  plano B {termo:<14} {len(r['p'])} cursos")
+
+    # 9. termo de busca com UTM grudada vira URL limpa, com a UTM preservada
+    loc = sem_seguir(HOME + "?s=Ultrassom/?utm_source=qa")
+    if "s=ultrassom" not in loc or "utm_source=qa" not in loc:
+        falhas.append(f"?s=Ultrassom/?utm_source=qa nao foi limpo (Location: {loc!r})")
 
     # 7. a home carrega o painel quando o modo permite
     html = baixa(HOME + "?ac=1")

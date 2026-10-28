@@ -56,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * para "desligado" + implantacao. Nada mais precisa mudar no codigo para ligar ou desligar.
  */
 if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
-	define( 'CETRUS_BLACK_VIRADA', 'desligado' );
+	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
 const CETRUS_BLACK_VERSAO   = '0.4.0';

@@ -147,6 +147,11 @@
 		barraNoHeader: function (els, ctx) {
 			if (JSON.stringify(els).indexOf('BLACK · barra de campanha') >= 0) return;
 			var idBarra = ctx.remap[34626];
+			// header que ainda tem a faixa antiga apontando para a 34626 (ex.: staging com banco de 19/10):
+			// a faixa ja vira a barra pelo remap, entao nao acrescenta outra
+			var jaTem = false;
+			cada(els, function (e) { var t = e.settings && e.settings.template_id; if (t && (String(t) === '34626' || (idBarra && String(t) === String(idBarra)))) jaTem = true; });
+			if (jaTem) return;
 			var w = idBarra
 				? { id: uid(), elType: 'widget', widgetType: 'template', settings: { template_id: String(idBarra), _title: 'BLACK · barra de campanha' }, elements: [] }
 				: widgetHtml(ctx.comp['barra-campanha'], 'barra de campanha');

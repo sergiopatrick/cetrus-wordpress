@@ -386,13 +386,14 @@ add_filter(
 
 /**
  * Cursos publicados e visiveis no catalogo com a mesma especialidade (depois a mesma modalidade).
+ * So entram cursos com v2_miniatura_titulo: e o titulo do card do carrossel (sem ele o card sai sem nome).
  *
  * @param int $id     Produto atual.
  * @param int $limite Maximo de cursos.
  * @return int[]
  */
 function cetrus_black_relacionados( $id, $limite = 8 ) {
-	$chave = 'cetrus_black_rel_' . $id;
+	$chave = 'cetrus_black_rel2_' . $id;
 	$salvo = get_transient( $chave );
 	if ( is_array( $salvo ) ) {
 		return $salvo;
@@ -414,6 +415,13 @@ function cetrus_black_relacionados( $id, $limite = 8 ) {
 				'post__not_in'     => array_merge( array( $id ), $ids ),
 				'orderby'          => 'date',
 				'order'            => 'DESC',
+				'meta_query'       => array( // phpcs:ignore WordPress.DB.SlowDBQuery
+					array(
+						'key'     => 'v2_miniatura_titulo',
+						'value'   => '',
+						'compare' => '!=',
+					),
+				),
 				'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery
 					'relation' => 'AND',
 					array(

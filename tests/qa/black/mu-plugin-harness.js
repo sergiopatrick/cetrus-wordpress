@@ -34,7 +34,7 @@ $GLOBALS['F']=[]; $GLOBALS['OPT']=[]; $GLOBALS['LOGADO']=false; $GLOBALS['PODE']
 function add_filter($h,$cb,$p=10,$a=1){ $GLOBALS['F'][$h][]=$cb; } function add_action($h,$cb,$p=10,$a=1){ $GLOBALS['F'][$h][]=$cb; }
 function apply_filters($h,$v){ return $v; } function run_filters($h,$v){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v);} return $v; }
 function get_option($k,$d=false){ return $GLOBALS['OPT'][$k]??$d; } function update_option($k,$v,$a=null){ $GLOBALS['OPT'][$k]=$v; return true; }
-function did_action($h){ return 1; } function is_admin(){ return false; } function wp_doing_ajax(){ return false; } function is_feed(){ return false; }
+function did_action($h){ return $GLOBALS['ACOES'][$h] ?? 1; } function is_admin(){ return false; } function wp_doing_ajax(){ return false; } function is_feed(){ return false; }
 function is_user_logged_in(){ return $GLOBALS['LOGADO']; } function current_user_can($c){ return $GLOBALS['PODE']; } function wp_unslash($v){ return $v; }
 function get_transient($k){ return false; } function set_transient($k,$v,$t){ return true; } function delete_transient($k){ return true; }
 $GLOBALS['META']=[900=>'product',901=>'header',902=>'product',903=>'header',904=>'product',905=>'page',12073=>'product',11545=>'header',19225=>'product',10946=>'wp-page'];
@@ -45,7 +45,7 @@ $GLOBALS['SC']=[]; function add_shortcode($n,$cb){ $GLOBALS['SC'][$n]=$cb; } fun
 function is_singular($t=''){ return $GLOBALS['SINGULAR']??false; } function get_the_terms($id,$tax){ return $GLOBALS['TERMOS']??[]; }
 function has_term($t,$tax,$p=null){ foreach(($GLOBALS['TERMOS']??[]) as $o){ if(in_array($o->slug,(array)$t,true)||in_array($o->term_id,(array)$t,true)) return true; } return false; }
 function sanitize_html_class($c){ return preg_replace('/[^A-Za-z0-9_-]/','',$c); } function esc_html($s){ return htmlspecialchars($s); } function esc_attr($s){ return htmlspecialchars($s); }
-function is_search(){ return false; } function is_post_type_archive($t=''){ return false; } function is_tax($t='',$x=''){ return false; }
+function is_search(){ return false; } function is_post_type_archive($t=''){ return false; } function is_tax($t='',$x=''){ return in_array($GLOBALS['TAX'] ?? '', (array)$t, true); }
 $GLOBALS['QID']=10946;
 function is_page(){ return true; } function get_queried_object_id(){ return $GLOBALS['QID']; } function in_the_loop(){ return true; } function is_main_query(){ return true; } function get_the_ID(){ return $GLOBALS['QID']; }
 function run_filters2($h,$v,$a){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v,$a);} return $v; }
@@ -78,7 +78,13 @@ eval('?>' . $c);
 		conteudo_reserva_zerado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "''"],
 		conteudo_reserva_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; var_export(($GLOBALS['F']['the_content'][0])('[cetrus_newsletter]'));", "'[cetrus_newsletter]'"],
 		classe_modalidade: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='pos-graduacao'; $o->term_id=147; $GLOBALS['TERMOS']=[$o]; echo implode(',',run_filters('body_class',['x']));", null],
-		conteudo_nao_black: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo implode(',',run_filters('body_class',['x']));", 'x,cetrus-black-2026'],
+		conteudo_nao_black: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo implode(',',run_filters('body_class',['x']));", 'x'],
+		// 28/10: telas que ficam iguais a producao (cetrus_black_tela_fora)
+		graduacao_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='graduacao'; $o->term_id=149; $GLOBALS['TERMOS']=[$o]; echo run_filters(${F},12073),' ',implode(',',run_filters('body_class',['x']));", '12073 x'],
+		fellowship_v2_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['SINGULAR']=true; $o=new stdClass; $o->slug='teste-fellow'; $o->term_id=1262; $GLOBALS['TERMOS']=[$o]; echo run_filters(${F},12073);", '12073'],
+		especialidade_fora: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_especialidade'; echo run_filters(${F},12073);", '12073'],
+		modalidade_dentro: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['TAX']='v2_modalidade'; $GLOBALS['QID']=11768; echo run_filters(${F},12073);", '904'],
+		pagina_antes_do_wp: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['ACOES']=['wp'=>0]; $GLOBALS['QID']=11768; echo cetrus_black_na_tela()?'indefinido-segue':'fora';", 'indefinido-segue'],
 		shortcodes: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo implode(',',array_keys($GLOBALS['SC']));", null]
 	};
 	const out = {};

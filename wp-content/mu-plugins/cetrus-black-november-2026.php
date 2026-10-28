@@ -2,13 +2,12 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Liga a versao Black do site so dentro da janela da campanha. Troca, na hora de renderizar, cada template do Elementor pelo clone "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Fora da janela nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.1.0
+ * Version:     0.2.0
  * Author:      Cetrus / Sanar
  *
- * RASCUNHO 0.1.0 (22/10/2026), AINDA NAO TESTADO NO STAGING NEM IMPLANTADO.
- * Falta confirmar no Elementor Pro 4.1.3 que o filtro
- * elementor/theme/get_location_templates/template_id e aplicado na resolucao
- * das condicoes (secao 14 do documento do projeto).
+ * 0.2.0 (28/10/2026): validado no staging (filtro do Elementor Pro 4.1.3 confirmado, varredura de
+ * 438 URLs com SEO identico); telas que ficam iguais a producao em cetrus_black_tela_fora().
+ * Ainda nao implantado em producao.
  *
  * COMO FUNCIONA
  * - Os templates originais NAO sao editados e continuam donos das condicoes de
@@ -45,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const CETRUS_BLACK_VERSAO  = '0.1.0';
+const CETRUS_BLACK_VERSAO  = '0.2.0';
 const CETRUS_BLACK_INICIO  = '2026-11-01T00:00:00-03:00';
 const CETRUS_BLACK_FIM     = '2026-12-01T00:00:00-03:00'; // PENDENTE: confirmar a data de encerramento com o comercial.
 const CETRUS_BLACK_PREFIXO = '[BLACK-2026]';
@@ -53,6 +52,9 @@ const CETRUS_BLACK_OPCAO   = 'cetrus_black_2026_modo';
 const CETRUS_BLACK_CACHE   = 'cetrus_black_2026_mapa';
 // Tipos de modelo do Elementor aceitos como versao Black de uma PAGINA (Home, Vitrine...).
 const CETRUS_BLACK_TIPOS_PAGINA = array( 'page', 'section', 'container' );
+// Telas que ficam iguais a producao (cetrus_black_tela_fora): graduacao e fellowship v2.
+const CETRUS_BLACK_FORA_MODALIDADES = array( 149 );  // v2_modalidade graduacao -> template 19379
+const CETRUS_BLACK_FORA_TAGS        = array( 1262 ); // product_tag teste-fellow -> template 28779 (fellowship v2)
 
 /**
  * Modo gravado no banco: auto (segue a janela), ligado ou desligado.
@@ -232,7 +234,7 @@ unset( $cetrus_black_gancho );
 add_filter(
 	'elementor/theme/get_location_templates/template_id',
 	function ( $template_id ) {
-		if ( ! cetrus_black_ativo() ) {
+		if ( ! cetrus_black_na_tela() ) {
 			return $template_id;
 		}
 		$mapa = cetrus_black_mapa();
@@ -316,28 +318,54 @@ add_filter(
 );
 
 /**
- * O conteudo principal desta tela tem versao Black? Produto, arquivos e busca de produto (templates
- * clonados) e as paginas com modelo [BLACK-2026]. Nas demais (institucionais, curriculos, 404) so
- * header, barra e rodape mudam, e o fundo grafite e as regras de conteudo do black.css (restritas a
- * body.cetrus-black-conteudo) nao entram: secao de fundo transparente ficaria escuro sobre escuro.
+ * Telas que ficam IGUAIS A PRODUCAO mesmo com a campanha ligada (decisao de 28/10/2026): nelas
+ * nada muda, nem header, barra e rodape, nem classe no body ou CSS.
+ * - paginas sem modelo [BLACK-2026] (institucionais, /especialidades/, curriculos, 404, posts);
+ * - arquivo de especialidade (template 25011);
+ * - graduacao (modalidade 149, template 19379) e fellowship v2 (tag 1262, template 28779).
+ *
+ * Antes do 'wp' (pre_get_posts, quando o Elementor Pro escolhe o template dos arquivos e da
+ * busca) so os arquivos sao decididos; produto e pagina esperam o objeto da consulta.
  *
  * @return bool
  */
-function cetrus_black_conteudo_black() {
-	$sim = is_singular( 'product' ) || is_search() || is_post_type_archive( 'product' )
-		|| is_tax( array( 'v2_modalidade', 'v2_especialidade', 'v2_cidade' ) )
-		|| cetrus_black_clone_da_pagina();
-	return (bool) apply_filters( 'cetrus_black_conteudo', $sim );
+function cetrus_black_tela_fora() {
+	if ( ! did_action( 'parse_query' ) ) {
+		return false;
+	}
+	if ( is_tax( 'v2_especialidade' ) ) {
+		$fora = true;
+	} elseif ( is_search() || is_post_type_archive( 'product' ) || is_tax( array( 'v2_modalidade', 'v2_cidade' ) ) ) {
+		$fora = false;
+	} elseif ( ! did_action( 'wp' ) ) {
+		return false;
+	} elseif ( is_singular( 'product' ) ) {
+		$id   = (int) get_queried_object_id();
+		$fora = has_term( CETRUS_BLACK_FORA_MODALIDADES, 'v2_modalidade', $id ) || has_term( CETRUS_BLACK_FORA_TAGS, 'product_tag', $id );
+	} else {
+		$fora = ! cetrus_black_clone_da_pagina();
+	}
+	return (bool) apply_filters( 'cetrus_black_tela_fora', $fora );
+}
+
+/**
+ * A versao Black vale NESTA TELA? Campanha ligada (janela, modo ou previa) e tela fora da lista
+ * de cetrus_black_tela_fora(). E o que decide troca de template, classe, CSS e shortcodes.
+ *
+ * @return bool
+ */
+function cetrus_black_na_tela() {
+	return cetrus_black_ativo() && ! cetrus_black_tela_fora();
 }
 
 add_filter(
 	'body_class',
 	function ( $classes ) {
-		if ( cetrus_black_ativo() ) {
+		if ( cetrus_black_na_tela() ) {
+			// cetrus-black-conteudo: nome antigo das regras de conteudo do black.css (23/10); hoje
+			// toda tela com Black tem conteudo Black, entao as duas classes andam juntas.
 			$classes[] = 'cetrus-black-2026';
-			if ( cetrus_black_conteudo_black() ) {
-				$classes[] = 'cetrus-black-conteudo';
-			}
+			$classes[] = 'cetrus-black-conteudo';
 			// Modalidade no body (cetrus-black-mod-pos-graduacao...): o template 12073 atende pos E
 			// intensivos, e os ajustes so da pos (Artifact) precisam distinguir os dois.
 			if ( is_singular( 'product' ) ) {
@@ -350,6 +378,83 @@ add_filter(
 		return $classes;
 	}
 );
+
+/**
+ * "Quem viu este curso tambem se interessou por:" (carrossel 366d4ed do template 12073 e das
+ * variantes) lista os produtos "upsell" do WooCommerce. Curso sem upsell cadastrado mostra o
+ * carrossel vazio, na producao tambem (ex.: medicina-canabinoide-pratica-clinica-e-prescricao,
+ * 28/10/2026). Na versao Black, SO quando nao ha upsell, entram cursos da mesma especialidade e,
+ * se faltar, da mesma modalidade. Fora da campanha nada muda.
+ */
+add_filter(
+	'woocommerce_product_get_upsell_ids',
+	function ( $ids, $produto ) {
+		if ( ! empty( $ids ) || ! is_object( $produto ) || ! did_action( 'wp' ) || ! is_singular( 'product' ) ) {
+			return $ids;
+		}
+		if ( (int) $produto->get_id() !== (int) get_queried_object_id() || ! cetrus_black_na_tela() ) {
+			return $ids;
+		}
+		return cetrus_black_relacionados( (int) $produto->get_id() );
+	},
+	10,
+	2
+);
+
+/**
+ * Cursos publicados e visiveis no catalogo com a mesma especialidade (depois a mesma modalidade).
+ *
+ * @param int $id     Produto atual.
+ * @param int $limite Maximo de cursos.
+ * @return int[]
+ */
+function cetrus_black_relacionados( $id, $limite = 8 ) {
+	$chave = 'cetrus_black_rel_' . $id;
+	$salvo = get_transient( $chave );
+	if ( is_array( $salvo ) ) {
+		return $salvo;
+	}
+	$ids = array();
+	foreach ( array( 'v2_especialidade', 'v2_modalidade' ) as $tax ) {
+		$termos = wp_get_post_terms( $id, $tax, array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $termos ) || empty( $termos ) ) {
+			continue;
+		}
+		$achados = get_posts(
+			array(
+				'post_type'        => 'product',
+				'post_status'      => 'publish',
+				'posts_per_page'   => $limite - count( $ids ),
+				'fields'           => 'ids',
+				'no_found_rows'    => true,
+				'suppress_filters' => false,
+				'post__not_in'     => array_merge( array( $id ), $ids ),
+				'orderby'          => 'date',
+				'order'            => 'DESC',
+				'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery
+					'relation' => 'AND',
+					array(
+						'taxonomy' => $tax,
+						'terms'    => array_map( 'intval', $termos ),
+					),
+					array(
+						'taxonomy' => 'product_visibility',
+						'field'    => 'name',
+						'terms'    => array( 'exclude-from-catalog' ),
+						'operator' => 'NOT IN',
+					),
+				),
+			)
+		);
+		$ids = array_merge( $ids, array_map( 'intval', $achados ) );
+		if ( count( $ids ) >= $limite ) {
+			break;
+		}
+	}
+	$ids = array_slice( array_values( array_unique( $ids ) ), 0, $limite );
+	set_transient( $chave, $ids, HOUR_IN_SECONDS );
+	return $ids;
+}
 
 /**
  * O curso aberto e de pos-graduacao (modalidade pos-graduacao)?
@@ -367,7 +472,7 @@ function cetrus_black_e_pos() {
 add_shortcode(
 	'cetrus_black_selo',
 	function ( $atts ) {
-		if ( ! cetrus_black_ativo() ) {
+		if ( ! cetrus_black_na_tela() ) {
 			return '';
 		}
 		$atts = shortcode_atts( array( 'texto' => 'Condições exclusivas' ), $atts, 'cetrus_black_selo' );
@@ -383,7 +488,7 @@ add_shortcode(
 add_shortcode(
 	'cetrus_black_pertencimento',
 	function () {
-		if ( ! cetrus_black_ativo() || ! cetrus_black_e_pos() ) {
+		if ( ! cetrus_black_na_tela() || ! cetrus_black_e_pos() ) {
 			return '';
 		}
 		$palavras = (array) apply_filters( 'cetrus_black_pertencimento_palavras', array( 'ultrassonografista', 'cardiologista', 'radiologista', 'ginecologista', 'ortopedista', 'dermatologista' ) );
@@ -426,7 +531,7 @@ add_action(
 	function () {
 		// Sem o arquivo (ex.: staging com o codigo colado no Code Snippets) o CSS
 		// vai por fora; as regras so pegam com a classe no body, entao nada vaza.
-		if ( ! cetrus_black_ativo() || ! file_exists( WPMU_PLUGIN_DIR . '/cetrus-black-november-2026/black.css' ) ) {
+		if ( ! cetrus_black_na_tela() || ! file_exists( WPMU_PLUGIN_DIR . '/cetrus-black-november-2026/black.css' ) ) {
 			return;
 		}
 		wp_enqueue_style(
@@ -493,6 +598,7 @@ function cetrus_black_tela() {
 		esc_html( $modo ),
 		$efeito ? 'LIGADA' : 'desligada'
 	);
+	echo '<p>Ficam iguais a producao mesmo com a campanha ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cetrus_black_modo' );
 	echo '<input type="hidden" name="action" value="cetrus_black_modo"><select name="modo">';

@@ -9,6 +9,7 @@
  *   caminho, status orig, status black, templates orig, templates black, nº H1, nº H2 orig,
  *   nº H2 black, problemas ou "OK").
  * Resumo: __val.linhas.filter(l => !l.endsWith('\tOK'))
+ * Rodar UMA varredura por vez: tres em paralelo (28/10) ativaram a checagem anti-robo do WP.com (403).
  * Repassar so algumas URLs: window.__valUrls = ['/cursos/x/', ...] antes de carregar o arquivo.
  * H2 a mais que sao so rotulos dos cards do "Quem viu" automatico (D8) saem como
  * "OK (quem viu automatico: +N h2)".

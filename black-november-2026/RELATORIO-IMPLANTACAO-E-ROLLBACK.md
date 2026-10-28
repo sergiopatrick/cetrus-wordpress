@@ -23,6 +23,7 @@
    - **Conteúdos gratuitos:** o banner das calculadoras (produção desde 27/10) ganhou visual Black;
    - **imagens e cards diferentes no staging:** o staging era uma cópia parcial de ~16/10 (mídia ausente, conteúdo e mu-plugins antigos). Na produção as imagens existem. Resolução: sincronizar produção → staging (autorizada) e remontar a versão Black por script;
    - **montagem por script** (`ferramentas/montar-black.js`): recria os 24 modelos a partir dos originais do site em que roda. É o mesmo procedimento no staging e na produção, e por isso a versão Black nasce do conteúdo atual da produção. Simulação na produção (só leitura) em 28/10: 24 de 24 sem erro.
+7. **Validação no staging em 28/10** (depois da sincronização de arquivos): seção 5.
 
 ## 2. Implantação na produção (ativação MANUAL)
 
@@ -71,6 +72,8 @@
 
 ## 4. Problemas que podem acontecer
 
+Os riscos 17 a 20 entraram com a validação de 28/10 (seção 5).
+
 | # | Problema | Probabilidade / impacto | Prevenção / resposta |
 |---|---|---|---|
 | 1 | Ninguém desliga na data combinada (não há desligamento automático) | média / médio | responsável nomeado + lembrete de agenda; a tela mostra o estado e o registro das viradas |
@@ -89,3 +92,65 @@
 | 14 | Telas iguais à produção dependem dos ids de termo 149 (graduação) e 1262 (fellowship v2) | baixa / baixo | constantes no topo do mu-plugin |
 | 15 | Erro de PHP no mu-plugin | muito baixa / alto | lint e 24 casos de teste aprovados; resposta: implantação sem o arquivo |
 | 16 | Staging desatualizado de novo e validação sem refletir a produção | média / médio | sincronizar produção → staging antes de validar e remontar por script |
+| 17 | "Quem viu" automático puxa curso sem `v2_miniatura_titulo` (o card sai sem nome) | baixa / baixo | desde 28/10 a busca exige o campo preenchido (mu-plugin, `cetrus_black_relacionados()`) |
+| 18 | Margem negativa dos números da Home (sobem 80 px sobre o hero no original) volta se o original mudar de estrutura | baixa / baixo | o script zera a margem no modelo e avisa no relatório da montagem se não achar a margem |
+| 19 | No staging, imagens em tamanho reduzido dão 404 (o WP.com só gera esses tamanhos na CDN da produção) | certa no staging / nenhum na produção | snippet **só de staging** `[STAGING] Imagens no tamanho original` (seção 5); não implantar na produção |
+| 20 | A sincronização de banco produção → staging pedida em 28/10 continua "Sincronizando…" no painel do WP.com; se concluir, substitui o banco do staging e apaga modelos e snippets da validação | média / baixo | rodar de novo `staging-snippets.js`, o snippet de imagens e `montar-black.js` (seção 0 do documento central); a produção não é afetada |
+
+## 5. Validação no staging (28/10/2026, depois da sincronização)
+
+**Ambiente:**
+- staging com os **arquivos** da produção (mídia e mu-plugins copiados pela sincronização) e o **banco de 19/10**. A sincronização só de banco continua "Sincronizando…" no painel (risco 20);
+- camada instalada por `staging-snippets.js` (snippets 118 e 119, iguais ao arquivo do GitHub);
+- modelos remontados por `montar-black.js`.
+
+Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em desktop. Ao terminar, o staging ficou **desligado** para visitantes.
+
+| Página | Pedido | Resultado no staging | Correção |
+|---|---|---|---|
+| Home | mais respiro entre formulário e números | antes sobravam ~24 px: os números têm `margin-top: -80px` no original, para subir sobre o hero; agora **104 px** | `montar-black.js` zera essa margem só no modelo (25a70ad) |
+| Home | (achado na validação) | rolagem horizontal: o select de cursos do HubSpot, escondido sob a busca, ficava com a largura da janela; agora sem rolagem | regra mais específica no componente do formulário (25a70ad) |
+| Home | depoimentos como no Artifact; sem newsletter; sem etiqueta nos cards | 3 cartões com textos e fotos reais (as fotos carregam); newsletter ausente; 0 etiquetas nos cards do carrossel | — |
+| Home | imagens; conteúdos com as imagens da produção | hero, carrossel, autoridade e conteúdos (card Outubro Rosa e 3 artigos) com as mesmas imagens da página original | — |
+| Vitrine | sem etiqueta; imagens dos cards iguais à produção | 16 cards com as mesmas imagens da versão normal, sem etiqueta | — |
+| Conteúdos gratuitos | imagens e comportamento dos cards iguais à produção | aulas, masterclasses e e-books com as mesmas imagens; ícone de play nos mesmos cards da produção; clique e hover vêm do plugin (o CSS Black só troca cores) | — |
+| Conteúdos gratuitos | imagem ao lado de "Conteúdos mais acessados" | aparece | — |
+| Conteúdos gratuitos | banner das calculadoras | não aparece no staging, nem na versão normal: o arquivo `cetrus-conteudos-gratuitos.php` do staging é anterior a 27/10. O visual Black foi conferido na página pública da produção, com o `black.css` aplicado só no navegador (nada gravado) | — (aparece na produção) |
+| pós US-ME, pós Sanar | imagens | todas carregam; Black e normal iguais | — |
+| pós Pediatria, fellowship "mais 4", intensivo, preparatório, EAD | imagem do curso e do hero | faltavam **nas duas versões**: o staging não tem os tamanhos reduzidos (`-1024x683` etc.), que o WP.com só gera sob demanda na CDN da produção (lá até um tamanho inventado responde 200). Agora carregam | snippet **só de staging** 120 `[STAGING] Imagens no tamanho original` (`staging/imagens-tamanho-original.php`, 1464cda) |
+| intensivo | imagens dos depoimentos | 11 de 11 carregam | — |
+| intensivo | "Quem viu este curso também se interessou por" | normal: vazio (sem upsell). Black: 6 cursos da mesma modalidade, todos com nome | antes saía um card sem nome; a busca passou a exigir `v2_miniatura_titulo` (ac4ebef) |
+| EAD | "Quem viu" | 1 curso (o upsell cadastrado) nas duas versões; o complemento só entra quando não há upsell | — |
+| fellowship v2, graduação, especialidade, institucional, 404 | iguais à produção | mesmo com `?cetrus_black=1`: sem classe Black, sem modelo `[BLACK-2026]`, sem CSS Black | — |
+| Liga/desliga manual | ativação e rollback | Ferramentas › Black November 2026:<br>• **ligado** às 15:24:38: Home, Vitrine e pós em Black **sem parâmetro de prévia**; graduação e fellowship v2 normais;<br>• **desligado** às 15:25:02: tudo normal.<br>As duas viradas ficaram no registro com usuário e horário | — |
+| Varredura original × Black | SEO e templates | **442 URLs, nenhuma diferença de SEO** (title, description, canonical, robots, og, JSON-LD, H1): 415 OK; 14 OK com +6 H2 que são só os rótulos dos cards do "Quem viu" automático; 10 telas iguais à produção sem nada de Black; 3 ressalvas já conhecidas (hero antigo da Home, busca, produto 31340 que redireciona). Detalhe: `validacao/staging-20261028-varredura.md` | — |
+
+**Links no staging** (logado; `?cetrus_black=1` mostra a versão Black e `?cetrus_black=0` a normal; o modo para visitantes está desligado):
+
+- Home: https://staging-821d-cetruscombr.wpcomstaging.com/?cetrus_black=1
+- Vitrine: https://staging-821d-cetruscombr.wpcomstaging.com/vitrine/?cetrus_black=1
+- Conteúdos gratuitos: https://staging-821d-cetruscombr.wpcomstaging.com/conteudos-gratuitos/?cetrus_black=1
+- pós US-ME: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/pos-graduacao-lato-sensu-em-ultrassonografia-musculoesqueletica/?cetrus_black=1
+- pós Sanar: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/pos-graduacao-em-medicina-endocanabinoide-sanar/?cetrus_black=1
+- pós Pediatria: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/pos-graduacao-pediatria-ambulatorial-puericultura/?cetrus_black=1
+- fellowship "mais 4": https://staging-821d-cetruscombr.wpcomstaging.com/cursos/fellowship-em-ultrassonografia-obstetrica-materno-fetal-dr-luiz-miguel-miltri/?cetrus_black=1
+- intensivo: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/medicina-canabinoide-pratica-clinica-e-prescricao/?cetrus_black=1
+- preparatório: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/preparatorio-intensivo-para-a-prova-de-titulo-em-dor/?cetrus_black=1
+- EAD: https://staging-821d-cetruscombr.wpcomstaging.com/cursos/ressonancia-magnetica-tumores-musculoesqueleticos/?cetrus_black=1
+- Iguais à produção (devem sair sem Black mesmo com o parâmetro): fellowship v2 https://staging-821d-cetruscombr.wpcomstaging.com/cursos/fellowship-em-usg-dermatologico-dra-ana-rossol-b/?cetrus_black=1 · graduação https://staging-821d-cetruscombr.wpcomstaging.com/cursos/graduacao-em-gestao-hospitalar/?cetrus_black=1 · especialidade https://staging-821d-cetruscombr.wpcomstaging.com/especialidades/radiologia-e-diagnostico-por-imagem/?cetrus_black=1 · institucional https://staging-821d-cetruscombr.wpcomstaging.com/institucional/?cetrus_black=1
+- Liga/desliga e registro: https://staging-821d-cetruscombr.wpcomstaging.com/wp-admin/tools.php?page=cetrus-black-2026
+
+**Fica para conferir na produção** (passo 9 da seção 2.1): banner das calculadoras e imagens em tamanho reduzido. No staging, as duas diferenças vêm do ambiente, não da camada Black.
+
+## 6. Commits da branch `black-november-2026-ativacao-manual`
+
+| Commit | O quê |
+|---|---|
+| [0410454](https://github.com/sergiopatrick/cetrus-wordpress/commit/0410454) | camada temporária com ativação manual (mu-plugin 0.3.0, CSS, componentes, scripts, testes, linhas de base) |
+| [0d3b1e7](https://github.com/sergiopatrick/cetrus-wordpress/commit/0d3b1e7) | relatório e documento central com ativação manual |
+| [2a046a4](https://github.com/sergiopatrick/cetrus-wordpress/commit/2a046a4) | `staging-snippets.js` pagina a lista e desliga snippets antigos |
+| [458d419](https://github.com/sergiopatrick/cetrus-wordpress/commit/458d419) | barra de campanha não duplica em header que já tem a faixa |
+| [25a70ad](https://github.com/sergiopatrick/cetrus-wordpress/commit/25a70ad) | respiro formulário → números na Home; select oculto não estica a página |
+| [1464cda](https://github.com/sergiopatrick/cetrus-wordpress/commit/1464cda) | snippet só de staging para imagens em tamanho reduzido |
+| [ac4ebef](https://github.com/sergiopatrick/cetrus-wordpress/commit/ac4ebef) | "Quem viu" automático só com cursos que têm título de miniatura |
+| [b33c7fb](https://github.com/sergiopatrick/cetrus-wordpress/commit/b33c7fb) | varredura reconhece os H2 do "Quem viu" automático e aceita lista de URLs |

@@ -1,7 +1,7 @@
 # Projeto Cetrus — Padronização de páginas (Elementor) e Black November 2026
 
-> **Documento central do projeto.** Outra pessoa (ou outra conta do Claude) deve conseguir retomar o trabalho só com este arquivo e o repositório `sergiopatrick/cetrus-wordpress`, branch `projeto/black-november-2026` (publicada no GitHub desde 28/10).
-> Última atualização: **28/10/2026** (sessão 3). **Branch do PR: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
+> **Documento central do projeto.** Outra pessoa (ou outra conta do Claude) deve conseguir retomar o trabalho só com este arquivo e o repositório `sergiopatrick/cetrus-wordpress`, branch `black-november-2026-ativacao-manual` (a antiga `projeto/black-november-2026` fica como histórico).
+> Última atualização: **28/10/2026, fim da tarde** (sessão 4: validação no staging sincronizado). **Branch do PR: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
 
 ## Estado atual em uma tela
 
@@ -9,16 +9,17 @@
 |---|---|
 | Artifact de referência | Lido por completo (10 artboards, código-fonte). Design system na seção 3. |
 | Baseline da produção | SEO: `black-november-2026/baseline/prod-pre-black-20261022.tsv` (456 URLs). **Originais (hash do Elementor de cada um dos 24 templates/páginas): `baseline/originais-prod-20261028.tsv`.** |
-| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.3.0**: **ativação e desativação MANUAIS** (Ferramentas › Black November 2026, padrão desligado, registro de quem virou; sem data no código), troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade. Harness: 24 casos aprovados (28/10). **Não implantado em produção.** |
+| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.3.0**: **ativação e desativação MANUAIS** (Ferramentas › Black November 2026, padrão desligado, registro de quem virou; sem data no código), troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade (só cursos com `v2_miniatura_titulo`). Harness: 24 casos aprovados (28/10). **Liga/desliga testado no staging em 28/10 (teste 13).** **Não implantado em produção.** |
 | Montagem dos modelos | **`black-november-2026/ferramentas/montar-black.js`** recria os 24 modelos `[BLACK-2026]` a partir dos originais do site em que roda. **Ensaio (simulação) na produção em 28/10: 24 de 24 sem erro**; 1 aviso (pós Sanar sem barra fixa no celular). |
 | Telas SEM versão Black (iguais à produção, D7) | fellowship v2 (tag 1262 / 28779), graduação (modalidade 149 / 19379), arquivo de especialidade (25011), institucional, 404 e qualquer página sem modelo Black. |
-| Staging | Desatualizado em relação à produção (cópia parcial de ~16/10: mídia ausente, conteúdo e mu-plugins antigos). **Sincronização produção → staging autorizada (D9)**, a fazer assim que houver login do WordPress.com no navegador; depois: `staging-snippets.js` + `montar-black.js` + varredura. |
-| Bloqueio principal | **Login do WordPress.com** no navegador (staging e painel de sincronização pedem login; o Claude não digita credenciais). |
-| Próximo passo exato | Login → sincronizar produção → staging → `cetrusStaging.instalar(RAW)` → `cetrusMontar.executar({ base })` → conferir as páginas pedidas em 28/10 → varredura → teste de ativação/rollback com tempo → PR. Seção 22. |
+| Staging | **Arquivos sincronizados com a produção em 28/10** (mídia, mu-plugins); **banco ainda o de 19/10** (a sincronização só de banco segue "Sincronizando…" no painel do WP.com; se concluir, apaga modelos e snippets da validação e é preciso reinstalar, seção 0). Snippets 118 (mu-plugin) e 119 (CSS) iguais ao commit `ac4ebef`; snippet 120 `[STAGING] Imagens no tamanho original` (só staging). 24 modelos remontados por script; 4 modelos das telas iguais à produção em rascunho. **Modo: desligado.** |
+| Validação de 28/10 | Páginas pedidas conferidas e corrigidas: relatório, seção 5. |
+| Bloqueio principal | Nenhum para o PR. Na produção: revisão/merge, implantação e montagem (relatório, seção 2). |
+| Próximo passo exato | PR `black-november-2026-ativacao-manual` → `main`; depois o roteiro do relatório, seção 2.1. Seção 22. |
 
 ## 0. Como retomar o trabalho (de outra conta ou sessão)
 
-1. **Repositório:** https://github.com/sergiopatrick/cetrus-wordpress/tree/projeto/black-november-2026 (local: `C:\Users\joao.faro\repos\cetrus-wordpress`). A `main` foi mesclada na branch em 28/10 (banner das calculadoras, API legada).
+1. **Repositório:** https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual (local: `C:\Users\joao.faro\repos\cetrus-wordpress`). Branch criada sobre a `main` de 28/10 (banner das calculadoras, API legada).
 2. **Staging:** https://staging-821d-cetruscombr.wpcomstaging.com/wp-admin/ (logado). Versão Black: qualquer URL com `?cetrus_black=1` (logado); `?cetrus_black=0` mostra a original. Ferramentas › Black November 2026 mostra janela, modo e vínculos.
 3. **Instalar a camada no staging** (o staging não tem Implantações): no console de qualquer página do wp-admin do staging:
    ```js
@@ -26,6 +27,7 @@
    (0, eval)(await fetch(RAW + 'black-november-2026/ferramentas/staging-snippets.js').then(r => r.text()));
    await cetrusStaging.instalar(RAW);   // snippets "[BLACK-2026] Camada..." (mu-plugin) e "[BLACK-2026] CSS..." (black.css)
    ```
+   **Só no staging**, para as imagens em tamanho reduzido aparecerem (o WP.com só gera `-1024x683` etc. na CDN da produção): snippet front-end `[STAGING] Imagens no tamanho original (sem CDN do WP.com)` com o conteúdo de `black-november-2026/staging/imagens-tamanho-original.php` (sem o `<?php`). Ele tem trava de host `.wpcomstaging.com` e não vai para a produção.
 4. **Montar os modelos Black** (staging ou produção), no console de `/wp-admin/edit.php?post_type=elementor_library`:
    ```js
    var BASE = RAW + 'black-november-2026/';
@@ -389,7 +391,9 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 10 | SEO por página (diff contra a baseline) | Parcial | staging original × Black: aprovado (6l). Diff contra a baseline da **produção** fica para a prévia em produção (30/10). |
 | 11 | Analytics (GA4/GTM/Pixel/Clarity/HubSpot) com disparo real bloqueado na rede | — | |
 | 12 | Cadastro de produto novo por categoria (4) | — | |
-| 13 | Ativação e rollback no staging, com tempo medido | — | |
+| 13 | Ativação e rollback no staging, com tempo medido | Aprovado | 28/10, Ferramentas › Black November 2026 (formulário da tela): **ligado** 15:24:38 → Home, Vitrine e pós em Black sem `?cetrus_black`, graduação e fellowship v2 normais; **desligado** 15:25:02 → tudo normal. Efeito na requisição seguinte (staging sem cache de borda para logado). Registro com usuário e horário. |
+| 6m | Páginas pedidas em 28/10, no staging sincronizado (Black × normal) | Aprovado | relatório, seção 5: Home (respiro 104 px, sem rolagem horizontal, depoimentos com fotos, sem newsletter, sem etiqueta), Vitrine, Conteúdos (cards, imagens, Blog), 7 produtos (imagens, depoimentos, "Quem viu"), 5 telas iguais à produção sem nada de Black |
+| 6n | 4ª varredura (28/10), staging sincronizado | Aprovado | `black-november-2026/validacao/staging-20261028-varredura.md`: 442 URLs, SEO idêntico em todas; 415 OK, 14 OK com +6 H2 do "Quem viu" automático (rótulos dos cards, D8), 10 telas iguais à produção sem Black, 3 ressalvas conhecidas (hero antigo da Home, busca, produto 31340). Rodar uma varredura por vez: três em paralelo ativaram a checagem anti-robô do WP.com (403) |
 | 14 | Desempenho antes/depois (Lighthouse/CWV) | — | |
 
 ## 13. Problemas encontrados e soluções aplicadas
@@ -422,6 +426,13 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | 23/10 | **Escopo da camada CSS:** o `black.css` pintava o fundo do `body` de grafite e mudava links/abas/caixas em **todas** as páginas. Nas que não têm versão Black do conteúdo (institucionais, `/especialidades/`, currículos, 404, `/formacao-inicial-usg/`), seção de fundo transparente ficava escuro sobre escuro (visto em `/especialidades/`) | mu-plugin acrescenta `cetrus-black-conteudo` ao `body` só em produto, arquivos/busca de produto e páginas com modelo (`cetrus_black_conteudo_black()`, filtro `cetrus_black_conteudo` para estender); as regras de conteúdo do CSS passaram a exigir essa classe. Globais: tokens, popups HubSpot e barra de cookies. Header, barra e rodapé continuam Black em todo o site (são modelos do Elementor). Snippets 116 e 117 atualizados. |
 | 23/10 | Graduação (19379): imagem de fundo azul-marinho no hero com véu de 20% | véu grafite a 88% no Black. O quadro "Inscrições/Vestibular" é uma imagem de conteúdo (wp-image-31680) e continua azul |
 | 23/10 | Staging: algumas mídias dão 404 (ex.: foto do hero de fellowship e de intensivos) | problema do ambiente (cópia de ~16/10), igual na versão original; conferir na produção |
+| 28/10 | Mesmo depois da sincronização de arquivos, imagens em tamanho reduzido (`-1024x683`, `-1024x512`…) dão 404 no staging, nas versões normal e Black (Pediatria, fellowship materno-fetal, intensivo, preparatório, EAD) | o WP.com gera esses tamanhos sob demanda na CDN da produção (lá até `-777x333` responde 200); no staging privado não. Snippet só de staging 120 troca a URL pelo original quando o tamanho não existe no disco |
+| 28/10 | Home: só ~24 px entre o formulário e os números | os números (f4ad350/fa12234) têm `margin-top: -80px` no original para subir sobre o hero; o `montar-black.js` zera margens de cima negativas dentro de f4ad350 no modelo |
+| 28/10 | Home Black com rolagem horizontal (2354 px numa janela de 1521) | o select de curso do HubSpot, escondido sob a busca, perdia para `.cbn-hs select.hs-input { width: 100% !important }`; regra do campo oculto com especificidade maior |
+| 28/10 | "Quem viu" automático do intensivo com um card sem nome | o card (loop 11204) usa o ACF `v2_miniatura_titulo` como título; `cetrus_black_relacionados()` passou a exigir o campo (chave do transient trocada para `cetrus_black_rel2_`) |
+| 28/10 | Banner das calculadoras ausente nos Conteúdos do staging (também na versão normal) | o `cetrus-conteudos-gratuitos.php` do staging é anterior a 27/10; visual Black conferido na produção só no navegador (CSS aplicado localmente, nada gravado) |
+| 28/10 | Teste de imagens em aba de segundo plano dava fundos "faltando" nos Conteúdos | o lazy load de fundos do Elementor (`e-lazyloaded`) depende de IntersectionObserver, que não dispara em aba oculta; com a aba visível os fundos carregam. Testar com a aba na frente |
+| 28/10 | Três varreduras em paralelo (12 requisições simultâneas por vários minutos) ativaram a checagem anti-robô do WP.com no staging: HTTP 403 "Checking your browser…" para a sessão | varreduras encerradas; ao abrir o wp-admin normalmente o navegador passou pela checagem; URLs afetadas repassadas uma por vez. Rodar **uma** varredura por vez |
 
 ## 14. Pendências e bloqueios
 
@@ -449,7 +460,7 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | P3 | Hero da home: o Artifact mostra o Dr. Marco Demange, que não tem retrato da série LISTA-VIP | Dr. Feres Chaddad no lugar (retratos: Peralta, Queiroz, Prudente, Chaddad) |
 | P4 | Newsletter na home: o Artifact não a mostra | mantida (antes do fechamento), com visual Black |
 | P5 | Modelo Black do 404 (14718) | não clonado: a área de conteúdo do 404 fica clara com header/rodapé Black |
-| P6 | Sync produção → staging | não executado (D1 não cobre) |
+| P6 | Sync produção → staging | autorizado em 28/10 (D9): arquivos sincronizados; o banco segue "Sincronizando…" no painel do WP.com (o staging usa o banco de 19/10) |
 | P7 | Páginas fora do Artifact (institucionais, `/especialidades/`, `/unidades/`, `/formacao-inicial-usg/`, currículos, 404): só header, barra e rodapé ficam Black; o conteúdo continua o original | assim (seção 13, escopo da camada CSS). Se quiserem essas páginas escuras também, cada uma precisa de modelo próprio |
 
 **Bloqueios técnicos**
@@ -548,6 +559,7 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 | Data | Quem | O quê |
 |---|---|---|
+| 28/10/2026 | Claude (sessão 4) | Staging sincronizado (arquivos) com a produção; snippets 118/119 reinstalados por script e 24 modelos remontados; páginas pedidas conferidas (relatório, seção 5). Correções: respiro formulário → números e rolagem horizontal na Home (25a70ad), snippet só de staging para imagens em tamanho reduzido (1464cda, snippet 120), "Quem viu" só com cursos com título de miniatura (ac4ebef). Teste de liga/desliga aprovado; staging deixado desligado. 4ª varredura. |
 | 28/10/2026 | Claude (sessão 3) | Pedidos de 28/10: telas iguais à produção (D7), ajustes da Home/Vitrine/Conteúdos (D8), "Quem viu" com cursos relacionados, banner das calculadoras no Black; montagem por script (`montar-black.js`, ensaio na produção 24/24), instalação no staging por script (`staging-snippets.js`), linha de base dos originais (`baseline/originais-prod-20261028.tsv`), relatório de implantação/rollback/riscos; branch publicada no GitHub; `main` mesclada. Staging à espera de login para a sincronização autorizada (D9). |
 | 23/10/2026 | Claude (sessão 2, tarde) | Escopo da camada CSS restrito a `body.cetrus-black-conteudo` (mu-plugin + `black.css`, snippets 116/117 atualizados); pacote (aba ativa, seta), graduação (véu do hero); harness 18 casos aprovado; 3ª varredura (438 URLs) aprovada; telas em 390/768 px; documento com seção 0 (retomada). Commits dfd4bcc, 232c5a7, 0445bc9 e seguinte. |
 | 23/10/2026 | Claude (sessão 2) | **Staging:** modelos novos `[BLACK-2026] #10946 Home` (35650), `#11768 Vitrine` (35655) e `#27615 Conteúdos Gratuitos` (35661), convertidos dos originais + componentes novos; mu-plugin corrige o shortcode de uma vez por página (snippet 116 = arquivo, SHA `f2f13d56…13f8`); `black.css` ganhou newsletter, vitrine (hero, busca 16821, WP Grid Builder, `.cetrus-inicio-turma`), conteúdos gratuitos (variáveis `--cg-*`, chips, janela) e selo de card no celular, espelhados no snippet 117. Antes disso, na mesma sessão: pós no layout do Artifact (shortcodes `[cetrus_black_selo]` e `[cetrus_black_pertencimento]`), pacote, barra nos headers 20497/20396/23382, selo no loop 35617. Nenhum original editado. |
@@ -560,11 +572,9 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 Feito até 28/10: arquitetura validada no staging (varredura de 438 URLs), mu-plugin 0.2.0 com telas iguais à produção, montagem por script ensaiada na produção (24/24), relatório de implantação/rollback/riscos.
 
-1. **Login do WordPress.com** no navegador (pedido ao usuário).
-2. Sincronizar produção → staging (D9): WP.com › Sites › staging › Sincronizar › puxar da produção (arquivos e banco).
-3. No staging sincronizado: `cetrusStaging.instalar(RAW)` (snippets) e `cetrusMontar.executar({ base })` (modelos), com `RAW`/`base` fixados no último commit da branch.
-4. Conferir as páginas pedidas em 28/10: Home (respiro, depoimentos, sem newsletter, sem etiqueta nos cards, imagens), Vitrine (sem etiqueta, imagens dos cards), Conteúdos gratuitos (cards e imagens iguais à produção, imagem do Blog, banner das calculadoras), pós US-ME, pós Sanar, pós Pediatria, fellowship mais 4, intensivo (imagem, depoimentos, "Quem viu"), preparatório, EAD; e as telas iguais à produção (fellowship v2, graduação, especialidade, institucional, 404) sem nada de Black.
-5. Varredura `tests/qa/black/varredura-staging.js` (ajustar a lista de páginas com modelo e as exclusões de 28/10).
-6. Teste de ativação/rollback no staging com tempo medido (modo ligado → desligado → auto; teste 13).
-7. PR `projeto/black-november-2026` → `main` para revisão; depois, o roteiro de `black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`, seção 2.
-8. Pendências de decisão P1–P7 (seção 14) e responsáveis por 31/10–01/11 e pelo rollback (seção 19).
+Feito em 28/10 (sessão 4): staging sincronizado (arquivos), camada reinstalada, modelos remontados, páginas pedidas conferidas e corrigidas, liga/desliga testado, 4ª varredura.
+
+1. Revisão das páginas no staging pelo time (links no relatório; prévia `?cetrus_black=1`, logado).
+2. PR `black-november-2026-ativacao-manual` → `main`; depois, o roteiro de `black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`, seção 2.1 (tag, implantação, montagem na produção, prévia com `?cetrus_black=1`, incluindo banner das calculadoras e imagens).
+3. Se a sincronização de banco do staging concluir: reinstalar snippets 118/119/120 e remontar (seção 0).
+4. Pendências de decisão P1–P7 (seção 14) e responsáveis por ligar, desligar e validar (seção 19).

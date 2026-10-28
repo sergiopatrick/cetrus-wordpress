@@ -1,7 +1,7 @@
 # Projeto Cetrus — Padronização de páginas (Elementor) e Black November 2026
 
 > **Documento central do projeto.** Outra pessoa (ou outra conta do Claude) deve conseguir retomar o trabalho só com este arquivo e o repositório `sergiopatrick/cetrus-wordpress`, branch `projeto/black-november-2026` (publicada no GitHub desde 28/10).
-> Última atualização: **28/10/2026** (sessão 3). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
+> Última atualização: **28/10/2026** (sessão 3). **Branch do PR: `black-november-2026-ativacao-manual`** (https://github.com/sergiopatrick/cetrus-wordpress/tree/black-november-2026-ativacao-manual). Nada deste projeto está publicado em produção. **Relatório do processo, implantação de 01/11, rollback e riscos: [`black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`](black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md).**
 
 ## Estado atual em uma tela
 
@@ -9,7 +9,7 @@
 |---|---|
 | Artifact de referência | Lido por completo (10 artboards, código-fonte). Design system na seção 3. |
 | Baseline da produção | SEO: `black-november-2026/baseline/prod-pre-black-20261022.tsv` (456 URLs). **Originais (hash do Elementor de cada um dos 24 templates/páginas): `baseline/originais-prod-20261028.tsv`.** |
-| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.2.0**: janela 01/11 00:00 → 01/12 00:00, troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade. Harness: 23 casos aprovados (28/10). **Não implantado em produção.** |
+| Mecanismo de ativação/rollback | mu-plugin `wp-content/mu-plugins/cetrus-black-november-2026.php` **0.3.0**: **ativação e desativação MANUAIS** (Ferramentas › Black November 2026, padrão desligado, registro de quem virou; sem data no código), troca templates e páginas, **telas iguais à produção** (`cetrus_black_tela_fora()`), "Quem viu" sem upsell recebe cursos da mesma especialidade. Harness: 24 casos aprovados (28/10). **Não implantado em produção.** |
 | Montagem dos modelos | **`black-november-2026/ferramentas/montar-black.js`** recria os 24 modelos `[BLACK-2026]` a partir dos originais do site em que roda. **Ensaio (simulação) na produção em 28/10: 24 de 24 sem erro**; 1 aviso (pós Sanar sem barra fixa no celular). |
 | Telas SEM versão Black (iguais à produção, D7) | fellowship v2 (tag 1262 / 28779), graduação (modalidade 149 / 19379), arquivo de especialidade (25011), institucional, 404 e qualquer página sem modelo Black. |
 | Staging | Desatualizado em relação à produção (cópia parcial de ~16/10: mídia ausente, conteúdo e mu-plugins antigos). **Sincronização produção → staging autorizada (D9)**, a fazer assim que houver login do WordPress.com no navegador; depois: `staging-snippets.js` + `montar-black.js` + varredura. |
@@ -438,6 +438,7 @@ Status: **Aprovado / Reprovado / Bloqueado / Não aplicável**; "—" = ainda n�
 | D7 | (28/10) **Ficam iguais à produção**, sem nada de Black: fellowship v2, graduação, arquivo de especialidade, institucional, 404 e páginas sem modelo Black. Implementado em `cetrus_black_tela_fora()` (mu-plugin 0.2.0); os modelos dessas telas não são mais montados. |
 | D8 | (28/10) Home: mais respiro entre formulário e números; depoimentos como no Artifact; **newsletter removida**; **sem a etiqueta "Condições exclusivas" nos cards de curso** (Home, Vitrine e demais grades; o selo continua no topo das páginas de produto). "Quem viu" vazio recebe cursos relacionados (só no Black). |
 | D9 | (28/10) **Sincronização produção → staging autorizada** pelo usuário, para o staging ficar igual à produção (mídia, conteúdo, mu-plugins); a versão Black é remontada por script depois. |
+| D10 | (28/10) **Sem virada automática**: a versão Black é ligada e desligada manualmente por uma pessoa (substitui D2, que previa rollback automático em 01/12 00:00). Branch nova para o PR: `black-november-2026-ativacao-manual`. |
 
 **Pendências de decisão abertas em 23/10**
 
@@ -535,7 +536,7 @@ Pré-condições: testes 8–13 aprovados; PR aprovado; baseline final de 30/10 
 
 - Data/hora do rollback: **PENDENTE** (proposta: fim da janela em 01/12/2026 00:00, ou 30/11 23:59:59 como no cronômetro do Artifact).
 - Responsável pela execução e pela validação: **PENDENTE**.
-- Automação: a reversão acontece pela própria janela do mu-plugin (não depende de cron nem de pessoa), **mas só depois que o mu-plugin for testado no staging e implantado**. Até lá, nada está agendado.
+- **Sem automação (D10, 28/10):** ligar e desligar são manuais, em Ferramentas › Black November 2026 (registro de quem virou e quando). Nada está agendado e nada liga ou desliga sozinho; se ninguém desligar, a versão Black continua no ar. Roteiro: `black-november-2026/RELATORIO-IMPLANTACAO-E-ROLLBACK.md`, seções 2 e 3.
 
 ## 20. Monitoramento pós-publicação e pós-rollback
 

@@ -208,6 +208,14 @@
 			if (!depo.n) ctx.rel.avisos.push('Home: nenhum depoimento achado em ddd2426; secao de depoimentos ficou vazia.');
 			var extras = els.filter(function (e) { return conhecidos.concat(saem).indexOf(e.id) < 0; });
 			extras.forEach(function (e) { ctx.rel.avisos.push('Home: container novo na pagina original (' + e.id + '), mantido antes do fechamento. Conferir.'); });
+			// numeros (f4ad350): no original sobem 80 px sobre o hero (margem negativa em fa12234); depois do
+			// formulario isso comeria o respiro pedido em 28/10, entao a margem de cima volta a 0 so no modelo
+			var subia = 0;
+			cada([por['f4ad350']], function (e) {
+				var s = e.settings || {};
+				Object.keys(s).forEach(function (k) { if (/^_?margin(_|$)/.test(k) && s[k] && parseFloat(s[k].top) < 0) { s[k] = Object.assign({}, s[k], { top: '0', isLinked: false }); subia++; } });
+			});
+			if (!subia) ctx.rel.avisos.push('Home: numeros (f4ad350) sem margem negativa; conferir o espaco depois do formulario.');
 			return [caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), por['f4ad350'],
 				caixa('autoridade', comp['home-autoridade']), por['0fe805b'], caixa('depoimentos', depo.html), por['287991c']]
 				.concat(extras, [caixa('fechamento', comp['home-fechamento'])]);

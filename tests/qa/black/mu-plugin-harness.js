@@ -1,7 +1,8 @@
 /*
  * Teste do mu-plugin cetrus-black-november-2026.php SEM PHP local (PHP 8.3 em WebAssembly).
  *
- * Ultima rodada: 23/10/2026, 17 casos, 13 verificados OK + 4 informativos; MD5 143d0675...5ac8
+ * Ultima rodada: 28/10/2026 (noite), 31 casos, 27 verificados OK + 4 informativos (mu-plugin 0.4.0).
+ * Antes: 23/10/2026, 17 casos, 13 verificados OK + 4 informativos; MD5 143d0675...5ac8
  * (= arquivo do repositorio = snippet 116). Atalho usado em 23/10: rodar na aba do wp-admin do
  * staging (o CSP permite o jsDelivr) e montar o base64 a partir de '<?php\n' + code do snippet
  * 116 lido pela REST, sem colar o plugin.
@@ -51,7 +52,7 @@ function is_page(){ return true; } function get_queried_object_id(){ return $GLO
 function run_filters2($h,$v,$a){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v,$a);} return $v; }
 eval('namespace Elementor; class Plugin { public static $instance; public $frontend; } class FakeFront { function get_builder_content_for_display($id){ return "<div data-elementor-id=\\"".$id."\\">black</div>"; } } Plugin::$instance = new Plugin(); Plugin::$instance->frontend = new FakeFront();');
 class FakeDB { public $posts='wp_posts'; function esc_like($s){ return addcslashes($s,'_%\\\\'); } function prepare($q,...$a){ return $q; }
- function get_results($q){ $r=[]; foreach([[900,'[BLACK-2026] #12073 Produto','publish'],[901,'[BLACK-2026] #11545 Header','draft'],[902,'[BLACK-2026] sem id','publish'],[903,'[BLACK-2026] #19225 tipo errado','publish'],[904,'[BLACK-2026] #12073 duplicado','publish'],[905,'[BLACK-2026] #10946 Home Black','publish']] as $x){ $o=new stdClass; $o->ID=$x[0]; $o->post_title=$x[1]; $o->post_status=$x[2]; $o->post_modified='2026-10-22 10:00:00'; $r[]=$o; } return $r; } }
+ function get_results($q){ if(!empty($GLOBALS['SEM_CLONES'])) return []; $r=[]; foreach([[900,'[BLACK-2026] #12073 Produto','publish'],[901,'[BLACK-2026] #11545 Header','draft'],[902,'[BLACK-2026] sem id','publish'],[903,'[BLACK-2026] #19225 tipo errado','publish'],[904,'[BLACK-2026] #12073 duplicado','publish'],[905,'[BLACK-2026] #10946 Home Black','publish']] as $x){ $o=new stdClass; $o->ID=$x[0]; $o->post_title=$x[1]; $o->post_status=$x[2]; $o->post_modified='2026-10-22 10:00:00'; $r[]=$o; } return $r; } }
 $wpdb = new FakeDB();
 $c = base64_decode(file_get_contents('/tmp/p.b64'));
 token_get_all($c, TOKEN_PARSE);
@@ -73,6 +74,9 @@ eval('?>' . $c);
 		github_explicito_ligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='github'; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada', "define('CETRUS_BLACK_VIRADA','ligado');"],
 		painel_forca_desligado_sobre_github: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada', "define('CETRUS_BLACK_VIRADA','ligado');"],
 		painel_forca_ligado_sobre_github: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
+		// trava: chave ligada sem nenhum modelo publicado nao liga; a previa de quem edita continua
+		sem_modelos_trava: ["$GLOBALS['SEM_CLONES']=true; $GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
+		sem_modelos_previa: ["$GLOBALS['SEM_CLONES']=true; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_editor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_anonimo: ["$_GET['cetrus_black']='1'; echo cetrus_black_ativo()?'ligada':'desligada';", null],
 		editor_elementor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $_GET['elementor-preview']='123'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],

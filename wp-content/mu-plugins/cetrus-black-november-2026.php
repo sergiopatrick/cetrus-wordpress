@@ -137,8 +137,14 @@ function cetrus_black_ativo() {
 	}
 
 	$previa = cetrus_black_previa();
-	$ativo  = null !== $previa ? $previa : 'ligado' === cetrus_black_modo();
-	$ativo  = (bool) apply_filters( 'cetrus_black_ativo', $ativo );
+	if ( null !== $previa ) {
+		$ativo = $previa;
+	} else {
+		// Trava: sem nenhum modelo [BLACK-2026] publicado (montar-black.js ainda nao rodou neste site),
+		// ligar so poria a classe e o CSS Black por cima dos templates originais.
+		$ativo = 'ligado' === cetrus_black_modo() && ! empty( cetrus_black_mapa() );
+	}
+	$ativo = (bool) apply_filters( 'cetrus_black_ativo', $ativo );
 	return $ativo;
 }
 
@@ -616,7 +622,7 @@ function cetrus_black_tela() {
 	}
 	printf(
 		'<p style="font-size:15px">Versao Black para visitantes: <strong>%s</strong>. Nada liga ou desliga sozinho.</p>',
-		'ligado' === $modo ? 'LIGADA' : 'desligada'
+		'ligado' === $modo && ! empty( $dados['mapa'] ) ? 'LIGADA' : 'desligada'
 	);
 	printf(
 		'<p>Chave do GitHub (<code>CETRUS_BLACK_VIRADA</code> em <code>wp-content/mu-plugins/cetrus-black-november-2026.php</code>, no codigo implantado): <strong>%s</strong>. Quem decide agora: <strong>%s</strong>.</p>',
@@ -625,6 +631,9 @@ function cetrus_black_tela() {
 	);
 	if ( 'github' !== $painel ) {
 		echo '<div class="notice notice-warning inline"><p>O painel esta forcando a versao Black ' . esc_html( $painel ) . '. Enquanto isso, um commit que mude a chave do GitHub nao tem efeito. Para voltar a seguir o GitHub, escolha "seguir o GitHub".</p></div>';
+	}
+	if ( 'ligado' === $modo && empty( $dados['mapa'] ) ) {
+		echo '<div class="notice notice-error inline"><p>A chave esta ligada, mas nao ha nenhum modelo [BLACK-2026] publicado: a versao Black continua DESLIGADA para visitantes ate o montar-black.js rodar neste site.</p></div>';
 	}
 	echo '<p>Ficam iguais a producao mesmo com a versao Black ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';

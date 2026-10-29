@@ -47,7 +47,7 @@ As três branches estão encadeadas: a de 01/11 nasce da primeira e a de 01/12 n
 1. Abrir o PR de 01/11: https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111. O diff deve ter **uma linha**: `'desligado'` → `'ligado'`.
 2. Fazer o merge na `main`.
 3. WordPress.com › Implantações › implantar a `main`.
-4. Esperar ~5 min (cache de borda) e validar numa janela anônima, com `?x=<número qualquer>` no fim da URL: Home (formulário, sem enviar), Vitrine, Conteúdos, produtos, WhatsApp e popups. Numa pós, escolher unidade e turma e clicar em "Quero me inscrever": o formulário tem que abrir. Validar também as telas iguais à produção, sem Black.
+4. Esperar ~5 min (cache de borda) e validar numa janela anônima, com `?x=<número qualquer>` no fim da URL: Home (formulário, sem enviar; botão flutuante de WhatsApp em grafite com aro lavanda), Vitrine, Conteúdos, produtos, WhatsApp e popups. Numa pós, escolher unidade e turma e clicar em "Quero me inscrever": o formulário tem que abrir. Validar também as telas iguais à produção, sem Black.
 5. Conferir em Ferramentas › Black November 2026: "Versão Black para visitantes: LIGADA".
 6. **Se algo crítico falhar:** Ferramentas › Black November 2026 › "forçar desligado" › Gravar modo (efeito imediato). Depois, decidir com o time.
 
@@ -57,7 +57,7 @@ As três branches estão encadeadas: a de 01/11 nasce da primeira e a de 01/12 n
 
 1. Abrir o PR de 01/12: https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-rollback-0112. O diff deve ter **uma linha**: `'ligado'` → `'desligado'`.
 2. Fazer o merge e implantar a `main`.
-3. Esperar ~5 min e validar em janela anônima: o site deve estar igual ao de antes da campanha (header, Home, produtos).
+3. Esperar ~5 min e validar em janela anônima: o site deve estar igual ao de antes da campanha (header, Home, produtos; o WhatsApp flutuante da Home volta ao verde).
 4. Ferramentas › Black November 2026 deve mostrar "desligada". Se alguém tinha usado "forçar ligado" ou "forçar desligado", voltar para "seguir o GitHub".
 5. **Prova de que voltou tudo:** `await cetrusMontar.verificarOriginais()` e comparar com a linha de base do passo 1.6. Hashes iguais significam originais intocados.
 

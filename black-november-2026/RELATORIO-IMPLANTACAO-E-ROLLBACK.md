@@ -168,6 +168,8 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | [64f7293](https://github.com/sergiopatrick/cetrus-wordpress/commit/64f7293) + [160d517](https://github.com/sergiopatrick/cetrus-wordpress/commit/160d517) | mu-plugin 0.4.1: inscrição do Lyceum aponta para o popup Black (shortcodes) |
 | [4c88c82](https://github.com/sergiopatrick/cetrus-wordpress/commit/4c88c82) | montagem troca ids de popup/template citados em widgets HTML (formulário do popup de inscrição) |
 | [1c6d17a](https://github.com/sergiopatrick/cetrus-wordpress/commit/1c6d17a) | popups no grafite: caixa sem faixas brancas, link e fechar claros |
+| [1f4af79](https://github.com/sergiopatrick/cetrus-wordpress/commit/1f4af79) | WhatsApp flutuante da Home na identidade Black (só CSS) |
+| [b0a5bd1](https://github.com/sergiopatrick/cetrus-wordpress/commit/b0a5bd1) | `staging-snippets.js` instala o WhatsApp flutuante no staging (`instalarWhatsapp`) |
 
 ## 7. Ajustes de 28/10 à noite e virada pelo GitHub
 
@@ -214,3 +216,35 @@ Passo a passo do dia: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-G
 - a montagem corrigiu o script interno dos 4 popups de formulário (14050, 29363, 20500 e 28094).
 
 **Sem a versão Black nada muda:** o filtro só age com ela ativa, e os originais não são tocados.
+
+## 9. WhatsApp flutuante da Home na identidade Black (29/10)
+
+**Pedido:** o botão flutuante de WhatsApp da Home (mu-plugin `cetrus-whatsapp-flutuante.php`, no ar desde 21/10) com a identidade da Black, funcionando como na produção: mesma posição, link e tamanho.
+
+**O que foi feito:**
+- **Só CSS, no `black.css`** (1f4af79), sob `body.cetrus-black-2026`. O Artifact não desenha esse botão; ele segue o botão outline da campanha:
+  - superfície `#191A1E`;
+  - aro `rgba(212,213,232,.5)`;
+  - ícone lavanda clara `#D4D5E8`;
+  - hover `#2A2B30` com ícone branco;
+  - foco com anel lavanda (o azul `#003B6C` do original sai).
+- **Nada muda no mu-plugin do WhatsApp.** Posição, tamanho (56 px no desktop, 52 px até 1024 px), link, `target="_blank"`, rótulo acessível e o script que desvia do banner de cookies seguem os da produção. O rastreamento do GTM (`MM_click_whatsapp`) também continua igual.
+- **Entra no ar com a virada de 01/11 e sai com o rollback de 01/12.** O commit da chave (08424dd) continua com uma linha só, como pede o guia: as regras só valem com a classe da Black no `body`. Depois do rollback, o botão volta ao verde sem nenhum passo a mais.
+- **Staging:** o staging não tinha o mu-plugin do WhatsApp (a sincronização de arquivos não o trouxe). Ele foi instalado como snippet 121, `[STAGING] WhatsApp flutuante da Home (copia do mu-plugin da producao)`, por `cetrusStaging.instalarWhatsapp(RAW)` (b0a5bd1):
+  - é cópia byte a byte do arquivo (SHA-256 conferido);
+  - só roda se o arquivo de verdade não existir, então uma sincronização futura não causa erro fatal;
+  - não vai para a produção.
+  - O snippet 119 (CSS) foi reinstalado a partir de 1f4af79 e o 118 (mu-plugin) já estava igual.
+
+**Conferido no staging em 29/10** (Home, `?cetrus_black=1`):
+
+| Item | Resultado |
+|---|---|
+| Desktop 1920 px | 56 × 56 px, a 20 px da direita e de baixo; ícone de 30 px |
+| Celular 390 px | 52 × 52 px, a 12 px da direita e 16 px de baixo; ícone de 28 px |
+| Link | idêntico ao da produção (`api.whatsapp.com/send/?phone=5511982450256…`), nova aba |
+| Hover | fundo `#2A2B30`, ícone branco, sobe 2 px como o original |
+| Banner de cookies simulado (77 px) | o botão sobe 88 px e fica 12 px acima dele; sem o banner, volta ao canto |
+| `?cetrus_black=0` | verde `#25D366`, sem borda, 56 px: igual à produção |
+
+**Observação:** o modelo Black da Home não tem o "Subir ao início" (widget 1701d0c), que a Home original tem. Com isso, o WhatsApp fica sempre no canto, sem precisar subir para dar espaço a ele. Isso não foi mexido aqui.

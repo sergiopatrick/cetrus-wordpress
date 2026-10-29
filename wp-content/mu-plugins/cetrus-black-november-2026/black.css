@@ -869,3 +869,37 @@ body.cetrus-black-2026 #hs-eu-cookie-confirmation #hs-eu-confirmation-button {
 	border-color: var(--cb-texto) !important;
 	color: var(--cb-botao-texto, #111214) !important;
 }
+
+/* ---- WhatsApp flutuante da Home (mu-plugin cetrus-whatsapp-flutuante.php) ----
+   So a identidade: posicao, tamanho (56/52 px), link e o desvio do banner de cookies seguem
+   os do plugin. O Artifact nao desenha esse botao; ele segue o outline da campanha: superficie
+   grafite, aro lavanda clara, icone lavanda que fica branco no hover (como os links). A borda
+   nao muda o tamanho (o plugin usa box-sizing: border-box). Fora da Black volta o verde. */
+body.cetrus-black-2026 .cetrus-wa {
+	border: 1px solid rgba(212, 213, 232, 0.5);
+	background-color: var(--cb-superficie);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+body.cetrus-black-2026 .cetrus-wa svg {
+	fill: var(--cb-lavanda-clara);
+}
+@media (hover: hover) {
+	body.cetrus-black-2026 .cetrus-wa:hover {
+		background-color: #2a2b30;
+		box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6);
+	}
+	body.cetrus-black-2026 .cetrus-wa:hover svg {
+		fill: #fff;
+	}
+}
+body.cetrus-black-2026 .cetrus-wa:focus-visible {
+	box-shadow: 0 0 0 3px var(--cb-grafite), 0 0 0 5px var(--cb-lavanda-clara), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+@media (forced-colors: active) {
+	body.cetrus-black-2026 .cetrus-wa {
+		border: 2px solid ButtonText;
+	}
+	body.cetrus-black-2026 .cetrus-wa svg {
+		fill: ButtonText;
+	}
+}

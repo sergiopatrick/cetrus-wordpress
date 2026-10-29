@@ -172,6 +172,7 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | [1c6d17a](https://github.com/sergiopatrick/cetrus-wordpress/commit/1c6d17a) | popups no grafite: caixa sem faixas brancas, link e fechar claros |
 | [1f4af79](https://github.com/sergiopatrick/cetrus-wordpress/commit/1f4af79) | WhatsApp flutuante da Home na identidade Black (só CSS) |
 | [b0a5bd1](https://github.com/sergiopatrick/cetrus-wordpress/commit/b0a5bd1) | `staging-snippets.js` instala o WhatsApp flutuante no staging (`instalarWhatsapp`) |
+| [f1d286c](https://github.com/sergiopatrick/cetrus-wordpress/commit/f1d286c) | Conteúdos gratuitos: hero sem respiro sobrando no celular e no tablet (só CSS) |
 
 ## 7. Ajustes de 28/10 à noite e virada pelo GitHub
 
@@ -250,3 +251,20 @@ Passo a passo do dia: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-G
 | `?cetrus_black=0` | verde `#25D366`, sem borda, 56 px: igual à produção |
 
 **Observação:** o modelo Black da Home não tem o "Subir ao início" (widget 1701d0c), que a Home original tem. Com isso, o WhatsApp fica sempre no canto, sem precisar subir para dar espaço a ele. Isso não foi mexido aqui.
+
+## 10. Ajuste de 29/10: hero de Conteúdos gratuitos no celular
+
+**Achado (time):** no celular, em `/conteudos-gratuitos/?cetrus_black=1`, a imagem dos dispositivos com os professores tinha um respiro muito grande em cima e embaixo.
+
+**Causa:** o `black.css` dá às colunas do hero uma base de 520 px (texto) e 360 px (imagem), para ficarem lado a lado no desktop. Até 1024 px, o Elementor empilha as colunas, e a base passa a valer como altura. Sobravam ~180 px no texto e ~210 px em volta da imagem, também no tablet.
+
+**Correção:** só CSS (f1d286c). Até 1024 px, as duas colunas ficam com a altura do próprio conteúdo. O modelo do Elementor não muda, então a montagem não precisa ser refeita.
+
+**Conferido no staging em 29/10** (snippet 119 reinstalado a partir de f1d286c):
+
+| Largura | Hero antes | Hero depois | Busca → imagem | Imagem → fim do hero |
+|---|---|---|---|---|
+| 390 px | 980 px | 588 px | 40 px | 36 px |
+| 768 px | 1024 px | 642 px | 32 px | 44 px |
+| 1024 px | 1024 px | 586 px | 32 px | 44 px |
+| 1280 px | 452 px | 452 px (igual, lado a lado) | — | — |

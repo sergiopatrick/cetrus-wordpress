@@ -533,7 +533,8 @@ function cetrus_black_troca_popups( $html ) {
 			}
 			$conf['id'] = $clone;
 			$novo       = base64_encode( wp_json_encode( $conf ) );
-			return $m[1] . ( $b64 !== $m[2] ? rawurlencode( $novo ) : $novo );
+			// link com URL-encode (settings%3D): o base64 novo vai codificado tambem
+			return $m[1] . ( false !== strpos( $m[1], '%' ) ? rawurlencode( $novo ) : $novo );
 		},
 		$html
 	);

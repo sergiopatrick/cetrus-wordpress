@@ -102,6 +102,7 @@ Os riscos 17 a 20 entraram com a validação de 28/10 (seção 5) e os riscos 21
 | 23 | PR da branch do código entra com "Squash" e o PR de 01/11 aparece com conflito | média / baixo | merge com "Create a merge commit"; plano B: editar a linha da chave na `main` pelo GitHub |
 | 24 | Formulário novo da Home (ed32406c): fluxo do CRM diferente do 6ed56c62 ou estilo injetado pelo HubSpot mudar | média / médio | validar com o time de CRM antes de 01/11 (destino dos leads, automações, UTMs); o CSS do componente força altura e espaçamento dos campos |
 | 25 | Montserrat no H1 de Conteúdos gratuitos (pedido de 28/10): uma fonte a mais nessa página | baixa / baixo | o Elementor a hospeda no próprio site (sem chamar o Google); some com o rollback |
+| 26 | Popups abertos por id fixo fora do Elementor (HTML de shortcodes de plugins, scripts em widgets HTML) não acham o popup Black, que tem outro id | média / alto | achado no teste de inscrição de 29/10: o mu-plugin 0.4.1 troca o id na saída dos shortcodes e a montagem troca ids citados em widgets HTML. **Na prévia da produção, clicar em "Quero me inscrever" (pós, fellowship, intensivo) e ver o formulário abrir, sem enviar** |
 
 ## 5. Validação no staging (28/10/2026, depois da sincronização)
 
@@ -164,6 +165,9 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 | [c1d9a7a](https://github.com/sergiopatrick/cetrus-wordpress/commit/c1d9a7a) | trava: chave ligada sem modelos publicados não liga |
 | [cbf4938](https://github.com/sergiopatrick/cetrus-wordpress/commit/cbf4938) | Home: cor do CTA do destaque de conteúdos e altura dos campos do formulário ed32406c |
 | [a69d95c](https://github.com/sergiopatrick/cetrus-wordpress/commit/a69d95c) | formulário da Home: obrigado sem duplicar (texto novo), curso sem campo repetido, botão grafite |
+| [64f7293](https://github.com/sergiopatrick/cetrus-wordpress/commit/64f7293) + [160d517](https://github.com/sergiopatrick/cetrus-wordpress/commit/160d517) | mu-plugin 0.4.1: inscrição do Lyceum aponta para o popup Black (shortcodes) |
+| [4c88c82](https://github.com/sergiopatrick/cetrus-wordpress/commit/4c88c82) | montagem troca ids de popup/template citados em widgets HTML (formulário do popup de inscrição) |
+| [1c6d17a](https://github.com/sergiopatrick/cetrus-wordpress/commit/1c6d17a) | popups no grafite: caixa sem faixas brancas, link e fechar claros |
 
 ## 7. Ajustes de 28/10 à noite e virada pelo GitHub
 
@@ -192,3 +196,21 @@ Conferido logado, com `?cetrus_black=1` (Black) e `?cetrus_black=0` (normal), em
 - montagem dos 24 modelos no staging sem erro (1 aviso conhecido: a pós Sanar não tem barra fixa no celular).
 
 Passo a passo do dia: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md).
+
+## 8. Correção de 29/10: inscrição pelo popup na versão Black
+
+**Achado (teste do time):** na pós US-ME com `?cetrus_black=1`, depois de escolher unidade e turma, "Quero me inscrever" não abria o formulário. Havia duas causas, ambas pelo mesmo motivo: na versão Black o popup de inscrição impresso na página é o modelo `[BLACK-2026] #29363`, que tem outro id.
+
+1. **O botão e o seletor de turma** vêm de shortcodes do plugin Lyceum, com o id fixo no HTML (`data-popup-inscricao-id`, `data-popup-target` e o link `#elementor-action:…popup:open`). O botão mandava abrir o 29363, que não estava na página.
+   - **Correção:** mu-plugin 0.4.1 (`cetrus_black_troca_popups()` no filtro `do_shortcode_tag`). Só com a versão Black ativa, troca o id pelo do modelo nos atributos, no link e na reserva `lyceum_course_vars.popup_config.inscricao_id`. Harness: 34 casos, 30 OK + 4 informativos.
+2. **O formulário dentro do popup** é criado por um script do próprio popup (widget HTML), que procura `[data-elementor-id="29363"]`.
+   - **Correção:** a montagem (`trocaIdsNoHtml()`) troca, em widgets HTML, ids citados entre aspas de templates com modelo Black, inclusive o do próprio popup, pelo id do modelo.
+
+3. **Visual do popup na versão Black:** a caixa padrão do Elementor (branca, 640 px) aparecia dos lados do conteúdo grafite (512 px), e o link "Política de privacidade" saía em azul puro, por um CSS próprio do widget. Ambos corrigidos no `black.css` (1c6d17a).
+
+**Conferido no staging em 29/10, sem enviar lead:**
+- na pós US-ME, escolhidas unidade e turma, "Quero me inscrever" abre o popup Black com o formulário do HubSpot;
+- o curso (`PG_USME`), a turma (`PG_USME.SP1.2704.1`) e a unidade vêm preenchidos;
+- a montagem corrigiu o script interno dos 4 popups de formulário (14050, 29363, 20500 e 28094).
+
+**Sem a versão Black nada muda:** o filtro só age com ela ativa, e os originais não são tocados.

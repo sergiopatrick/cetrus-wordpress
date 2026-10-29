@@ -39,7 +39,7 @@ As três branches estão encadeadas: a de 01/11 nasce da primeira e a de 01/12 n
    await cetrusMontar.verificarOriginais();   // salvar a saída em baseline/originais-prod-AAAAMMDD.tsv
    ```
 7. **Montar os modelos Black** na mesma aba: `await cetrusMontar.executar({ base: BASE, simular: true })` (ensaio: 24 itens sem erro) e depois `await cetrusMontar.executar({ base: BASE })`. Isso cria os 24 modelos `[BLACK-2026]`. Eles ficam inertes enquanto a chave estiver desligada.
-8. **Prévia logada** com `?cetrus_black=1`: Home, Vitrine, Conteúdos gratuitos, uma pós, uma fellowship, um intensivo, um pacote, um EAD. Na produção, conferir também o banner das calculadoras em Conteúdos e as imagens em tamanho reduzido, que o staging não mostra. As telas iguais à produção (fellowship v2, graduação, especialidade, institucional, 404) devem sair sem nada de Black.
+8. **Prévia logada** com `?cetrus_black=1`: Home, Vitrine, Conteúdos gratuitos, uma pós, uma fellowship, um intensivo, um pacote, um EAD. Na produção, conferir também o banner das calculadoras em Conteúdos e as imagens em tamanho reduzido, que o staging não mostra. As telas iguais à produção (fellowship v2, graduação, especialidade, institucional, 404) devem sair sem nada de Black. **Inscrição:** numa pós, numa fellowship e num intensivo, escolher unidade e turma, clicar em "Quero me inscrever" e ver o formulário abrir (sem enviar).
 9. **Congelamento:** não editar os templates e páginas originais até 01/12. Se for preciso editar, rodar o passo 7 de novo depois.
 
 ## 2. Virada · 01/11/2026 (horário combinado pelo time)
@@ -47,7 +47,7 @@ As três branches estão encadeadas: a de 01/11 nasce da primeira e a de 01/12 n
 1. Abrir o PR de 01/11: https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111. O diff deve ter **uma linha**: `'desligado'` → `'ligado'`.
 2. Fazer o merge na `main`.
 3. WordPress.com › Implantações › implantar a `main`.
-4. Esperar ~5 min (cache de borda) e validar numa janela anônima, com `?x=<número qualquer>` no fim da URL: Home (formulário, sem enviar), Vitrine, Conteúdos, produtos, WhatsApp e popups. Validar também as telas iguais à produção, sem Black.
+4. Esperar ~5 min (cache de borda) e validar numa janela anônima, com `?x=<número qualquer>` no fim da URL: Home (formulário, sem enviar), Vitrine, Conteúdos, produtos, WhatsApp e popups. Numa pós, escolher unidade e turma e clicar em "Quero me inscrever": o formulário tem que abrir. Validar também as telas iguais à produção, sem Black.
 5. Conferir em Ferramentas › Black November 2026: "Versão Black para visitantes: LIGADA".
 6. **Se algo crítico falhar:** Ferramentas › Black November 2026 › "forçar desligado" › Gravar modo (efeito imediato). Depois, decidir com o time.
 

@@ -322,6 +322,26 @@
 		return c;
 	}
 
+	// Ids citados entre aspas em codigo de widgets HTML: viram os dos modelos Black. Ex.: o popup 29363
+	// (inscricao) cria o proprio formulario HubSpot procurando [data-elementor-id="29363"]; no modelo,
+	// o documento impresso tem o id do modelo e o formulario nao aparecia (teste de 29/10).
+	// O transformador ja remapeia popups e templates em __dynamic__/template_id, mas nao le HTML.
+	function trocaIdsNoHtml(els, remap, orig, clone) {
+		var mapa = Object.assign({}, remap), n = 0;
+		mapa[orig] = clone;
+		cada(els, function (e) {
+			var s = e.settings;
+			if (e.widgetType !== 'html' || !s || typeof s.html !== 'string') return;
+			s.html = s.html.replace(/(["'])(\d{4,})\1/g, function (t, aspa, id) {
+				if (!mapa[id] || String(mapa[id]) === id) return t;
+				n++;
+				return aspa + mapa[id] + aspa;
+			});
+		});
+		return n;
+	}
+	M.trocaIdsNoHtml = trocaIdsNoHtml;
+
 	M.executar = async function (op) {
 		op = op || {};
 		if (!window.cetrusBlack || !window.cetrusBlack.transformar) throw new Error('Carregue antes o transforma-black.js');
@@ -355,6 +375,7 @@
 				linha.titulo = M.PREFIXO + ' #' + item.orig + ' ' + (item.nome || o.titulo);
 				if (op.simular) {
 					linha.acao = linha.clone ? 'atualizaria' : 'criaria';
+					if (linha.clone) linha.idsHtml = trocaIdsNoHtml(els, remap, item.orig, linha.clone);
 				} else {
 					if (!linha.clone) {
 						linha.clone = await criar(item.orig, tipo, linha.titulo, els);
@@ -362,6 +383,8 @@
 					} else {
 						linha.acao = 'atualizado';
 					}
+					// so depois de criar: o id do proprio modelo so existe agora
+					linha.idsHtml = trocaIdsNoHtml(els, remap, item.orig, linha.clone);
 					await salvar(linha.clone, els, ps);
 				}
 				if (linha.clone && M.REFERENCIADOS.indexOf(item.orig) >= 0) remap[item.orig] = linha.clone;

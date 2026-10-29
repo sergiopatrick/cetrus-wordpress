@@ -2,9 +2,11 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.4.0
+ * Version:     0.4.1
  * Author:      Cetrus / Sanar
  *
+ * 0.4.1 (29/10/2026): popups abertos por id fixo em shortcodes (inscricao do Lyceum) apontam para o
+ * modelo Black; antes o botao "Quero me inscrever" nao abria nada na versao Black.
  * 0.4.0 (28/10/2026, noite): a virada passa a ser por commit no GitHub. A chave CETRUS_BLACK_VIRADA
  * (logo abaixo) vem "desligado"; o commit de 01/11 a muda para "ligado" e o de 01/12 a devolve para
  * "desligado", cada um seguido de implantacao manual. O painel continua com dois modos de
@@ -59,7 +61,7 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'desligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.0';
+const CETRUS_BLACK_VERSAO   = '0.4.1';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
@@ -480,6 +482,98 @@ function cetrus_black_relacionados( $id, $limite = 8 ) {
 	set_transient( $chave, $ids, HOUR_IN_SECONDS );
 	return $ids;
 }
+
+/*
+ * Popups abertos por id fixo no HTML de shortcodes. Ex.: inscricao do Lyceum
+ * ([lyceum_course_selects] e o botao "Quero me inscrever"), com data-popup-inscricao-id e
+ * data-popup-target="29363". Na versao Black o popup impresso na pagina e o modelo
+ * [BLACK-2026] (outro id) e o botao nao abria nada (achado no teste de 29/10). So na
+ * versao Black, a saida dos shortcodes passa a apontar para o modelo.
+ */
+
+/**
+ * Id do modelo Black de um popup original, ou 0.
+ *
+ * @param int|string $id Popup original.
+ * @return int
+ */
+function cetrus_black_popup_clone( $id ) {
+	$id   = (int) $id;
+	$mapa = cetrus_black_mapa();
+	if ( ! $id || ! isset( $mapa[ $id ] ) || 'popup' !== get_post_meta( $id, '_elementor_template_type', true ) ) {
+		return 0;
+	}
+	return (int) $mapa[ $id ];
+}
+
+/**
+ * Troca ids de popup original pelos do modelo Black em atributos data-* e em links de acao
+ * do Elementor (#elementor-action:action=popup:open&settings=<base64 de {"id":N,...}>).
+ *
+ * @param string $html HTML de um shortcode.
+ * @return string
+ */
+function cetrus_black_troca_popups( $html ) {
+	$html = preg_replace_callback(
+		'/(data-(?:popup-inscricao-id|popup-target|elementor-popup-id)=["\'])(\d+)(["\'])/',
+		function ( $m ) {
+			$clone = cetrus_black_popup_clone( $m[2] );
+			return $clone ? $m[1] . $clone . $m[3] : $m[0];
+		},
+		$html
+	);
+	return preg_replace_callback(
+		'/(popup(?::|%3A)open(?:&amp;|&|%26)settings(?:=|%3D))([A-Za-z0-9+\/=%]+)/',
+		function ( $m ) {
+			$b64   = rawurldecode( $m[2] );
+			$conf  = json_decode( (string) base64_decode( $b64, true ), true );
+			$clone = is_array( $conf ) && isset( $conf['id'] ) ? cetrus_black_popup_clone( $conf['id'] ) : 0;
+			if ( ! $clone ) {
+				return $m[0];
+			}
+			$conf['id'] = $clone;
+			$novo       = base64_encode( wp_json_encode( $conf ) );
+			return $m[1] . ( $b64 !== $m[2] ? rawurlencode( $novo ) : $novo );
+		},
+		$html
+	);
+}
+
+add_filter(
+	'do_shortcode_tag',
+	function ( $saida ) {
+		if ( ! is_string( $saida ) || false === strpos( $saida, 'popup' ) || ! cetrus_black_na_tela() ) {
+			return $saida;
+		}
+		return cetrus_black_troca_popups( $saida );
+	},
+	20
+);
+
+// Reserva do script do Lyceum (lyceum_course_vars.popup_config.inscricao_id), usada quando o
+// shortcode nao traz o id: tambem aponta para o modelo Black. Depois dos scripts do rodape.
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! cetrus_black_na_tela() ) {
+			return;
+		}
+		$pares = array();
+		foreach ( array_keys( cetrus_black_mapa() ) as $original ) {
+			$clone = cetrus_black_popup_clone( $original );
+			if ( $clone ) {
+				$pares[ $original ] = $clone;
+			}
+		}
+		if ( $pares ) {
+			printf(
+				"<script>(function(m){var v=window.lyceum_course_vars;if(v&&v.popup_config&&m[v.popup_config.inscricao_id]){v.popup_config.inscricao_id=String(m[v.popup_config.inscricao_id]);}})(%s);</script>\n",
+				wp_json_encode( $pares )
+			);
+		}
+	},
+	99
+);
 
 /**
  * O curso aberto e de pos-graduacao (modalidade pos-graduacao)?

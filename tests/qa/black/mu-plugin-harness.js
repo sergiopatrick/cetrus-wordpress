@@ -1,7 +1,8 @@
 /*
  * Teste do mu-plugin cetrus-black-november-2026.php SEM PHP local (PHP 8.3 em WebAssembly).
  *
- * Ultima rodada: 28/10/2026 (noite), 31 casos, 27 verificados OK + 4 informativos (mu-plugin 0.4.0).
+ * Ultima rodada: 29/10/2026, 34 casos, 30 verificados OK + 4 informativos (mu-plugin 0.4.1).
+ * Antes: 28/10/2026 (noite), 31 casos, 27 verificados OK + 4 informativos (mu-plugin 0.4.0).
  * Antes: 23/10/2026, 17 casos, 13 verificados OK + 4 informativos; MD5 143d0675...5ac8
  * (= arquivo do repositorio = snippet 116). Atalho usado em 23/10: rodar na aba do wp-admin do
  * staging (o CSP permite o jsDelivr) e montar o base64 a partir de '<?php\n' + code do snippet
@@ -38,9 +39,9 @@ function get_option($k,$d=false){ return $GLOBALS['OPT'][$k]??$d; } function upd
 function did_action($h){ return $GLOBALS['ACOES'][$h] ?? 1; } function is_admin(){ return false; } function wp_doing_ajax(){ return false; } function is_feed(){ return false; }
 function is_user_logged_in(){ return $GLOBALS['LOGADO']; } function current_user_can($c){ return $GLOBALS['PODE']; } function wp_unslash($v){ return $v; }
 function get_transient($k){ return false; } function set_transient($k,$v,$t){ return true; } function delete_transient($k){ return true; }
-$GLOBALS['META']=[900=>'product',901=>'header',902=>'product',903=>'header',904=>'product',905=>'page',12073=>'product',11545=>'header',19225=>'product',10946=>'wp-page'];
+$GLOBALS['META']=[900=>'product',901=>'header',902=>'product',903=>'header',904=>'product',905=>'page',12073=>'product',11545=>'header',19225=>'product',10946=>'wp-page',906=>'popup',29363=>'popup'];
 function get_post_meta($id,$k,$s){ return $GLOBALS['META'][$id]??''; }
-function get_post_type($id){ if($id===10946) return 'page'; return in_array($id,[12073,11545,19225],true)?'elementor_library':false; }
+function get_post_type($id){ if($id===10946) return 'page'; return in_array($id,[12073,11545,19225,29363],true)?'elementor_library':false; } function wp_json_encode($d){ return json_encode($d); }
 function wp_enqueue_style($h,$u,$d,$v){ $GLOBALS['ESTILOS'][]=$u; }
 $GLOBALS['SC']=[]; function add_shortcode($n,$cb){ $GLOBALS['SC'][$n]=$cb; } function shortcode_atts($p,$a,$n=''){ return array_merge($p,(array)$a); }
 function is_singular($t=''){ return $GLOBALS['SINGULAR']??false; } function get_the_terms($id,$tax){ return $GLOBALS['TERMOS']??[]; }
@@ -52,7 +53,7 @@ function is_page(){ return true; } function get_queried_object_id(){ return $GLO
 function run_filters2($h,$v,$a){ foreach(($GLOBALS['F'][$h]??[]) as $cb){ $v=$cb($v,$a);} return $v; }
 eval('namespace Elementor; class Plugin { public static $instance; public $frontend; } class FakeFront { function get_builder_content_for_display($id){ return "<div data-elementor-id=\\"".$id."\\">black</div>"; } } Plugin::$instance = new Plugin(); Plugin::$instance->frontend = new FakeFront();');
 class FakeDB { public $posts='wp_posts'; function esc_like($s){ return addcslashes($s,'_%\\\\'); } function prepare($q,...$a){ return $q; }
- function get_results($q){ if(!empty($GLOBALS['SEM_CLONES'])) return []; $r=[]; foreach([[900,'[BLACK-2026] #12073 Produto','publish'],[901,'[BLACK-2026] #11545 Header','draft'],[902,'[BLACK-2026] sem id','publish'],[903,'[BLACK-2026] #19225 tipo errado','publish'],[904,'[BLACK-2026] #12073 duplicado','publish'],[905,'[BLACK-2026] #10946 Home Black','publish']] as $x){ $o=new stdClass; $o->ID=$x[0]; $o->post_title=$x[1]; $o->post_status=$x[2]; $o->post_modified='2026-10-22 10:00:00'; $r[]=$o; } return $r; } }
+ function get_results($q){ if(!empty($GLOBALS['SEM_CLONES'])) return []; $r=[]; foreach([[900,'[BLACK-2026] #12073 Produto','publish'],[901,'[BLACK-2026] #11545 Header','draft'],[902,'[BLACK-2026] sem id','publish'],[903,'[BLACK-2026] #19225 tipo errado','publish'],[904,'[BLACK-2026] #12073 duplicado','publish'],[905,'[BLACK-2026] #10946 Home Black','publish'],[906,'[BLACK-2026] #29363 Popup inscricao','publish']] as $x){ $o=new stdClass; $o->ID=$x[0]; $o->post_title=$x[1]; $o->post_status=$x[2]; $o->post_modified='2026-10-22 10:00:00'; $r[]=$o; } return $r; } }
 $wpdb = new FakeDB();
 $c = base64_decode(file_get_contents('/tmp/p.b64'));
 token_get_all($c, TOKEN_PARSE);
@@ -77,10 +78,14 @@ eval('?>' . $c);
 		// trava: chave ligada sem nenhum modelo publicado nao liga; a previa de quem edita continua
 		sem_modelos_trava: ["$GLOBALS['SEM_CLONES']=true; $GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
 		sem_modelos_previa: ["$GLOBALS['SEM_CLONES']=true; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
+		// 29/10: popup aberto por id fixo no HTML do shortcode do Lyceum (29363) passa a apontar para o modelo Black
+		popups_troca: ["echo cetrus_black_troca_popups('<div data-popup-inscricao-id=\"29363\"></div><a data-popup-target=\"29363\" href=\"#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6MjkzNjMsInRvZ2dsZSI6ZmFsc2V9\">x</a><b data-popup-target=\"11545\"></b>');", '<div data-popup-inscricao-id="906"></div><a data-popup-target="906" href="#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6OTA2LCJ0b2dnbGUiOmZhbHNlfQ%3D%3D">x</a><b data-popup-target="11545"></b>'],
+		popups_shortcode_desligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters('do_shortcode_tag','<div data-popup-target=\"29363\"></div>');", '<div data-popup-target="29363"></div>'],
+		popups_shortcode_ligado: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters('do_shortcode_tag','<div data-popup-target=\"29363\"></div>');", '<div data-popup-target="906"></div>'],
 		previa_editor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; $_GET['cetrus_black']='1'; $GLOBALS['LOGADO']=true; $GLOBALS['PODE']=true; echo cetrus_black_ativo()?'ligada':'desligada';", 'ligada'],
 		previa_anonimo: ["$_GET['cetrus_black']='1'; echo cetrus_black_ativo()?'ligada':'desligada';", null],
 		editor_elementor: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $_GET['elementor-preview']='123'; echo cetrus_black_ativo()?'ligada':'desligada';", 'desligada'],
-		mapa: ["$d=cetrus_black_mapa(true); echo json_encode($d['mapa']),' ',count($d['alertas']);", '{"12073":904,"10946":905} 4'],
+		mapa: ["$d=cetrus_black_mapa(true); echo json_encode($d['mapa']),' ',count($d['alertas']);", '{"12073":904,"10946":905,"29363":906} 4'],
 		pagina_ligada: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; echo run_filters('the_content','ORIGINAL'),' | ',count(run_filters2('elementor/frontend/builder_content_data',[1,2],10946)),',',count(run_filters2('elementor/frontend/builder_content_data',[1,2],905));", '<div data-elementor-id="905">black</div> | 0,2'],
 		pagina_desligada: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='desligado'; echo run_filters('the_content','ORIGINAL'),' | ',count(run_filters2('elementor/frontend/builder_content_data',[1,2],10946));", 'ORIGINAL | 2'],
 		pagina_sem_clone: ["$GLOBALS['OPT']['cetrus_black_2026_modo']='ligado'; $GLOBALS['QID']=11768; echo run_filters('the_content','ORIGINAL');", 'ORIGINAL'],

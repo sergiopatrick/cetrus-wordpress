@@ -429,8 +429,18 @@ body.cetrus-black-2026 .elementor-location-popup .hs-form .legal-consent-contain
 body.cetrus-black-2026 .elementor-location-popup .hs-form .hs-richtext {
 	color: var(--cb-apoio);
 }
+/* !important: o widget do popup de inscricao tem CSS proprio ".hs-richtext a { color: blue }", mais especifico */
 body.cetrus-black-2026 .elementor-location-popup .hs-form a {
-	color: var(--cb-lavanda-clara);
+	color: var(--cb-lavanda-clara) !important;
+}
+/* caixa do popup: o padrao do Elementor e branco e sobrava dos lados do conteudo grafite (640 x 512 px) */
+body.cetrus-black-2026 .elementor-popup-modal .dialog-widget-content {
+	background-color: var(--cb-grafite);
+}
+body.cetrus-black-2026 .elementor-popup-modal .dialog-close-button i,
+body.cetrus-black-2026 .elementor-popup-modal .dialog-close-button svg {
+	color: var(--cb-texto);
+	fill: var(--cb-texto);
 }
 
 /* ---- Newsletter ([cetrus_newsletter], mu-plugin cetrus-newsletter: slots home e conteudos) ---- */

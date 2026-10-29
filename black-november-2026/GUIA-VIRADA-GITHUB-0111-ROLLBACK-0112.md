@@ -57,7 +57,7 @@ Pode ser feito na véspera ou no dia, antes da seção 2. Feito no dia, ele tamb
 
 ## 2. Virada · 01/11/2026 (horário combinado pelo time)
 
-1. **2º PR, o da virada:** abrir https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111?expand=1 › Create pull request. Conferir: **1 commit** (`08424dd`) e **uma linha** no diff (`'desligado'` → `'ligado'`). Se mostrar mais, o 1º PR não entrou: voltar à seção 1.
+1. **2º PR, o da virada:** abrir https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111?expand=1 › Create pull request. Conferir: **1 commit** (`08424dd`) e **uma linha** no diff (`'desligado'` → `'ligado'`). Se mostrar mais de um commit: com o 1º PR ainda aberto, voltar à seção 1; se o 1º PR já entrou (por "Squash" ou "Rebase"), usar o Plano B abaixo.
 2. Fazer o merge na `main`.
 3. WordPress.com › Implantações › implantar a `main`.
 4. Esperar ~5 min (cache de borda) e validar numa janela anônima, com `?x=<número qualquer>` no fim da URL:
@@ -68,7 +68,7 @@ Pode ser feito na véspera ou no dia, antes da seção 2. Feito no dia, ele tamb
 5. Conferir em Ferramentas › Black November 2026: "Versão Black para visitantes: LIGADA".
 6. **Se algo crítico falhar:** Ferramentas › Black November 2026 › "forçar desligado" › Gravar modo (efeito imediato). Depois, decidir com o time.
 
-**Plano B (se o PR de 01/11 mostrar conflito ou mais de um commit):** na `main`, abrir o arquivo `wp-content/mu-plugins/cetrus-black-november-2026.php` no GitHub › lápis (Edit) › trocar `define( 'CETRUS_BLACK_VIRADA', 'desligado' );` por `define( 'CETRUS_BLACK_VIRADA', 'ligado' );` › commit direto na `main` com a mensagem "Black November 2026: liga a versao Black (01/11)" › implantar. É o mesmo efeito.
+**Plano B (com o 1º PR já na `main`, se o PR de 01/11 mostrar conflito ou mais de um commit):** na `main`, abrir o arquivo `wp-content/mu-plugins/cetrus-black-november-2026.php` no GitHub › lápis (Edit) › trocar `define( 'CETRUS_BLACK_VIRADA', 'desligado' );` por `define( 'CETRUS_BLACK_VIRADA', 'ligado' );` › commit direto na `main` com a mensagem "Black November 2026: liga a versao Black (01/11)" › implantar. É o mesmo efeito.
 
 ## 3. Rollback · 01/12/2026
 

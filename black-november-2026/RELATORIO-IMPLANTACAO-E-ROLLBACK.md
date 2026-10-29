@@ -30,7 +30,9 @@
 
 **Nada liga sozinho.** O código e os modelos são instalados antes, desligados. Em 01/11 uma pessoa faz o merge do commit que liga a chave e implanta; em 01/12 faz o merge do commit que a desliga e implanta. Passo a passo com links: [`GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md`](GUIA-VIRADA-GITHUB-0111-ROLLBACK-0112.md).
 
-### 2.1 Preparação (até 31/10, com o site normal no ar)
+### 2.1 Preparação (31/10 ou no próprio 01/11, antes da virada, com o site normal no ar)
+
+**Ordem dos PRs:** 1º o do código (`black-november-2026-ativacao-manual`), 2º o da virada (`virada-0111`). O da virada sozinho não traz os pedidos de 29/10 (WhatsApp Black e inscrição pelo popup nos cursos): a branch dele foi criada em 28/10. Ver o guia.
 
 | # | Passo | Como | Volta atrás |
 |---|---|---|---|
@@ -49,7 +51,7 @@
 
 ### 2.2 Virada · 01/11 (commit no GitHub)
 
-1. Abrir o PR https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111. O diff é uma linha: `define( 'CETRUS_BLACK_VIRADA', 'ligado' )`.
+1. Com o PR do código já na `main` (seção 2.1), abrir o PR https://github.com/sergiopatrick/cetrus-wordpress/compare/main...black-november-2026-virada-0111. O diff é uma linha: `define( 'CETRUS_BLACK_VIRADA', 'ligado' )`.
 2. Merge na `main` e WP.com › Implantações › implantar a `main`.
 3. Esperar ~5 min (cache de borda) e validar em janela anônima com `?x=<aleatório>`: Home, Vitrine, Conteúdos, produtos, formulário da Home (sem enviar), WhatsApp, popups; e as telas iguais à produção (fellowship v2, graduação, especialidade, institucional, 404) **sem** Black.
 4. Se algo crítico falhar: Ferramentas › Black November 2026 › **forçar desligado** (imediato, sem deploy; seção 3).

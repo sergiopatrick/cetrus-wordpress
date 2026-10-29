@@ -733,6 +733,15 @@ body.cetrus-black-2026.cetrus-black-conteudo .cbn-cg-h1 .elementor-heading-title
 		max-width: 100% !important;
 	}
 }
+/* Ate 1024 px o Elementor empilha as duas colunas (flex-direction: column). Ai os 520/360 px de
+   base acima viravam altura: ~180 px vazios no texto e ~210 px em volta da imagem (29/10).
+   Empilhadas, cada coluna fica com a altura do proprio conteudo. */
+@media (max-width: 1024px) {
+	body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-txt,
+	body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-hero-img {
+		flex: 0 0 auto !important;
+	}
+}
 /* fundos alternados das secoes, como no artboard Material (classes postas pelo montar-black.js) */
 body.cetrus-black-2026.cetrus-black-conteudo .e-con.cbn-cg-fundo-00 {
 	background: #000000 !important;

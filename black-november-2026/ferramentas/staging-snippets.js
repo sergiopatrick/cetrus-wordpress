@@ -70,4 +70,27 @@
 			sha_plugin_arquivo: await sha(plugin)
 		};
 	};
+	/*
+	 * WhatsApp flutuante da Home: a producao tem o mu-plugin cetrus-whatsapp-flutuante.php, o
+	 * staging nao (a sincronizacao de arquivos nao trouxe esse mu-plugin). Copia o arquivo do
+	 * mesmo commit, byte a byte, num snippet "[STAGING] ...", dentro de um eval que so roda se o
+	 * arquivo de verdade nao existir no staging (funcao ja declarada = nada a fazer, sem erro fatal).
+	 *   await cetrusStaging.instalarWhatsapp(RAW);
+	 */
+	S.instalarWhatsapp = async function (raw) {
+		var arquivo = await fetch(raw + 'wp-content/mu-plugins/cetrus-whatsapp-flutuante.php').then(function (r) { return r.text(); });
+		if (arquivo.indexOf('<?php') !== 0 || arquivo.indexOf('CETRUS_WA_ARQUIVO') >= 0) throw new Error('arquivo inesperado');
+		var codigo = "// So staging: copia do mu-plugin cetrus-whatsapp-flutuante.php (ver staging-snippets.js).\nif ( ! function_exists( 'cetrus_wa_config' ) ) {\n\teval( '?>' . <<<'CETRUS_WA_ARQUIVO'\n" + arquivo.replace(/\s+$/, '') + "\nCETRUS_WA_ARQUIVO\n\t);\n}";
+		var lista = [];
+		for (var p = 1; p < 10; p++) {
+			var pag = await rest('/code-snippets/v1/snippets?per_page=100&page=' + p);
+			if (!Array.isArray(pag) || !pag.length) break;
+			lista = lista.concat(pag);
+			if (pag.length < 100) break;
+		}
+		lista.forEach(function (s) { s.name = s.name.trim(); });
+		var r = await grava(lista, '[STAGING] WhatsApp flutuante da Home (copia do mu-plugin da producao)', codigo, 'front-end');
+		r.sha_arquivo = await sha(arquivo);
+		return r;
+	};
 })();

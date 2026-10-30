@@ -55,7 +55,7 @@
 		{ orig: 11545, passos: ['barraNoHeader'] }, { orig: 20497, passos: ['barraNoHeader'] }, { orig: 20396, passos: ['barraNoHeader'] },
 		{ orig: 10919 },
 		{ orig: 12073, passos: ['pos'] }, { orig: 26931, passos: ['pos'] }, { orig: 28008, passos: ['pos'] },
-		{ orig: 19225 }, { orig: 21114 }, { orig: 34795 }, { orig: 32359 }, { orig: 19062 },
+		{ orig: 19225 }, { orig: 21114 }, { orig: 34795 }, { orig: 32359, passos: ['pacote'] }, { orig: 19062 },
 		{ orig: 12753 }, { orig: 12747 },
 		{ orig: 10946, pagina: true, nome: 'Home', montar: 'home' },
 		{ orig: 11768, pagina: true, nome: 'Vitrine', montar: 'vitrine' },
@@ -191,6 +191,29 @@
 			var iq = els.findIndex(function (e) { return /Quem viu este curso/.test(JSON.stringify(e)); });
 			var pert = { id: uid(), elType: 'container', isInner: false, settings: { content_width: 'full', padding: ZERO, margin: ZERO, _title: 'BLACK · pertencimento', css_classes: 'cbn-pert-wrap' }, elements: [widgetShortcode('[cetrus_black_pertencimento]', 'pertencimento')] };
 			if (iq >= 0) els.splice(iq, 0, pert); else { av('"Quem viu este curso" nao achado; pertencimento no fim'); els.push(pert); }
+		},
+
+		// Pacotes (32359), so no modelo Black (30/10): no celular o formulario sumia. O CSS do Kit esconde
+		// .cetrus-hs-form--inline ate 960 px e o botao do celular aponta para #inscricao, que nao existe.
+		// Aqui o mesmo formulario do computador (mesmos campos ocultos) aparece no celular e o botao vai para #form.
+		pacote: function (els, ctx) {
+			var av = function (m) { ctx.rel.avisos.push('#' + ctx.item.orig + ': ' + m); };
+			var form = 0, botoes = 0;
+			cada(els, function (e) {
+				var s = e.settings || {};
+				if (e.widgetType === 'html' && /cetrus-hs-form--inline/.test(String(s.html || ''))) {
+					addClasse(e, 'cbn-pacote-form');
+					s.html += '\n<style>@media (max-width: 960px) { .cbn-pacote-form .cetrus-hs-form--inline { display: block; } }</style>';
+					form++;
+				}
+				if (e.widgetType === 'button' && s.link && s.link.url === '#inscricao') {
+					s.link.url = '#form';
+					botoes++;
+				}
+			});
+			if (!form) av('formulario inline nao achado (celular sem formulario)');
+			if (!botoes) av('botao #inscricao nao achado');
+			ctx.rel.avisos.push('#' + ctx.item.orig + ': pacote no celular, ' + form + ' formulario(s) e ' + botoes + ' botao(oes) ajustados');
 		}
 	};
 

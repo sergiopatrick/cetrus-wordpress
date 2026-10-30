@@ -93,6 +93,19 @@ body.cetrus-black-2026.cetrus-black-conteudo a.lyceum-course-btn:hover,
 body.cetrus-black-2026.cetrus-black-conteudo .elementor-widget-shortcode a.elementor-button:hover {
 	background-color: #fff !important;
 }
+/* Mesmo botao quando vem de widget HTML (.submit-course-btn #submit-link): Sanar Pos, Pediatria e EAD,
+   que ficavam no azul #003B6C (30/10). */
+body.cetrus-black-2026.cetrus-black-conteudo .submit-course-btn a.elementor-button {
+	background-color: var(--cb-texto) !important;
+	border-color: var(--cb-texto) !important;
+	color: #111214 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .submit-course-btn a.elementor-button .elementor-button-text {
+	color: #111214 !important;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .submit-course-btn a.elementor-button:hover {
+	background-color: #fff !important;
+}
 
 /* ---- Cards de professores ([mostrar-cards-professores]) ---- */
 body.cetrus-black-2026.cetrus-black-conteudo .relative-profile-card {

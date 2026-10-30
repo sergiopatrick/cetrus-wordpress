@@ -1,0 +1,32 @@
+<!--
+  Cetrus · Black November 2026 · Home · secao "Legado" (numeros), igual a secao LEGADO do artboard
+  Home do Artifact: fundo #141518, titulo de 2 pesos, 4 colunas com linha em cima, "+" lavanda.
+  Widget HTML no modelo "[BLACK-2026] #10946 Home", no lugar dos numeros originais (f4ad350), que
+  continuam na Home original. Pedido de 28/10/2026 (noite): "identica ao artifact".
+  Numeros e textos sao os do Artifact (os numeros sao os mesmos da Home: 250, 150, 60 mil, 600 mil).
+  Acrescenta 1 H2 na Home Black (o titulo); os rotulos sao <strong>, sem heading.
+-->
+<section class="cbl" aria-labelledby="cbl-t">
+	<div class="cbl__in">
+		<h2 id="cbl-t" class="cbl__t">Há mais de 30 anos construindo um <strong>legado na educação médica.</strong></h2>
+		<ul class="cbl__grade">
+			<li><span class="cbl__n"><span aria-hidden="true">+</span>250</span><strong>Cursos e especializações</strong><span class="cbl__d">Encontre o curso ideal para o seu momento na carreira médica.</span></li>
+			<li><span class="cbl__n"><span aria-hidden="true">+</span>150</span><strong>Professores especialistas</strong><span class="cbl__d">Corpo docente que vive a especialidade todos os dias.</span></li>
+			<li><span class="cbl__n"><span aria-hidden="true">+</span>60 mil</span><strong>Médicos formados</strong><span class="cbl__d">Formando gerações de médicos referência.</span></li>
+			<li><span class="cbl__n"><span aria-hidden="true">+</span>600 mil</span><strong>Pacientes atendidos</strong><span class="cbl__d">Alta carga horária prática, em pacientes reais.</span></li>
+		</ul>
+	</div>
+</section>
+<style>
+.cbl{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;background:#141518;border-top:1px solid rgba(255,255,255,.08);color:#F3F3F6;font-family:Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.55}
+.cbl__in{box-sizing:border-box;max-width:1240px;margin:0 auto;padding:64px 20px;display:flex;flex-direction:column;gap:36px}
+.cbl__t{margin:0;max-width:760px;font-family:var(--ft);font-size:clamp(26px,2.8vw,36px);font-weight:300;line-height:1.2;color:#F3F3F6}
+.cbl__t strong{font-weight:700}
+.cbl__grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin:0;padding:0;list-style:none}
+.cbl__grade li{display:flex;flex-direction:column;gap:6px;margin:0;padding:8px 24px 8px 0;border-top:1px solid rgba(255,255,255,.12)}
+.cbl__n{padding-top:18px;font-family:var(--ft);font-size:clamp(40px,4.4vw,60px);font-weight:300;line-height:1;color:#F3F3F6;white-space:nowrap}
+.cbl__n span{color:#8C8EB6}
+.cbl__grade strong{font-size:15px;font-weight:500;color:#F3F3F6}
+.cbl__d{font-size:13px;color:#A9AAB8}
+@media (max-width:767px){.cbl__in{padding:48px 20px;gap:28px}.cbl__grade{grid-template-columns:repeat(2,minmax(0,1fr))}.cbl__grade li{padding-right:16px}}
+</style>

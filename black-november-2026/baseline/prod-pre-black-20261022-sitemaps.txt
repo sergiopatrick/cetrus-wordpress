@@ -1,0 +1,3 @@
+product-sitemap.xml	424
+page-sitemap.xml	23
+v2_modalidade-sitemap.xml	9

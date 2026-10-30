@@ -1,0 +1,54 @@
+<!--
+  Cetrus · Black November 2026 · barra de campanha (logo abaixo do menu, em todas as paginas).
+  Conteudo de UM widget HTML do Elementor, no modelo "[BLACK-2026] #34626 Barra de campanha",
+  que o clone do header usa no lugar da faixa sazonal (template 34626, hoje Outubro Rosa).
+  Referencia: Artifact, componente "BARRA DE CAMPANHA" (Home, Busca, Produto, Material).
+
+  - Um link so (sem link dentro de link), largura total, mesma altura em todas as paginas.
+  - Nas paginas de curso o CTA vira "Ver condição" e rola ate o card de inscricao
+    (seletor de unidade/turma); nas demais leva para /vitrine/.
+  - Sem cronometro e sem porcentagem (regras de copy do Artifact).
+-->
+<a class="cbn-barra" href="/vitrine/">
+	<span class="cbn-barra__marca"><strong>Black</strong> November</span>
+	<span class="cbn-barra__txt">Condições exclusivas para a sua formação.</span>
+	<span class="cbn-barra__cta">Ver cursos</span>
+</a>
+<style>
+.cbn-barra{box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 18px;width:calc(100vw - var(--cbn-sbw,0px));margin-left:calc(50% - 50vw + var(--cbn-sbw,0px) / 2);min-height:48px;padding:11px 20px;background:#0E0F12;border-bottom:1px solid rgba(255,255,255,.10);color:#F3F3F6!important;text-decoration:none!important;font-family:Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.3;text-align:center}
+.cbn-barra__marca{font-family:"BwModelica","Bw Modelica",Montserrat,sans-serif;font-size:12px;font-weight:300;letter-spacing:.24em;text-transform:uppercase;color:#F3F3F6}
+.cbn-barra__marca strong{font-weight:700;background:linear-gradient(100deg,#8C8EB6 0%,#D4D5E8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cbn-barra__txt{color:rgba(243,243,246,.88)}
+.cbn-barra__cta{display:inline-flex;align-items:center;padding:6px 14px;border:1px solid rgba(255,255,255,.45);border-radius:4px;font-family:"BwModelica","Bw Modelica",Montserrat,sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#FFFFFF;transition:background .2s}
+.cbn-barra:hover .cbn-barra__cta,.cbn-barra:focus-visible .cbn-barra__cta{background:rgba(255,255,255,.08)}
+.cbn-barra:focus-visible{outline:2px solid #D4D5E8;outline-offset:-2px}
+@media (max-width:767px){.cbn-barra{gap:6px 12px;padding:10px 16px;font-size:13px}.cbn-barra__txt{flex:1 1 100%;order:3}}
+</style>
+<script>
+(function () {
+	var barra = document.querySelector('.cbn-barra');
+	if (!barra) return;
+	// largura total sem rolagem horizontal (mesmo truque da faixa sazonal)
+	function sbw() { document.documentElement.style.setProperty('--cbn-sbw', (window.innerWidth - document.documentElement.clientWidth) + 'px'); }
+	// a barra de rolagem so existe depois que a pagina cresce: medir de novo no load e a cada mudanca de tamanho
+	sbw(); window.addEventListener('resize', sbw); window.addEventListener('load', sbw);
+	if ('ResizeObserver' in window) new ResizeObserver(sbw).observe(document.body);
+	// pagina de curso: "Ver condição" leva ao card de inscricao
+	if (document.body.classList.contains('single-product')) {
+		// o template tem um card para desktop e outro para mobile: usa o que estiver visivel
+		var alvo = function () {
+			var c = [].slice.call(document.querySelectorAll('.course-selection, .unit-select'));
+			return c.filter(function (e) { return e.offsetParent !== null; })[0] || null;
+		};
+		barra.querySelector('.cbn-barra__txt').textContent = 'Black November no ar. Condições exclusivas para as turmas deste curso.';
+		barra.querySelector('.cbn-barra__cta').textContent = 'Ver condição';
+		barra.setAttribute('href', '#inscricao');
+		barra.addEventListener('click', function (ev) {
+			var a = alvo();
+			if (!a) return;
+			ev.preventDefault();
+			a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		});
+	}
+})();
+</script>

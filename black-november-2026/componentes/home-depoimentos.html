@@ -1,0 +1,36 @@
+<!--
+  Cetrus · Black November 2026 · Home · depoimentos no formato do Artifact (secao DEPOIMENTOS do
+  artboard Home: cartoes #191A1E de raio 16 lado a lado; no celular, carrossel com arraste lateral).
+  Widget HTML no modelo "[BLACK-2026] #10946 Home", no lugar da secao ddd2426.
+  {{ITENS}} e preenchido pelo montar-black.js com os depoimentos REAIS da secao ddd2426 da pagina
+  original (widgets testimonial: texto, nome, curso e foto), para seguir o conteudo da producao.
+  O titulo e paragrafo (nao heading): a secao original nao tem H2.
+-->
+<section class="cbd" aria-label="Depoimentos de alunos">
+	<div class="cbd__in">
+		<p class="cbd__t">Quem estudou no <strong>Cetrus</strong></p>
+		<div class="cbd__lista">
+{{ITENS}}
+		</div>
+	</div>
+</section>
+<style>
+.cbd{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;background:#141518;border-top:1px solid rgba(255,255,255,.06);color:#F3F3F6;font-family:Roboto,"Helvetica Neue",Arial,sans-serif}
+.cbd__in{box-sizing:border-box;max-width:1240px;margin:0 auto;padding:64px 20px;display:flex;flex-direction:column;gap:24px}
+.cbd__t{margin:0;font-family:var(--ft);font-size:clamp(22px,2.2vw,28px);font-weight:300;line-height:1.25;color:#F3F3F6}
+.cbd__t strong{font-weight:700}
+.cbd__lista{display:grid;gap:20px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.cbd__item{margin:0;padding:26px;border-radius:16px;background:#191A1E;border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column;justify-content:space-between;gap:18px;box-sizing:border-box}
+.cbd__item p{margin:0;font-size:15px;line-height:1.6;color:#F3F3F6}
+.cbd__item footer{display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.4}
+.cbd__item img{flex:0 0 auto;width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.14);background:#26272d}
+.cbd__item strong{display:block;font-family:var(--ft);font-size:14px;font-weight:600;color:#F3F3F6}
+.cbd__item span span{color:#C9D6EE}
+@media (min-width:768px) and (max-width:1024px){.cbd__lista{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:767px){
+	.cbd__in{padding:48px 20px;gap:20px}
+	.cbd__lista{margin:0 -20px;padding:0 20px 4px;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:min(84%,320px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;scrollbar-width:none}
+	.cbd__lista::-webkit-scrollbar{display:none}
+	.cbd__item{scroll-snap-align:start;padding:22px}
+}
+</style>

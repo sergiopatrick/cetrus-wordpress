@@ -11,3 +11,6 @@ _deploy/
 # Retratos e screenshots do pipeline de QA (locais, pesados, nao versionar)
 tests/qa/snap/
 tests/qa/shots/
+
+# Pasta temporaria do seo-baseline.ps1 durante a captura
+black-november-2026/baseline/.tmp-*/

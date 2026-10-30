@@ -337,6 +337,18 @@
 				n++;
 				return aspa + mapa[id] + aspa;
 			});
+			// link de acao do Elementor com o id dentro do base64 (#elementor-action:action=popup:open&settings=<base64>),
+			// como o botao "Quero me inscrever" dos templates Sanar Pos, Pediatria e EAD (30/10). Mesma regra
+			// de cetrus_black_troca_popups() no mu-plugin.
+			s.html = s.html.replace(/(popup(?::|%3A)open(?:&amp;|&|%26)settings(?:=|%3D))([A-Za-z0-9+\/=%]+)/g, function (t, pre, b64) {
+				var conf;
+				try { conf = JSON.parse(atob(decodeURIComponent(b64))); } catch (e) { return t; }
+				if (!conf || conf.id === undefined || !mapa[conf.id] || String(mapa[conf.id]) === String(conf.id)) return t;
+				conf.id = typeof conf.id === 'string' ? String(mapa[conf.id]) : mapa[conf.id];
+				n++;
+				var novo = btoa(JSON.stringify(conf));
+				return pre + (pre.indexOf('%') >= 0 ? encodeURIComponent(novo) : novo);
+			});
 		});
 		return n;
 	}

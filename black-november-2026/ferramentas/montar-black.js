@@ -229,14 +229,18 @@
 			var por = {}; els.forEach(function (e) { por[e.id] = e; });
 			var conhecidos = ['75c936f', '0fe805b', 'ddd2426', '287991c'];
 			exige(por, conhecidos, 'Home', ctx.rel);
-			// saem: faixa Lista VIP (76b95fe, a barra do header ocupa o lugar), hero e buscas antigos
-			// (5c98cd0, 317b4e0, d3db8d1: substituidos pelo hero do Artifact), newsletter (92454f4, pedido
-			// de 28/10), depoimentos originais (ddd2426: entram no formato do Artifact, com os mesmos textos)
-			// e numeros originais (f4ad350: no lugar entra a secao "Legado" do Artifact, pedido de 28/10 a noite).
-			var saem = ['76b95fe', '5c98cd0', '317b4e0', 'd3db8d1', '92454f4', 'ddd2426', 'f4ad350'];
+			// faixa Lista VIP (76b95fe, template 35597): fica no topo, logo abaixo da barra do header. A Lista VIP
+			// continua em novembro com "Garanta exclusividade na oferta" (decisao do Greg e do Sergio, 30/10).
+			var faixaVip = por['76b95fe'];
+			if (!faixaVip) ctx.rel.avisos.push('Home: faixa Lista VIP (76b95fe) nao achada; Home Black sem a faixa.');
+			// saem: hero e buscas antigos (5c98cd0, 317b4e0, d3db8d1: substituidos pelo hero do Artifact),
+			// newsletter (92454f4, pedido de 28/10), depoimentos originais (ddd2426: entram no formato do Artifact,
+			// com os mesmos textos) e numeros originais (f4ad350: no lugar entra a secao "Legado" do Artifact,
+			// pedido de 28/10 a noite).
+			var saem = ['5c98cd0', '317b4e0', 'd3db8d1', '92454f4', 'ddd2426', 'f4ad350'];
 			var depo = depoimentos(ctx.original.elementos.filter(function (e) { return e.id === 'ddd2426'; }), comp['home-depoimentos']);
 			if (!depo.n) ctx.rel.avisos.push('Home: nenhum depoimento achado em ddd2426; secao de depoimentos ficou vazia.');
-			var extras = els.filter(function (e) { return conhecidos.concat(saem).indexOf(e.id) < 0; });
+			var extras = els.filter(function (e) { return conhecidos.concat(saem, ['76b95fe']).indexOf(e.id) < 0; });
 			extras.forEach(function (e) { ctx.rel.avisos.push('Home: container novo na pagina original (' + e.id + '), mantido antes do fechamento. Conferir.'); });
 			// fundos das secoes como no artboard Home (regras no black.css, bloco "Home")
 			addClasse(por['75c936f'], 'cbn-home-destaques');
@@ -257,9 +261,9 @@
 				var vs = velho.settings || {};
 				cg.el.elements[0] = { id: uid(), elType: 'container', isInner: true, settings: { content_width: 'full', width: vs.width, width_tablet: vs.width_tablet, width_mobile: vs.width_mobile, padding: ZERO, margin: ZERO, _title: 'BLACK · destaque conteudos gratuitos', css_classes: 'cbn-home-cg-destaque' }, elements: [widgetHtml(comp['home-conteudos-destaque'], 'destaque conteudos gratuitos')] };
 			} else ctx.rel.avisos.push('Home: card de destaque de "Explore conteudos gratuitos" (dd26583) nao achado; ficou o original.');
-			return [caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), caixa('legado', comp['home-legado']),
+			return (faixaVip ? [faixaVip] : []).concat([caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), caixa('legado', comp['home-legado']),
 				caixa('autoridade', comp['home-autoridade']), por['0fe805b'], caixa('depoimentos', depo.html), por['287991c']]
-				.concat(extras, [caixa('fechamento', comp['home-fechamento'])]);
+				.concat(extras, [caixa('fechamento', comp['home-fechamento'])]));
 		},
 
 		vitrine: function (els, comp, ctx) {

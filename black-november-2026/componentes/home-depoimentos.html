@@ -6,14 +6,6 @@
   original (widgets testimonial: texto, nome, curso e foto), para seguir o conteudo da producao.
   O titulo e paragrafo (nao heading): a secao original nao tem H2.
 -->
-<section class="cbd" aria-label="Depoimentos de alunos">
-	<div class="cbd__in">
-		<p class="cbd__t">Quem estudou no <strong>Cetrus</strong></p>
-		<div class="cbd__lista">
-{{ITENS}}
-		</div>
-	</div>
-</section>
 <style>
 .cbd{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;background:#141518;border-top:1px solid rgba(255,255,255,.06);color:#F3F3F6;font-family:Roboto,"Helvetica Neue",Arial,sans-serif}
 .cbd__in{box-sizing:border-box;max-width:1240px;margin:0 auto;padding:64px 20px;display:flex;flex-direction:column;gap:24px}
@@ -34,3 +26,11 @@
 	.cbd__item{scroll-snap-align:start;padding:22px}
 }
 </style>
+<section class="cbd" aria-label="Depoimentos de alunos">
+	<div class="cbd__in">
+		<p class="cbd__t">Quem estudou no <strong>Cetrus</strong></p>
+		<div class="cbd__lista">
+{{ITENS}}
+		</div>
+	</div>
+</section>

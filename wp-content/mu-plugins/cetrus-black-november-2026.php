@@ -2,9 +2,10 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.4.4
+ * Version:     0.4.5
  * Author:      Cetrus / Sanar
  *
+ * 0.4.5 (01/11/2026): busca no celular com o "Cancelar" sempre embaixo do termo (black.css, CLS).
  * 0.4.4 (01/11/2026): CSS que o Elementor e o WP Grid Builder imprimem no fim do body ganha copia no
  * <head> (CLS no celular da Vitrine, busca e arquivos). O preload das fontes continua so na Home.
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
@@ -64,7 +65,7 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.4';
+const CETRUS_BLACK_VERSAO   = '0.4.5';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando

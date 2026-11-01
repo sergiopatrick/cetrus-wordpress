@@ -954,3 +954,13 @@ body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .cetrus-vagas-turma {
 		font-size: 12px !important;
 	}
 }
+
+/* ---- Busca no celular (01/11): "Resultados para: <termo>" (25ef873) ocupa a linha toda e o "Cancelar" (826bcc2)
+ * vai sempre para a linha de baixo. Com a fonte reserva o botao cabia ao lado do texto e caia de linha quando a
+ * BwModelica chegava, empurrando os resultados 36 px (CLS 0,19 com throttling). ---- */
+@media (max-width: 767px) {
+	body.cetrus-black-2026.search .elementor-element-25ef873 {
+		flex-basis: 100%;
+		width: 100%;
+	}
+}

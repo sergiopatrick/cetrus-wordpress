@@ -23,7 +23,7 @@
  *   await cetrusMontar.desmontar();            // pos-campanha: modelos [BLACK-2026] viram rascunho
  *
  * Telas que ficam iguais a producao (decisao de 28/10/2026) NAO tem modelo: fellowship v2 (28779),
- * graduacao (19379 + header 23382), arquivo de especialidade (25011), 404 (14718) e paginas fora
+ * (a graduacao, 19379 + header 23382, entrou na Black em 31/10) arquivo de especialidade (25011), 404 (14718) e paginas fora
  * do Artifact. O mu-plugin tambem as exclui (cetrus_black_tela_fora).
  */
 (function () {
@@ -52,10 +52,10 @@
 		{ orig: 11204, nome: 'Card Produto - v1' },
 		{ orig: 29791 },
 		{ orig: 14050 }, { orig: 29363 }, { orig: 20500 }, { orig: 28094 },
-		{ orig: 11545, passos: ['barraNoHeader'] }, { orig: 20497, passos: ['barraNoHeader'] }, { orig: 20396, passos: ['barraNoHeader'] },
+		{ orig: 11545, passos: ['barraNoHeader'] }, { orig: 20497, passos: ['barraNoHeader'] }, { orig: 20396, passos: ['barraNoHeader'] }, { orig: 23382, passos: ['barraNoHeader'] },
 		{ orig: 10919 },
 		{ orig: 12073, passos: ['pos'] }, { orig: 26931, passos: ['pos'] }, { orig: 28008, passos: ['pos'] },
-		{ orig: 19225 }, { orig: 21114 }, { orig: 34795 }, { orig: 32359, passos: ['pacote'] }, { orig: 19062 },
+		{ orig: 19225 }, { orig: 21114 }, { orig: 34795 }, { orig: 32359, passos: ['pacote'] }, { orig: 19062 }, { orig: 19379 },
 		{ orig: 12753 }, { orig: 12747 },
 		{ orig: 10946, pagina: true, nome: 'Home', montar: 'home' },
 		{ orig: 11768, pagina: true, nome: 'Vitrine', montar: 'vitrine' },

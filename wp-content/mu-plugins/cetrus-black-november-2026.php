@@ -668,6 +668,26 @@ add_action(
 	20
 );
 
+// Preload das fontes do titulo do hero da Home Black (31/10). Com font-display: swap e sem preload, no
+// primeiro acesso o titulo era desenhado com a fonte do sistema e mudava de altura quando a BwModelica
+// chegava, empurrando a foto do hero no celular (CLS de laboratorio 0,13, sempre o .cbh__fotos).
+add_action(
+	'wp_head',
+	function () {
+		if ( ! is_front_page() || ! cetrus_black_na_tela() ) {
+			return;
+		}
+		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff' ) as $arquivo => $tipo ) {
+			printf(
+				'<link rel="preload" href="%s" as="font" type="%s" crossorigin="anonymous">' . "\n",
+				esc_url( content_url( '/uploads/2024/11/' . $arquivo ) ),
+				esc_attr( $tipo )
+			);
+		}
+	},
+	2
+);
+
 /* ------------------------------------------------------------------------- *
  * Ferramentas > Black November 2026: estado, chave de emergencia e vinculos.
  * ------------------------------------------------------------------------- */

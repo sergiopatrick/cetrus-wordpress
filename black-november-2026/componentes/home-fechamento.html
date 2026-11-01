@@ -1,0 +1,42 @@
+<!--
+  Cetrus · Black November 2026 · Home · fechamento (secao FECHAMENTO BLACK do Artifact).
+  Widget HTML no modelo "[BLACK-2026] #10946 Home". A frase e paragrafo (nao heading) para nao
+  aumentar a contagem de H2 da home; o texto completo fica para leitor de tela e a palavra que
+  alterna e decorativa (respeita prefers-reduced-motion).
+-->
+<section class="cbf">
+	<div class="cbf__in">
+		<p class="cbf__t">
+			<span class="cbf__sr">Todo médico que hoje é referência, um dia precisou tomar essa decisão.</span>
+			<span aria-hidden="true">Todo <span class="cbf__p">cardiologista</span> que hoje é referência,<br class="cbf__br"> <strong>um dia precisou tomar essa decisão.</strong></span>
+		</p>
+		<p class="cbf__x">A sua começa com as condições Black.</p>
+		<a class="cbf__cta" href="/vitrine/">Ver cursos com condição Black</a>
+		<span class="cbf__assin">Cetrus. Você entre os melhores.</span>
+	</div>
+</section>
+<style>
+.cbf{--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;background:radial-gradient(60% 80% at 50% 0%,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 70%),#141518;color:#F3F3F6;text-align:center;font-family:Roboto,"Helvetica Neue",Arial,sans-serif}
+.cbf__in{box-sizing:border-box;max-width:1080px;margin:0 auto;padding:80px 20px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.cbf__sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cbf__t{margin:0;font-family:var(--ft);font-size:clamp(26px,3vw,40px);font-weight:300;line-height:1.25;color:#F3F3F6}
+.cbf__t strong{font-weight:700}
+.cbf__p{display:inline-block;font-weight:700;white-space:nowrap;background:linear-gradient(100deg,#8C8EB6 0%,#D4D5E8 100%);-webkit-background-clip:text;background-clip:text;color:transparent;transition:opacity .3s ease,transform .3s ease}
+.cbf__p.is-saindo{opacity:0;transform:translateY(-.4em)}
+.cbf__x{margin:0;font-size:18px;font-weight:300;color:rgba(243,243,246,.86)}
+.cbf__cta{display:inline-flex;align-items:center;min-height:54px;padding:0 30px;border:1px solid rgba(255,255,255,.55);border-radius:4px;color:#fff!important;text-decoration:none!important;font-family:var(--ft);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;transition:background .2s}
+.cbf__cta:hover,.cbf__cta:focus-visible{background:rgba(255,255,255,.08)}
+.cbf__assin{font-family:var(--ft);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#A9AAB8}
+@media (max-width:767px){.cbf__br{display:none}.cbf__in{padding:56px 20px}}
+</style>
+<script>
+(function () {
+	var p = document.querySelector('.cbf__p');
+	if (!p || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+	var lista = ['cardiologista', 'radiologista', 'ginecologista', 'ultrassonografista', 'ortopedista', 'dermatologista'], i = 0;
+	setInterval(function () {
+		p.classList.add('is-saindo');
+		setTimeout(function () { i = (i + 1) % lista.length; p.textContent = lista[i]; p.classList.remove('is-saindo'); }, 300);
+	}, 2600);
+})();
+</script>

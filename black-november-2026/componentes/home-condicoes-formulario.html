@@ -1,0 +1,330 @@
+<!--
+  Cetrus · Black November 2026 · Home · secao "Condicoes exclusivas" com formulario.
+  Conteudo de UM widget HTML do Elementor, dentro do modelo "[BLACK-2026] #10946 Home".
+
+  Referencia visual: Artifact "Cetrus · Black November 2026 · v2", artboard Home (secao
+  CONDICOES EXCLUSIVAS). Formulario HubSpot ed32406c-f2c8-4420-8c29-4f7803b434c2 (pedido de
+  28/10/2026, noite; antes era o 6ed56c62 das paginas de curso, decisao D6). Embed v2 com o
+  codigo enviado pelo time (portal 9321751, region na1) + css: '' para o formulario sair no
+  documento e nao num iframe. Mesmos campos do formulario de curso (nome, e-mail, telefone,
+  etapa de carreira, contact__ct__product_from_site com ~400 cursos, ocultos de turma/unidade/UTM).
+  O campo "Curso" NAO vem preenchido: vira uma busca, igual a da LP /lista-vip-black/ (mesma
+  logica de pontuacao e o mesmo jeito de gravar no select controlado pelo React do HubSpot).
+
+  Diferencas conhecidas em relacao ao Artifact (limitacoes do formulario HubSpot):
+  - a ordem dos campos e a do formulario de curso (etapa de carreira primeiro);
+    mudar a ordem so pelo editor do HubSpot, e isso mudaria os popups de curso tambem;
+  - o texto de consentimento e o checkbox de comunicacoes vem do proprio HubSpot.
+
+  Rastreamento: nada novo. O snippet 90 (GTM + formularios HubSpot) ja escuta o envio de
+  qualquer formulario HubSpot. A classe .hbspt-form e trocada por .cbn-hsform (como na LP)
+  porque macros do GTM leem essa classe e so tratam 1 ou 2 formularios por pagina, e a home
+  ja tem os popups de curso.
+
+  UTMs: mesmo tratamento dos popups de curso (sessionStorage "urlParams" + padroes
+  organic / site-cetrus / navegacao-padrao).
+-->
+<section class="cbn-cond" id="condicoes" aria-labelledby="cbn-cond-t">
+	<div class="cbn-cond__in">
+		<h2 id="cbn-cond-t" class="cbn-cond__t">As melhores condições do ano <strong>para a sua formação.</strong></h2>
+		<div class="cbn-cond__card">
+			<div class="cbn-cond__ok" role="status" hidden>
+				<p class="cbn-cond__ok-t"><strong>Obrigado!</strong></p>
+				<p class="cbn-cond__ok-d">Em breve, um consultor do Cetrus entrará em contato com você para apresentar a condição exclusiva da Black November para o curso escolhido.</p>
+			</div>
+			<div class="cbn-cond__form">
+				<span class="cbn-cond__eyebrow">Condições Black</span>
+				<p class="cbn-cond__ft">Receba nossas <strong>condições exclusivas!</strong></p>
+				<p class="cbn-cond__fx">Um consultor do Cetrus envia as condições exclusivas do curso que você escolher.</p>
+				<div id="cbn-hs" class="cbn-hs" aria-busy="true"><p class="cbn-hs__espera">Carregando o formulário…</p></div>
+				<p class="cbn-cond__nota">Exclusiva para médicos. Vagas limitadas por turma.</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+.cbn-cond{--g:#0E0F12;--s:#191A1E;--t:#F3F3F6;--c:#C9CAD6;--a:#A9AAB8;--l:#D4D5E8;--b:rgba(255,255,255,.10);--bc:rgba(255,255,255,.14);--ft:"BwModelica","Bw Modelica",Montserrat,sans-serif;
+	background:var(--g);color:var(--t);border-top:1px solid rgba(255,255,255,.08);font-family:Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.55}
+.cbn-cond__in{max-width:1240px;margin:0 auto;padding:56px 20px 104px;display:flex;flex-wrap:wrap;gap:32px 56px;align-items:center;box-sizing:border-box}
+.cbn-cond__t{flex:1 1 320px;margin:0;font-family:var(--ft);font-size:clamp(26px,2.8vw,38px);font-weight:300;line-height:1.2;color:var(--t)}
+.cbn-cond__t strong,.cbn-cond__ft strong,.cbn-cond__ok-t strong{font-weight:700}
+.cbn-cond__card{flex:1 1 420px;max-width:560px;padding:32px;border:1px solid var(--b);border-radius:10px;background:var(--s);box-sizing:border-box}
+.cbn-cond__form{display:flex;flex-direction:column;gap:14px}
+.cbn-cond__eyebrow{font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--a)}
+.cbn-cond__ft{margin:0;font-family:var(--ft);font-size:24px;font-weight:300;line-height:1.2;color:var(--t)}
+.cbn-cond__fx,.cbn-cond__nota{margin:0;font-size:13px;color:var(--a)}
+.cbn-cond__nota{font-size:12px}
+.cbn-cond__ok{display:flex;flex-direction:column;gap:12px}
+/* depois do envio: so a mensagem de obrigado (sem esta regra, o display:flex do bloco vence o atributo hidden) */
+.cbn-cond__ok[hidden],.cbn-cond__form[hidden]{display:none}
+.cbn-cond__ok-t{margin:0;font-family:var(--ft);font-size:22px;font-weight:300;color:var(--t)}
+.cbn-cond__ok-d{margin:0;font-size:15px;color:var(--a)}
+.cbn-hs__espera{margin:0;font-size:13px;color:var(--a)}
+/* formulario HubSpot sem o CSS dele (css: '') */
+/* sem flex/gap: os ~17 campos ocultos do HubSpot (UTMs, hsa_*, canal...) ficam em fieldsets proprios e somariam gaps */
+.cbn-hs form{display:block;margin:0}
+.cbn-hs fieldset{max-width:none!important;margin:0;padding:0;border:0}
+.cbn-hs .hs-form-field{margin:0 0 14px}
+.cbn-hs .hs-form-field[style*="display: none"],.cbn-hs .hs-form-field[style*="display:none"]{margin:0}
+.cbn-hs .hs-field-desc{display:block;margin:-2px 0 6px;padding:0;font-size:12px;line-height:1.4;color:var(--a);letter-spacing:0;text-transform:none}
+.cbn-hs .legal-consent-container{margin:0 0 14px}
+.cbn-hs .hs-form-field>label,.cbn-hs .cbn-ac-rot{display:block;margin-bottom:6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+.cbn-hs .hs-form-required{color:var(--l);margin-left:2px}
+.cbn-hs .input{margin:0!important}
+.cbn-hs input.hs-input:not([type=checkbox]):not([type=radio]),.cbn-hs select.hs-input,.cbn-ac input{box-sizing:border-box;width:100%!important;min-height:46px;padding:0 14px;background:var(--g);border:1px solid var(--bc);border-radius:6px;color:var(--t);font:inherit;font-size:15px;letter-spacing:0;text-transform:none}
+.cbn-hs select.hs-input{padding:0 12px;appearance:auto}
+/* o ed32406c injeta o estilo proprio (".hs-custom-style > div input:not(...)": min-height 27px, padding 0 15px), mais especifico */
+.cbn-hs input.hs-input:not([type=checkbox]):not([type=radio]),.cbn-hs .cbn-ac input{min-height:46px!important;padding:0 14px!important}
+.cbn-hs input.hs-input::placeholder,.cbn-ac input::placeholder{color:#7d7e8c}
+.cbn-hs input.hs-input:focus,.cbn-hs select.hs-input:focus,.cbn-ac input:focus{outline:2px solid var(--l);outline-offset:1px;border-color:transparent}
+.cbn-hs .hs-error-msgs{list-style:none;margin:6px 0 0;padding:0;font-size:12px;color:#F0B6C2}
+.cbn-hs .hs-error-msgs label{color:inherit}
+.cbn-hs .legal-consent-container,.cbn-hs .hs-richtext,.cbn-hs .legal-consent-container p{font-size:12px;line-height:1.5;color:var(--a)}
+.cbn-hs .legal-consent-container a,.cbn-hs .hs-richtext a{color:var(--l)}
+.cbn-hs .hs-form-booleancheckbox-display{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--c);text-transform:none;letter-spacing:0}
+.cbn-hs .inputs-list{list-style:none;margin:0;padding:0}
+.cbn-hs input[type=checkbox]{width:16px;height:16px;margin-top:2px;accent-color:#8C8EB6}
+.cbn-hs .hs_submit .actions{margin:0;padding:0}
+/* .hs_submit input: acima de ".elementor-kit-10452 input[type=submit]" (botao azul do Kit) */
+.cbn-hs .hs_submit input.hs-button{width:100%;min-height:52px;border:1px solid rgba(212,213,232,.4);border-radius:6px;background:#3A3B4E;color:#fff;font-family:var(--ft);font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.cbn-hs .hs_submit input.hs-button:hover,.cbn-hs .hs_submit input.hs-button:focus-visible{background:#4a4b62}
+.cbn-hs .hs_submit input.hs-button[disabled]{opacity:.6;cursor:progress}
+.cbn-hs .submitted-message{display:none}
+/* busca de curso por cima do select do HubSpot (mesma ideia da LP) */
+/* especificidade acima de ".cbn-hs select.hs-input" (width 100%): senao o select invisivel estica a pagina na horizontal */
+/* ".cbn-ac ~ select": o React do HubSpot reescreve a classe do select quando o curso e escolhido e a .cbn-sel-oculto some */
+.cbn-hs .cbn-ac~select.hs-input,.cbn-hs select.hs-input.cbn-sel-oculto,.cbn-sel-oculto{position:absolute!important;left:0!important;width:1px!important;min-width:0!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important;padding:0!important}
+.cbn-ac{position:relative}
+.cbn-ac-lista{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);max-height:280px;overflow:auto;margin:0;padding:6px 0;list-style:none;background:var(--s);border:1px solid var(--bc);border-radius:8px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.cbn-ac-lista[hidden]{display:none}
+.cbn-ac-lista li{padding:10px 14px;font-size:14px;line-height:1.35;color:var(--c);cursor:pointer}
+.cbn-ac-lista li[aria-selected=true],.cbn-ac-lista li:hover{background:#26272d;color:var(--t)}
+.cbn-ac-lista mark{background:none;color:var(--t);font-weight:700}
+.cbn-ac-lista .cbn-ac-vazio{cursor:default;color:var(--a)}
+@media (max-width:767px){.cbn-cond__in{padding:40px 20px 72px}.cbn-cond__card{padding:24px 20px}}
+</style>
+
+<script>
+(function () {
+	var CFG = {
+		hs: { portal: '9321751', form: 'ed32406c-f2c8-4420-8c29-4f7803b434c2', region: 'na1' },
+		botao: 'Receber minha condição',
+		campoCurso: 'contact__ct__product_from_site',
+		placeholders: { fullname: 'Seu nome completo', email: 'seu@email.com', phone: '(11) 99999-9999' },
+		utmPadrao: { utm_medium: 'organic', utm_source: 'site-cetrus', utm_campaign: 'navegacao-padrao' }
+	};
+	var alvo = document.getElementById('cbn-hs');
+	if (!alvo || document.body.classList.contains('elementor-editor-active')) return;
+	var secao = alvo.closest('.cbn-cond');
+
+	function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+	function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+	// grava no select controlado pelo React do HubSpot (setter nativo + eventos), senao nao vai no envio
+	function defineSelect(sel, valor) {
+		var set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
+		set.call(sel, valor);
+		sel.dispatchEvent(new Event('input', { bubbles: true }));
+		sel.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+	function defineInput(inp, valor) {
+		var set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+		set.call(inp, valor);
+		inp.dispatchEvent(new Event('input', { bubbles: true }));
+		inp.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+
+	function montaBusca(form) {
+		var sel = form.querySelector('select[name="' + CFG.campoCurso + '"]');
+		if (!sel || sel.parentNode.querySelector('.cbn-ac')) return;
+		var itens = [].slice.call(sel.options)
+			.filter(function (o) { return o.value && !/X{3,}/.test(o.value); })
+			.map(function (o) { var t = o.text.trim(); return { t: t, v: o.value, n: norm(t) }; });
+
+		var box = document.createElement('div');
+		box.className = 'cbn-ac';
+		box.innerHTML = '<input type="text" id="cbn-curso" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cbn-ac-lista" autocomplete="off" placeholder="Digite o nome do curso">' +
+			'<ul id="cbn-ac-lista" class="cbn-ac-lista" role="listbox" hidden></ul>';
+		sel.parentNode.insertBefore(box, sel);
+		sel.classList.add('cbn-sel-oculto');
+		sel.setAttribute('tabindex', '-1');
+		sel.setAttribute('aria-hidden', 'true');
+		var rot = form.querySelector('label[for="' + sel.id + '"]');
+		if (rot) {
+			rot.setAttribute('for', 'cbn-curso');
+			var txt = rot.querySelector('span') || rot;
+			if (/^\s*Curso\s*$/.test(txt.textContent)) txt.textContent = 'Curso de interesse'; // rotulo do Artifact
+		}
+
+		var pegaSel = function () { return form.querySelector('select[name="' + CFG.campoCurso + '"]') || sel; };
+		var ac = box.querySelector('input'), lista = box.querySelector('ul');
+		var achados = [], ativo = -1;
+
+		function busca(q) {
+			var toks = norm(q).split(/[^a-z0-9]+/).filter(Boolean);
+			if (!toks.length) return [];
+			var res = [];
+			itens.forEach(function (it) {
+				var pts = 0;
+				for (var i = 0; i < toks.length; i++) {
+					var t = toks[i], p = 0;
+					if (it.n.indexOf(t) === 0) p = 10;
+					else if ((' ' + it.n).indexOf(' ' + t) >= 0) p = 6;
+					else if (it.n.indexOf(t) >= 0) p = 2;
+					if (!p) return;
+					pts += p;
+				}
+				res.push({ it: it, pts: pts - it.n.length / 400 });
+			});
+			res.sort(function (a, b) { return b.pts - a.pts; });
+			return res.slice(0, 8).map(function (r) { return r.it; });
+		}
+		function marca(t, q) {
+			var toks = norm(q).split(/[^a-z0-9]+/).filter(function (x) { return x.length > 1; });
+			var n = norm(t), out = '', i = 0;
+			while (i < t.length) {
+				var hit = 0;
+				for (var k = 0; k < toks.length; k++) {
+					if (n.substr(i, toks[k].length) === toks[k] && (i === 0 || /[^a-z0-9]/.test(n[i - 1]))) { hit = toks[k].length; break; }
+				}
+				if (hit) { out += '<mark>' + esc(t.substr(i, hit)) + '</mark>'; i += hit; } else { out += esc(t[i]); i++; }
+			}
+			return out;
+		}
+		function fecha() { lista.hidden = true; ac.setAttribute('aria-expanded', 'false'); ac.removeAttribute('aria-activedescendant'); }
+		function render() {
+			var q = ac.value;
+			achados = q.trim().length >= 2 ? busca(q) : [];
+			ativo = -1;
+			if (q.trim().length < 2) { fecha(); return; }
+			lista.innerHTML = achados.length
+				? achados.map(function (it, i) { return '<li role="option" id="cbn-op-' + i + '" aria-selected="false" data-i="' + i + '">' + marca(it.t, q) + '</li>'; }).join('')
+				: '<li class="cbn-ac-vazio" aria-disabled="true">Não achamos esse nome. Tente outra palavra do curso.</li>';
+			lista.hidden = false;
+			ac.setAttribute('aria-expanded', 'true');
+		}
+		function escolhe(i) {
+			var it = achados[i]; if (!it) return;
+			ac.value = it.t;
+			defineSelect(pegaSel(), it.v);
+			fecha();
+		}
+		function move(d) {
+			var lis = lista.querySelectorAll('li[role=option]');
+			if (!lis.length) return;
+			ativo = (ativo + d + lis.length) % lis.length;
+			lis.forEach(function (li, i) { li.setAttribute('aria-selected', i === ativo ? 'true' : 'false'); });
+			ac.setAttribute('aria-activedescendant', 'cbn-op-' + ativo);
+			lis[ativo].scrollIntoView({ block: 'nearest' });
+		}
+		ac.addEventListener('input', function () { var s2 = pegaSel(); if (s2.value) defineSelect(s2, ''); render(); });
+		ac.addEventListener('keydown', function (ev) {
+			if (ev.key === 'ArrowDown') { ev.preventDefault(); if (lista.hidden) render(); move(1); }
+			else if (ev.key === 'ArrowUp') { ev.preventDefault(); move(-1); }
+			else if (ev.key === 'Enter') { if (!lista.hidden) { ev.preventDefault(); escolhe(ativo >= 0 ? ativo : 0); } }
+			else if (ev.key === 'Escape') { fecha(); }
+		});
+		ac.addEventListener('blur', function () {
+			setTimeout(fecha, 150);
+			if (!pegaSel().value && ac.value.trim()) {
+				// texto digitado sem escolher: so vale se casar exatamente com um curso da lista
+				var exato = itens.filter(function (i) { return i.n === norm(ac.value.trim()); })[0];
+				if (exato) defineSelect(pegaSel(), exato.v);
+			}
+		});
+		lista.addEventListener('mousedown', function (ev) {
+			var li = ev.target.closest('li[data-i]'); if (!li) return;
+			ev.preventDefault(); escolhe(Number(li.getAttribute('data-i')));
+		});
+	}
+
+	function utms(form) {
+		var params = {};
+		try { params = JSON.parse(sessionStorage.getItem('urlParams') || '{}') || {}; } catch (e) { params = {}; }
+		['utm_id', 'utm_source', 'utm_medium', 'utm_term', 'utm_content', 'utm_campaign'].forEach(function (n) {
+			var inp = form.querySelector('input[name="' + n + '"]');
+			if (inp && params[n]) defineInput(inp, params[n]);
+		});
+		Object.keys(CFG.utmPadrao).forEach(function (n) {
+			var inp = form.querySelector('input[name="' + n + '"]');
+			if (inp) { if (!inp.value) defineInput(inp, CFG.utmPadrao[n]); }
+			else { var h = document.createElement('input'); h.type = 'hidden'; h.name = n; h.value = CFG.utmPadrao[n]; form.appendChild(h); }
+		});
+	}
+
+	// Ajustes que o React do HubSpot pode desfazer ao redesenhar: reaplicados a cada mudanca.
+	// (O campo "Curso", com 600+ opcoes, aparece DEPOIS do onFormReady; visto em 22/10/2026.)
+	function ajusta() {
+		var form = alvo.querySelector('form');
+		if (!form) return;
+		[alvo].concat([].slice.call(alvo.querySelectorAll('.hbspt-form'))).forEach(function (el) {
+			if (el.classList.contains('hbspt-form')) { el.classList.remove('hbspt-form'); el.classList.add('cbn-hsform'); }
+		});
+		Object.keys(CFG.placeholders).forEach(function (n) {
+			var el = form.querySelector('input[name="' + n + '"]');
+			if (el && !el.placeholder) el.setAttribute('placeholder', CFG.placeholders[n]);
+		});
+		var tel = form.querySelector('input[name="phone"]'); if (tel) tel.setAttribute('inputmode', 'tel');
+		var em = form.querySelector('input[name="email"]'); if (em) em.setAttribute('inputmode', 'email');
+		montaBusca(form);
+	}
+	var agendado = false;
+	function agendaAjuste() {
+		if (agendado) return;
+		agendado = true;
+		requestAnimationFrame(function () { agendado = false; ajusta(); });
+	}
+
+	function monta() {
+		if (!window.hbspt || !window.hbspt.forms) return false;
+		if (alvo.querySelector('form')) return true;
+		alvo.innerHTML = '';
+		window.hbspt.forms.create({
+			region: CFG.hs.region,
+			portalId: CFG.hs.portal,
+			formId: CFG.hs.form,
+			target: '#cbn-hs',
+			css: '',
+			submitText: CFG.botao,
+			onFormReady: function ($form) {
+				var form = ($form && $form[0]) ? $form[0] : alvo.querySelector('form');
+				if (!form) return;
+				alvo.removeAttribute('aria-busy');
+				utms(form);
+				ajusta();
+				// observa o conteiner (e nao o <form>): o HubSpot pode trocar o formulario inteiro
+				new MutationObserver(agendaAjuste).observe(alvo, { childList: true, subtree: true });
+			},
+			onFormSubmitted: function () {
+				secao.querySelector('.cbn-cond__form').hidden = true;
+				var ok = secao.querySelector('.cbn-cond__ok');
+				ok.hidden = false;
+				ok.setAttribute('tabindex', '-1');
+				ok.focus({ preventScroll: true });
+			}
+		});
+		return true;
+	}
+
+	function carregaLib(cb) {
+		if (window.hbspt && window.hbspt.forms) { cb(); return; }
+		var ja = document.querySelector('script[src*="js.hsforms.net/forms/embed/v2.js"]');
+		if (ja) { ja.addEventListener('load', cb); var t = setInterval(function () { if (window.hbspt && window.hbspt.forms) { clearInterval(t); cb(); } }, 300); return; }
+		var s = document.createElement('script');
+		s.src = 'https://js.hsforms.net/forms/embed/v2.js';
+		s.charset = 'utf-8';
+		s.onload = cb;
+		document.head.appendChild(s);
+	}
+
+	// so carrega quando a secao chega perto da tela (o formulario fica abaixo da dobra)
+	function inicia() { carregaLib(monta); }
+	if ('IntersectionObserver' in window) {
+		var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); inicia(); } }, { rootMargin: '400px 0px' });
+		io.observe(secao);
+	} else {
+		inicia();
+	}
+})();
+</script>

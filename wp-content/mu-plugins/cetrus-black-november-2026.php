@@ -6,7 +6,7 @@
  * Author:      Cetrus / Sanar
  *
  * 0.4.5 (01/11/2026): busca no celular com o "Cancelar" sempre embaixo do termo (CLS) e "Resultados para"
- * legivel no fundo escuro (black.css).
+ * legivel no fundo escuro (black.css); nos cards Black, a linha do inicio da turma vazia (so o icone) sai do HTML.
  * 0.4.4 (01/11/2026): CSS que o Elementor e o WP Grid Builder imprimem no fim do body ganha copia no
  * <head> (CLS no celular da Vitrine, busca e arquivos). O preload das fontes continua so na Home.
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
@@ -739,6 +739,31 @@ function cetrus_black_css_tardio_no_head( $html ) {
 	}
 	return '' === $copias ? $html : substr_replace( $html, $copias, $fim_head, 0 );
 }
+
+// Cards de curso sem turma aberta (01/11): a linha do inicio da turma vem com o texto vazio (so um espaco) e o
+// card mostrava o icone do calendario sozinho (9 de 12 cards na busca por "ultrassonografia"). Nos modelos Black
+// a linha vazia sai do HTML da lista de icones. Vale tambem para os cards que o WP Grid Builder renderiza no
+// servidor ao filtrar e paginar. Fora dos modelos [BLACK-2026] nada muda.
+add_filter(
+	'elementor/widget/render_content',
+	function ( $conteudo, $widget ) {
+		if ( 'icon-list' !== $widget->get_name() || false === strpos( $conteudo, 'elementor-icon-list-text' ) ) {
+			return $conteudo;
+		}
+		$doc = \Elementor\Plugin::$instance->documents->get_current();
+		if ( ! $doc || 0 !== strpos( (string) get_post_field( 'post_title', $doc->get_main_id() ), CETRUS_BLACK_PREFIXO ) ) {
+			return $conteudo;
+		}
+		$limpo = preg_replace(
+			'#<li class="elementor-icon-list-item[^"]*"[^>]*>\s*(?:<a\b[^>]*>\s*)?<span class="elementor-icon-list-icon">.*?</span>\s*<span class="elementor-icon-list-text">\s*</span>\s*(?:</a>\s*)?</li>#s',
+			'',
+			$conteudo
+		);
+		return null === $limpo ? $conteudo : $limpo;
+	},
+	10,
+	2
+);
 
 // Carrosseis de shortcode (professores/coordenadores, .swiper-container-fellow) mostram 1 card por vez e nao
 // deixam ver que ha mais. No celular, com 2 ou mais cards, 1,2 por tela (31/10, pedido do Sergio).

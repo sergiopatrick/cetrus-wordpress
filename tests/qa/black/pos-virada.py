@@ -11,9 +11,10 @@ product-sitemap e as paginas fixas abaixo, 1 pagina a cada ~1,5 s, e para no pri
 
 O que vira FALHA na comparacao:
   status diferente; title, description, canonical, robots, og:title, tipos do JSON-LD ou H1 diferentes;
-  H2 que sumiu; pagina que devia estar Black e nao esta (ou o contrario); link de popup apontando
+  H2 que sumiu (menos os de H2_SAEM_NA_BLACK); pagina que devia estar Black e nao esta (ou o contrario); link de popup apontando
   para popup original (14050, 29363, 20500, 28094) numa pagina Black; curso sem caminho para formulario.
-ALERTA: H2 a mais (acrescimos aprovados da Home e do "Quem viu"), peso do HTML +30%, curso novo/sumido.
+ALERTA: H2 a mais (acrescimos aprovados da Home e do "Quem viu"), peso do HTML +30%, curso novo/sumido,
+  teste A/B do time (redirecionamento para -a/ ou -b/, H1 e H2 dessas paginas nao sao comparados).
 """
 import base64
 import json
@@ -34,6 +35,8 @@ FIXAS = ['/', '/vitrine/', '/conteudos-gratuitos/', '/lista-vip-black/', '/?s=ul
 # telas que ficam iguais a producao com a Black ligada (cetrus_black_tela_fora e paginas sem modelo)
 SEM_BLACK = {'/lista-vip-black/', '/especialidades/', '/institucional/', '/pagina-que-nao-existe-qa/'}
 TPL_SEM_BLACK = {'28779'}  # fellowship v2 (a graduacao entrou na Black em 31/10)
+# H2 que saem de proposito na versao Black (28/10: newsletter fora da Home)
+H2_SAEM_NA_BLACK = {'/': ['Assine a newsletter do Cetrus']}
 POPUP_ORIGINAL = {'14050', '29363', '20500', '28094'}
 AQUI = os.path.dirname(os.path.abspath(__file__))
 FOTOS = os.path.join(AQUI, 'fotos')
@@ -131,11 +134,18 @@ def comparar(a, b):
         else:
             x, y = A[c], B[c]
         f = []
+        # teste A/B do time (curso redireciona para -a/ ou -b/ ao acaso): cada foto pode cair numa variante
+        ab = bool(x) and x['final'] != y['final'] and re.sub(r'-[ab]/?$', '', x['final']) == re.sub(r'-[ab]/?$', '', y['final'])
+        if ab:
+            alertas.append(f'{c}: teste A/B, variante {x["final"][-3:]} -> {y["final"][-3:]} (H1 e H2 nao comparados)')
         if x:
             for k in ('status', 'final', 'title', 'description', 'canonical', 'robots', 'og_title', 'jsonld', 'h1'):
+                if ab and k in ('final', 'jsonld', 'h1'):
+                    continue
                 if x[k] != y[k]:
                     f.append(f'{k}: {str(x[k])[:60]!r} -> {str(y[k])[:60]!r}')
-            sumiram = [h for h in x['h2'] if h not in y['h2']]
+            sumiram = [h for h in x['h2'] if h not in y['h2'] and not ab
+                       and not (y['black'] and h in H2_SAEM_NA_BLACK.get(c, []))]
             if sumiram and c != '/?s=ultrassonografia':
                 f.append(f'H2 sumiu: {sumiram[:3]}')
             novos = [h for h in y['h2'] if h not in x['h2']]
@@ -143,7 +153,9 @@ def comparar(a, b):
                 alertas.append(f'{c}: +{len(novos)} H2 {novos[:2]}')
             if x['kb'] and y['kb'] > x['kb'] * 1.3:
                 alertas.append(f'{c}: HTML {x["kb"]} -> {y["kb"]} KB')
-        deve_black = c not in SEM_BLACK and y['tpl'] not in TPL_SEM_BLACK
+        # curso que redireciona para fora de /cursos/ (pagina avulsa) fica como a producao
+        fora = c.startswith('/cursos/') and not y['final'].startswith('/cursos/')
+        deve_black = c not in SEM_BLACK and y['tpl'] not in TPL_SEM_BLACK and not fora
         if y['status'] == 200 and deve_black and not y['black']:
             f.append('devia estar Black e nao esta')
         if y['black'] and not deve_black:
@@ -151,7 +163,7 @@ def comparar(a, b):
         ruins = [p for p in y['popups'] if p in POPUP_ORIGINAL]
         if y['black'] and ruins:
             f.append(f'popup original {ruins}')
-        if c.startswith('/cursos/') and y['status'] == 200 and not y['popups'] and not y['form_inline']:
+        if c.startswith('/cursos/') and not fora and y['status'] == 200 and not y['popups'] and not y['form_inline']:
             f.append('curso sem popup nem formulario')
         if y['php_erro']:
             f.append('erro de PHP no HTML')

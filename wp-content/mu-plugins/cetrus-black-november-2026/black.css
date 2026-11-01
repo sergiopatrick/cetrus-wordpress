@@ -971,3 +971,19 @@ body.cetrus-black-2026.search .elementor-search-term {
 body.cetrus-black-2026.search .elementor-search-term .term {
 	color: var(--cb-texto) !important;
 }
+
+/* ---- Menu em gaveta do celular e do tablet (01/11): widget n-menu em layout "dropdown" (6d43b1e no header 35993).
+ * O CSS do Kit (post 10452) pinta a gaveta de branco com !important ate 1024 px, e o Elementor pinta de branco o
+ * titulo de cada item e o painel do submenu. O texto do clone ja e #F3F3F6, entao ficava branco no branco. ---- */
+@media (max-width: 1024px) {
+	body.cetrus-black-2026 .e-n-menu[data-layout="dropdown"] .e-n-menu-wrapper {
+		background-color: var(--cb-topo) !important;
+	}
+}
+body.cetrus-black-2026 .elementor-widget-n-menu .e-n-menu[data-layout="dropdown"] .e-n-menu-title {
+	background-color: transparent;
+}
+/* :where mantem a especificidade baixa, entao a cor que o container tiver no Elementor continua valendo */
+body.cetrus-black-2026 .e-n-menu[data-layout="dropdown"] :where(.e-n-menu-content > .e-con) {
+	background-color: var(--cb-superficie);
+}

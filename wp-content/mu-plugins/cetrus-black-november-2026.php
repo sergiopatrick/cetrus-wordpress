@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.4.1
+ * Version:     0.4.3
  * Author:      Cetrus / Sanar
  *
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
@@ -62,7 +62,7 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.2';
+const CETRUS_BLACK_VERSAO   = '0.4.3';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
@@ -673,10 +673,16 @@ add_action(
 // chegava, empurrando a foto do hero no celular (CLS de laboratorio 0,13, sempre o .cbh__fotos).
 // O que empurrava de fato era a ExtraBold: o CSS do Kit poe o H1 do hero em BwModelica 800, 24 px no celular,
 // e ela chegava depois do FCP (rastro do Lighthouse: foto de y 421 para 450, logo depois da ExtraBold).
+// A Vitrine (pagina 11768) tem o mesmo problema com as mesmas 4 fontes (01/11): no primeiro desenho o cabecalho
+// tinha 16 px a mais, o topo 83 px e o filtro de ordenacao 45 px, e tudo encolhia junto (CLS 0,35 com throttling).
+// A busca e os arquivos de cursos (modalidade, cidade) repetiam o padrao (CLS 0,29 e 0,30). Os cursos ficam de fora
+// (CLS 0,02), para o preload nao disputar banda com a imagem principal sem necessidade.
 add_action(
 	'wp_head',
 	function () {
-		if ( ! is_front_page() || ! cetrus_black_na_tela() ) {
+		$listagem = is_front_page() || is_page( 11768 ) || is_search() || is_post_type_archive( 'product' )
+			|| is_tax( array( 'v2_modalidade', 'v2_cidade' ) );
+		if ( ! $listagem || ! cetrus_black_na_tela() ) {
 			return;
 		}
 		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Medium.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff', 'BwModelica-ExtraBold.woff2' => 'font/woff2' ) as $arquivo => $tipo ) {

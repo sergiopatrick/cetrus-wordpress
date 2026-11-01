@@ -690,6 +690,19 @@ add_action(
 	2
 );
 
+// Carrosseis de shortcode (professores/coordenadores, .swiper-container-fellow) mostram 1 card por vez e nao
+// deixam ver que ha mais. No celular, com 2 ou mais cards, 1,2 por tela (31/10, pedido do Sergio).
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! cetrus_black_na_tela() ) {
+			return;
+		}
+		echo "<script>(function(){function a(){if(window.innerWidth>767)return;document.querySelectorAll('.elementor-widget-shortcode .swiper').forEach(function(s){var w=s.swiper;if(!w||!w.slides||w.slides.length<2||w.params.slidesPerView!==1)return;w.params.slidesPerView=1.2;w.params.spaceBetween=12;w.update();});}window.addEventListener('load',function(){setTimeout(a,300);setTimeout(a,2000);});})();</script>\n";
+	},
+	100
+);
+
 /* ------------------------------------------------------------------------- *
  * Ferramentas > Black November 2026: estado, chave de emergencia e vinculos.
  * ------------------------------------------------------------------------- */

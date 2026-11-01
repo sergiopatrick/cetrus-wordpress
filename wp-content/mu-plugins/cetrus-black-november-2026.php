@@ -671,14 +671,15 @@ add_action(
 // Preload das fontes do titulo do hero da Home Black (31/10). Com font-display: swap e sem preload, no
 // primeiro acesso o titulo era desenhado com a fonte do sistema e mudava de altura quando a BwModelica
 // chegava, empurrando a foto do hero no celular (CLS de laboratorio 0,13, sempre o .cbh__fotos).
-// A Medium (peso 500: selo "Condicoes exclusivas" e subtitulo) chegava depois do FCP e era a que ainda empurrava.
+// O que empurrava de fato era a ExtraBold: o CSS do Kit poe o H1 do hero em BwModelica 800, 24 px no celular,
+// e ela chegava depois do FCP (rastro do Lighthouse: foto de y 421 para 450, logo depois da ExtraBold).
 add_action(
 	'wp_head',
 	function () {
 		if ( ! is_front_page() || ! cetrus_black_na_tela() ) {
 			return;
 		}
-		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Medium.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff' ) as $arquivo => $tipo ) {
+		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Medium.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff', 'BwModelica-ExtraBold.woff2' => 'font/woff2' ) as $arquivo => $tipo ) {
 			printf(
 				'<link rel="preload" href="%s" as="font" type="%s" crossorigin="anonymous">' . "\n",
 				esc_url( content_url( '/uploads/2024/11/' . $arquivo ) ),

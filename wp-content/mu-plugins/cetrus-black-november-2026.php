@@ -2,9 +2,11 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.4.4
+ * Version:     0.4.5
  * Author:      Cetrus / Sanar
  *
+ * 0.4.5 (01/11/2026): busca no celular com o "Cancelar" sempre embaixo do termo (CLS) e "Resultados para"
+ * legivel no fundo escuro (black.css); nos cards Black, a linha do inicio da turma vazia (so o icone) sai do HTML.
  * 0.4.4 (01/11/2026): CSS que o Elementor e o WP Grid Builder imprimem no fim do body ganha copia no
  * <head> (CLS no celular da Vitrine, busca e arquivos). O preload das fontes continua so na Home.
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
@@ -64,7 +66,7 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.4';
+const CETRUS_BLACK_VERSAO   = '0.4.5';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
@@ -707,10 +709,20 @@ add_action(
 		if ( is_admin() || wp_doing_ajax() || is_feed() || isset( $_GET['elementor-preview'] ) || ! cetrus_black_na_tela() ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
-		ob_start( 'cetrus_black_css_tardio_no_head' );
+		ob_start( 'cetrus_black_saida' );
 	},
 	99
 );
+
+/**
+ * Ajustes no HTML final das telas Black (buffer aberto no template_redirect).
+ *
+ * @param string $html Saida da pagina.
+ * @return string
+ */
+function cetrus_black_saida( $html ) {
+	return cetrus_black_linhas_vazias_fora( cetrus_black_css_tardio_no_head( $html ) );
+}
 
 /**
  * Copia para o fim do <head> os <link> de CSS do Elementor (post-<id>) e do WP Grid Builder que estao no body.
@@ -737,6 +749,41 @@ function cetrus_black_css_tardio_no_head( $html ) {
 	}
 	return '' === $copias ? $html : substr_replace( $html, $copias, $fim_head, 0 );
 }
+
+// Cards de curso sem turma aberta (01/11): a linha do inicio da turma vem com o texto vazio (so um espaco) e o
+// card mostrava o icone do calendario sozinho (9 de 12 cards na busca por "ultrassonografia", 14 de 16 na pagina 2
+// da Vitrine filtrada). O texto so fica vazio depois da renderizacao do widget (o filtro
+// elementor/widget/render_content nao ve esses cards), entao a linha sai do HTML final, e um observador no
+// rodape faz o mesmo quando o WP Grid Builder troca os cards ao filtrar ou paginar.
+
+/**
+ * Tira das listas de icones os itens com icone e sem texto.
+ *
+ * @param string $html Saida da pagina.
+ * @return string
+ */
+function cetrus_black_linhas_vazias_fora( $html ) {
+	if ( false === strpos( $html, 'elementor-icon-list-text' ) ) {
+		return $html;
+	}
+	$limpo = preg_replace(
+		'#<li class="elementor-icon-list-item[^"]*"[^>]*>\s*(?:<a\b[^>]*>\s*)?<span class="elementor-icon-list-icon">(?:(?!</span>).)*</span>\s*<span class="elementor-icon-list-text">\s*</span>\s*(?:</a>\s*)?</li>#s',
+		'',
+		$html
+	);
+	return null === $limpo ? $html : $limpo;
+}
+
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! cetrus_black_na_tela() ) {
+			return;
+		}
+		echo "<script>(function(){function l(r){r.querySelectorAll('.e-loop-item .elementor-icon-list-item').forEach(function(li){var t=li.querySelector('.elementor-icon-list-text');if(t&&!t.textContent.trim()&&li.querySelector('.elementor-icon-list-icon'))li.parentNode.removeChild(li);});}document.querySelectorAll('.wp-grid-builder').forEach(function(g){l(g);new MutationObserver(function(){l(g);}).observe(g,{childList:true,subtree:true});});})();</script>\n";
+	},
+	100
+);
 
 // Carrosseis de shortcode (professores/coordenadores, .swiper-container-fellow) mostram 1 card por vez e nao
 // deixam ver que ha mais. No celular, com 2 ou mais cards, 1,2 por tela (31/10, pedido do Sergio).

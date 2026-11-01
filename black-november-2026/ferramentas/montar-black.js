@@ -217,6 +217,24 @@
 		}
 	};
 
+	// Carrosseis no celular mostram um pedaco do proximo card, para ficar claro que da para arrastar (31/10, pedido do
+	// Sergio): cards de curso 1,5 por tela, depoimentos 1,2. O Elementor le slides_to_show_mobile com +, entao aceita fracao.
+	function carrosselCelular(els) {
+		var vao = { unit: 'px', size: 12, sizes: [] }, n = 0;
+		cada(els, function (e) {
+			var s = e.settings || {};
+			if (e.widgetType === 'loop-carousel') s.slides_to_show_mobile = '1.5';
+			else if (e.widgetType === 'nested-carousel') s.slides_to_show_mobile = '1.2';
+			else return;
+			s.slides_to_scroll_mobile = '1';
+			s.image_spacing_custom_mobile = vao;
+			if (s.offset_sides && s.offset_sides !== 'none') s.offset_width_mobile = { unit: 'px', size: 0, sizes: [] };
+			n++;
+		});
+		return n;
+	}
+	M.carrosselCelular = carrosselCelular;
+
 	/* ---------------- montagem das paginas ---------------- */
 	function exige(por, ids, nome, rel) {
 		var faltam = ids.filter(function (id) { return !por[id]; });
@@ -408,6 +426,7 @@
 					if (!M.passos[p]) throw new Error('passo ' + p + ' nao definido');
 					M.passos[p](els, ctx);
 				});
+				carrosselCelular(els);
 				var ps = Object.assign({}, o.ps);
 				delete ps.ep_custom_footer_script; // script de busca antiga da home: a pagina original ja o imprime
 				linha.trocas = r.log.length;

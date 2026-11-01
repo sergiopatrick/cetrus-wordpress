@@ -2,9 +2,11 @@
 /**
  * Plugin Name: Cetrus - Black November 2026 (camada temporaria)
  * Description: Versao Black do site, ligada e desligada MANUALMENTE por commit no GitHub (chave CETRUS_BLACK_VIRADA) ou, em emergencia, em Ferramentas > Black November 2026. Troca, na hora de renderizar, cada template do Elementor pelo modelo "[BLACK-2026] #<id original>" e acrescenta a camada visual (classe no body + CSS). Desligada nao muda nada. Documentacao: PROJETO_PADRONIZACAO_PAGINAS_CETRUS.md na raiz do repositorio.
- * Version:     0.4.3
+ * Version:     0.4.4
  * Author:      Cetrus / Sanar
  *
+ * 0.4.4 (01/11/2026): CSS que o Elementor e o WP Grid Builder imprimem no fim do body ganha copia no
+ * <head> (CLS no celular da Vitrine, busca e arquivos). O preload das fontes continua so na Home.
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
  * 0.4.1 (29/10/2026): popups abertos por id fixo em shortcodes (inscricao do Lyceum) apontam para o
  * modelo Black; antes o botao "Quero me inscrever" nao abria nada na versao Black.
@@ -62,7 +64,7 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.3';
+const CETRUS_BLACK_VERSAO   = '0.4.4';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
@@ -673,16 +675,12 @@ add_action(
 // chegava, empurrando a foto do hero no celular (CLS de laboratorio 0,13, sempre o .cbh__fotos).
 // O que empurrava de fato era a ExtraBold: o CSS do Kit poe o H1 do hero em BwModelica 800, 24 px no celular,
 // e ela chegava depois do FCP (rastro do Lighthouse: foto de y 421 para 450, logo depois da ExtraBold).
-// A Vitrine (pagina 11768) tem o mesmo problema com as mesmas 4 fontes (01/11): no primeiro desenho o cabecalho
-// tinha 16 px a mais, o topo 83 px e o filtro de ordenacao 45 px, e tudo encolhia junto (CLS 0,35 com throttling).
-// A busca e os arquivos de cursos (modalidade, cidade) repetiam o padrao (CLS 0,29 e 0,30). Os cursos ficam de fora
-// (CLS 0,02), para o preload nao disputar banda com a imagem principal sem necessidade.
+// So na Home: na Vitrine, na busca e nos arquivos o preload nao mudou o CLS e atrasou o primeiro desenho em
+// 300 a 500 ms (01/11). La a causa era outra, ver cetrus_black_css_tardio_no_head().
 add_action(
 	'wp_head',
 	function () {
-		$listagem = is_front_page() || is_page( 11768 ) || is_search() || is_post_type_archive( 'product' )
-			|| is_tax( array( 'v2_modalidade', 'v2_cidade' ) );
-		if ( ! $listagem || ! cetrus_black_na_tela() ) {
+		if ( ! is_front_page() || ! cetrus_black_na_tela() ) {
 			return;
 		}
 		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Medium.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff', 'BwModelica-ExtraBold.woff2' => 'font/woff2' ) as $arquivo => $tipo ) {
@@ -695,6 +693,50 @@ add_action(
 	},
 	2
 );
+
+// CSS que so chega no fim do body (01/11). O Elementor imprime no rodape o CSS de modelos aninhados (a barra da
+// campanha em toda tela Black, faixa e buscas nas listagens) e o WP Grid Builder faz o mesmo com o CSS dos filtros.
+// No celular com rede lenta o navegador desenha o topo antes de chegar nesses <link>, e quando eles chegam o
+// cabecalho perde 16 px, o topo da Vitrine 83 px e o filtro de ordenacao 45 px, e os cards sobem para dentro da tela
+// (CLS 0,35 na Vitrine, 0,29 na busca, 0,30 nos arquivos, medido com throttling e PerformanceObserver).
+// Uma copia de cada <link> vai para o fim do <head>. Os do body continuam onde estao, entao a cascata final e a
+// mesma de antes (a copia do body segue por ultimo), e com a mesma URL o navegador baixa o arquivo uma vez so.
+add_action(
+	'template_redirect',
+	function () {
+		if ( is_admin() || wp_doing_ajax() || is_feed() || isset( $_GET['elementor-preview'] ) || ! cetrus_black_na_tela() ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		ob_start( 'cetrus_black_css_tardio_no_head' );
+	},
+	99
+);
+
+/**
+ * Copia para o fim do <head> os <link> de CSS do Elementor (post-<id>) e do WP Grid Builder que estao no body.
+ * Na duvida (pedaco de saida sem head ou sem body, nada a copiar) devolve o HTML intacto.
+ *
+ * @param string $html Saida da pagina.
+ * @return string
+ */
+function cetrus_black_css_tardio_no_head( $html ) {
+	$fim_head = stripos( $html, '</head>' );
+	$corpo    = stripos( $html, '<body' );
+	if ( false === $fim_head || false === $corpo || $fim_head > $corpo ) {
+		return $html;
+	}
+	if ( ! preg_match_all( '/<link\b[^>]*\bid=([\'"])((?:elementor-post-\d+|wpgb-[\w-]+)-css)\1[^>]*>/i', substr( $html, $corpo ), $m ) ) {
+		return $html;
+	}
+	$copias = '';
+	foreach ( array_unique( $m[0] ) as $tag ) {
+		if ( false === stripos( $tag, 'stylesheet' ) ) {
+			continue;
+		}
+		$copias .= preg_replace( '/\bid=([\'"])([\w-]+)\1/', 'id=$1$2-no-head$1', $tag, 1 ) . "\n";
+	}
+	return '' === $copias ? $html : substr_replace( $html, $copias, $fim_head, 0 );
+}
 
 // Carrosseis de shortcode (professores/coordenadores, .swiper-container-fellow) mostram 1 card por vez e nao
 // deixam ver que ha mais. No celular, com 2 ou mais cards, 1,2 por tela (31/10, pedido do Sergio).

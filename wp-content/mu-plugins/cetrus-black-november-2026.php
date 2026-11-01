@@ -675,10 +675,14 @@ add_action(
 // e ela chegava depois do FCP (rastro do Lighthouse: foto de y 421 para 450, logo depois da ExtraBold).
 // A Vitrine (pagina 11768) tem o mesmo problema com as mesmas 4 fontes (01/11): no primeiro desenho o cabecalho
 // tinha 16 px a mais, o topo 83 px e o filtro de ordenacao 45 px, e tudo encolhia junto (CLS 0,35 com throttling).
+// A busca e os arquivos de cursos (modalidade, cidade) repetiam o padrao (CLS 0,29 e 0,30). Os cursos ficam de fora
+// (CLS 0,02), para o preload nao disputar banda com a imagem principal sem necessidade.
 add_action(
 	'wp_head',
 	function () {
-		if ( ! ( is_front_page() || is_page( 11768 ) ) || ! cetrus_black_na_tela() ) {
+		$listagem = is_front_page() || is_page( 11768 ) || is_search() || is_post_type_archive( 'product' )
+			|| is_tax( array( 'v2_modalidade', 'v2_cidade' ) );
+		if ( ! $listagem || ! cetrus_black_na_tela() ) {
 			return;
 		}
 		foreach ( array( 'BwModelica-Light.woff2' => 'font/woff2', 'BwModelica-Medium.woff2' => 'font/woff2', 'BwModelica-Bold.woff' => 'font/woff', 'BwModelica-ExtraBold.woff2' => 'font/woff2' ) as $arquivo => $tipo ) {

@@ -709,10 +709,20 @@ add_action(
 		if ( is_admin() || wp_doing_ajax() || is_feed() || isset( $_GET['elementor-preview'] ) || ! cetrus_black_na_tela() ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
-		ob_start( 'cetrus_black_css_tardio_no_head' );
+		ob_start( 'cetrus_black_saida' );
 	},
 	99
 );
+
+/**
+ * Ajustes no HTML final das telas Black (buffer aberto no template_redirect).
+ *
+ * @param string $html Saida da pagina.
+ * @return string
+ */
+function cetrus_black_saida( $html ) {
+	return cetrus_black_linhas_vazias_fora( cetrus_black_css_tardio_no_head( $html ) );
+}
 
 /**
  * Copia para o fim do <head> os <link> de CSS do Elementor (post-<id>) e do WP Grid Builder que estao no body.
@@ -741,28 +751,38 @@ function cetrus_black_css_tardio_no_head( $html ) {
 }
 
 // Cards de curso sem turma aberta (01/11): a linha do inicio da turma vem com o texto vazio (so um espaco) e o
-// card mostrava o icone do calendario sozinho (9 de 12 cards na busca por "ultrassonografia"). Nos modelos Black
-// a linha vazia sai do HTML da lista de icones. Vale tambem para os cards que o WP Grid Builder renderiza no
-// servidor ao filtrar e paginar. Fora dos modelos [BLACK-2026] nada muda.
-add_filter(
-	'elementor/widget/render_content',
-	function ( $conteudo, $widget ) {
-		if ( 'icon-list' !== $widget->get_name() || false === strpos( $conteudo, 'elementor-icon-list-text' ) ) {
-			return $conteudo;
+// card mostrava o icone do calendario sozinho (9 de 12 cards na busca por "ultrassonografia", 14 de 16 na pagina 2
+// da Vitrine filtrada). O texto so fica vazio depois da renderizacao do widget (o filtro
+// elementor/widget/render_content nao ve esses cards), entao a linha sai do HTML final, e um observador no
+// rodape faz o mesmo quando o WP Grid Builder troca os cards ao filtrar ou paginar.
+
+/**
+ * Tira das listas de icones os itens com icone e sem texto.
+ *
+ * @param string $html Saida da pagina.
+ * @return string
+ */
+function cetrus_black_linhas_vazias_fora( $html ) {
+	if ( false === strpos( $html, 'elementor-icon-list-text' ) ) {
+		return $html;
+	}
+	$limpo = preg_replace(
+		'#<li class="elementor-icon-list-item[^"]*"[^>]*>\s*(?:<a\b[^>]*>\s*)?<span class="elementor-icon-list-icon">(?:(?!</span>).)*</span>\s*<span class="elementor-icon-list-text">\s*</span>\s*(?:</a>\s*)?</li>#s',
+		'',
+		$html
+	);
+	return null === $limpo ? $html : $limpo;
+}
+
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! cetrus_black_na_tela() ) {
+			return;
 		}
-		$doc = \Elementor\Plugin::$instance->documents->get_current();
-		if ( ! $doc || 0 !== strpos( (string) get_post_field( 'post_title', $doc->get_main_id() ), CETRUS_BLACK_PREFIXO ) ) {
-			return $conteudo;
-		}
-		$limpo = preg_replace(
-			'#<li class="elementor-icon-list-item[^"]*"[^>]*>\s*(?:<a\b[^>]*>\s*)?<span class="elementor-icon-list-icon">.*?</span>\s*<span class="elementor-icon-list-text">\s*</span>\s*(?:</a>\s*)?</li>#s',
-			'',
-			$conteudo
-		);
-		return null === $limpo ? $conteudo : $limpo;
+		echo "<script>(function(){function l(r){r.querySelectorAll('.e-loop-item .elementor-icon-list-item').forEach(function(li){var t=li.querySelector('.elementor-icon-list-text');if(t&&!t.textContent.trim()&&li.querySelector('.elementor-icon-list-icon'))li.parentNode.removeChild(li);});}document.querySelectorAll('.wp-grid-builder').forEach(function(g){l(g);new MutationObserver(function(){l(g);}).observe(g,{childList:true,subtree:true});});})();</script>\n";
 	},
-	10,
-	2
+	100
 );
 
 // Carrosseis de shortcode (professores/coordenadores, .swiper-container-fellow) mostram 1 card por vez e nao

@@ -362,7 +362,9 @@ function cetrus_black_tela_fora() {
 		return false;
 	} elseif ( is_singular( 'product' ) ) {
 		$id   = (int) get_queried_object_id();
-		$fora = has_term( CETRUS_BLACK_FORA_MODALIDADES, 'v2_modalidade', $id ) || has_term( CETRUS_BLACK_FORA_TAGS, 'product_tag', $id );
+		// has_term() com lista vazia responde se o curso tem QUALQUER termo da taxonomia: lista vazia nao exclui nada.
+		$fora = ( CETRUS_BLACK_FORA_MODALIDADES && has_term( CETRUS_BLACK_FORA_MODALIDADES, 'v2_modalidade', $id ) )
+			|| ( CETRUS_BLACK_FORA_TAGS && has_term( CETRUS_BLACK_FORA_TAGS, 'product_tag', $id ) );
 	} else {
 		$fora = ! cetrus_black_clone_da_pagina();
 	}

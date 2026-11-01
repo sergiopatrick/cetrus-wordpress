@@ -5,6 +5,7 @@
  * Version:     0.4.1
  * Author:      Cetrus / Sanar
  *
+ * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.
  * 0.4.1 (29/10/2026): popups abertos por id fixo em shortcodes (inscricao do Lyceum) apontam para o
  * modelo Black; antes o botao "Quero me inscrever" nao abria nada na versao Black.
  * 0.4.0 (28/10/2026, noite): a virada passa a ser por commit no GitHub. A chave CETRUS_BLACK_VIRADA
@@ -61,15 +62,16 @@ if ( ! defined( 'CETRUS_BLACK_VIRADA' ) ) {
 	define( 'CETRUS_BLACK_VIRADA', 'ligado' );
 }
 
-const CETRUS_BLACK_VERSAO   = '0.4.1';
+const CETRUS_BLACK_VERSAO   = '0.4.2';
 const CETRUS_BLACK_PREFIXO  = '[BLACK-2026]';
 const CETRUS_BLACK_OPCAO    = 'cetrus_black_2026_modo'; // modo do painel: github (padrao), desligado ou ligado
 const CETRUS_BLACK_REGISTRO = 'cetrus_black_2026_registro'; // quem ligou/desligou e quando
 const CETRUS_BLACK_CACHE    = 'cetrus_black_2026_mapa';
 // Tipos de modelo do Elementor aceitos como versao Black de uma PAGINA (Home, Vitrine...).
 const CETRUS_BLACK_TIPOS_PAGINA = array( 'page', 'section', 'container' );
-// Telas que ficam iguais a producao (cetrus_black_tela_fora): graduacao e fellowship v2.
-const CETRUS_BLACK_FORA_MODALIDADES = array( 149 );  // v2_modalidade graduacao -> template 19379
+// Telas que ficam iguais a producao (cetrus_black_tela_fora): fellowship v2. A graduacao (modalidade 149,
+// template 19379) entrou na Black em 31/10, pedido do Sergio.
+const CETRUS_BLACK_FORA_MODALIDADES = array();
 const CETRUS_BLACK_FORA_TAGS        = array( 1262 ); // product_tag teste-fellow -> template 28779 (fellowship v2)
 
 /**
@@ -341,7 +343,7 @@ add_filter(
  * nada muda, nem header, barra e rodape, nem classe no body ou CSS.
  * - paginas sem modelo [BLACK-2026] (institucionais, /especialidades/, curriculos, 404, posts);
  * - arquivo de especialidade (template 25011);
- * - graduacao (modalidade 149, template 19379) e fellowship v2 (tag 1262, template 28779).
+ * - fellowship v2 (tag 1262, template 28779). A graduacao (19379) entrou na Black em 31/10.
  *
  * Antes do 'wp' (pre_get_posts, quando o Elementor Pro escolhe o template dos arquivos e da
  * busca) so os arquivos sao decididos; produto e pagina esperam o objeto da consulta.
@@ -730,7 +732,7 @@ function cetrus_black_tela() {
 	if ( 'ligado' === $modo && empty( $dados['mapa'] ) ) {
 		echo '<div class="notice notice-error inline"><p>A chave esta ligada, mas nao ha nenhum modelo [BLACK-2026] publicado: a versao Black continua DESLIGADA para visitantes ate o montar-black.js rodar neste site.</p></div>';
 	}
-	echo '<p>Ficam iguais a producao mesmo com a versao Black ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade, graduacao e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
+	echo '<p>Ficam iguais a producao mesmo com a versao Black ligada: paginas sem modelo [BLACK-2026] (institucionais, curriculos, 404), arquivo de especialidade e fellowship v2 (<code>cetrus_black_tela_fora()</code>).</p>';
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cetrus_black_modo' );
 	echo '<input type="hidden" name="action" value="cetrus_black_modo"><select name="modo">';

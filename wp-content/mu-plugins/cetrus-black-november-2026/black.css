@@ -964,3 +964,10 @@ body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .cetrus-vagas-turma {
 		width: 100%;
 	}
 }
+/* "Resultados para: <termo>" vinha no azul-marinho do original (#002452) sobre o grafite, contraste de 1,3:1. */
+body.cetrus-black-2026.search .elementor-search-term {
+	color: var(--cb-corpo) !important;
+}
+body.cetrus-black-2026.search .elementor-search-term .term {
+	color: var(--cb-texto) !important;
+}

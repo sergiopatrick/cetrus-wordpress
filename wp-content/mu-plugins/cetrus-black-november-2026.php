@@ -5,7 +5,8 @@
  * Version:     0.4.5
  * Author:      Cetrus / Sanar
  *
- * 0.4.5 (01/11/2026): busca no celular com o "Cancelar" sempre embaixo do termo (black.css, CLS).
+ * 0.4.5 (01/11/2026): busca no celular com o "Cancelar" sempre embaixo do termo (CLS) e "Resultados para"
+ * legivel no fundo escuro (black.css).
  * 0.4.4 (01/11/2026): CSS que o Elementor e o WP Grid Builder imprimem no fim do body ganha copia no
  * <head> (CLS no celular da Vitrine, busca e arquivos). O preload das fontes continua so na Home.
  * 0.4.2 (31/10/2026): a graduacao (modalidade 149, template 19379 e header 23382) entra na versao Black.

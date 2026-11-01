@@ -218,13 +218,16 @@
 	};
 
 	// Carrosseis no celular mostram um pedaco do proximo card, para ficar claro que da para arrastar (31/10, pedido do
-	// Sergio): cards de curso 1,5 por tela, depoimentos 1,2. O Elementor le slides_to_show_mobile com +, entao aceita fracao.
+	// Sergio): cards de curso e de material 1,5 por tela, depoimentos e galerias 1,2. O Elementor le slides_to_show_mobile com +, entao aceita fracao.
 	function carrosselCelular(els) {
 		var vao = { unit: 'px', size: 12, sizes: [] }, n = 0;
 		cada(els, function (e) {
 			var s = e.settings || {};
 			if (e.widgetType === 'loop-carousel') s.slides_to_show_mobile = '1.5';
-			else if (e.widgetType === 'nested-carousel') s.slides_to_show_mobile = '1.2';
+			// carrossel aninhado de depoimentos (widgets testimonial, texto longo) 1,2; de cards (materiais) 1,5
+			else if (e.widgetType === 'nested-carousel') s.slides_to_show_mobile = JSON.stringify(e.elements || []).indexOf('"widgetType":"testimonial"') >= 0 ? '1.2' : '1.5';
+			else if (e.widgetType === 'image-carousel') s.slides_to_show_mobile = '1.2';
+			else if (e.widgetType === 'testimonial-carousel') { s.slides_per_view_mobile = '1.2'; s.space_between_mobile = vao; n++; return; }
 			else return;
 			s.slides_to_scroll_mobile = '1';
 			s.image_spacing_custom_mobile = vao;

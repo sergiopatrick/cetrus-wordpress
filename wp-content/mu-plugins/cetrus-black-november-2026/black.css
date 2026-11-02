@@ -340,6 +340,10 @@ body.cetrus-black-2026.cetrus-black-conteudo .fellow-card li,
 body.cetrus-black-2026.cetrus-black-conteudo .fellow-description {
 	color: var(--cb-corpo) !important;
 }
+/* "Ler Mais" da descricao do professor vinha no azul-marinho do original (#002452) sobre o card escuro (02/11) */
+body.cetrus-black-2026.cetrus-black-conteudo .fellow-card .fellow-read-more {
+	color: var(--cb-lavanda-clara) !important;
+}
 
 /* ---- Seta do acordeao (icone escuro) ---- */
 body.cetrus-black-2026.cetrus-black-conteudo .product-accordion .accordion-button i,
@@ -949,6 +953,15 @@ body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .cetrus-vagas-turma {
 	margin-top: 6px;
 	line-height: 1.25 !important;
 }
+/* Nome de professor longo ("Dra. Marcella Alves De Farias Soares") saia do card e, no card da direita, empurrava a
+   pagina 3 px para o lado no celular (02/11). O .professor-name ja tem reticencias, faltava o limite de largura. */
+body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .elementor-icon-list-item .elementor-icon-list-text {
+	min-width: 0;
+}
+body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .professor-card,
+body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .professor-name {
+	max-width: 100%;
+}
 @media (max-width: 767px) {
 	body.cetrus-black-2026.cetrus-black-conteudo .e-loop-item .elementor-widget-icon-list .elementor-icon-list-text {
 		font-size: 12px !important;
@@ -986,4 +999,28 @@ body.cetrus-black-2026 .elementor-widget-n-menu .e-n-menu[data-layout="dropdown"
 /* :where mantem a especificidade baixa, entao a cor que o container tiver no Elementor continua valendo */
 body.cetrus-black-2026 .e-n-menu[data-layout="dropdown"] :where(.e-n-menu-content > .e-con) {
 	background-color: var(--cb-superficie);
+}
+
+/* ---- Popups de filtro do celular (02/11): 13513 vitrine, 25700 modalidade e 15446 busca, sem clone Black.
+ * Os containers do 13513 e do 25700 sao brancos no Elementor, e os filtros ja vem claros do bloco "Filtros, ordenacao
+ * e paginacao", entao titulos e opcoes sumiam. Transparentes, deixam aparecer a caixa grafite do popup, como a
+ * barra de filtros do desktop. "Meus Filtros" vinha no azul-marinho (#002452) nos tres. ---- */
+body.cetrus-black-2026 .elementor-popup-modal:has(.wpgb-facet) .e-con {
+	background-color: transparent !important;
+}
+body.cetrus-black-2026 .elementor-popup-modal:has(.wpgb-facet) .elementor-widget-text-editor,
+body.cetrus-black-2026 .elementor-popup-modal:has(.wpgb-facet) .elementor-widget-text-editor :is(p, strong) {
+	color: var(--cb-texto) !important;
+}
+/* "Local" e um select nativo e vinha em preto; no desktop o mesmo campo ja sai na cor de apoio */
+body.cetrus-black-2026 .elementor-popup-modal:has(.wpgb-facet) select.wpgb-select {
+	color: var(--cb-apoio) !important;
+}
+/* "Aplicar Filtros" no azul #003B6C vira o primario claro, como os outros botoes */
+body.cetrus-black-2026 .wpgb-facet .wpgb-apply {
+	background-color: var(--cb-texto) !important;
+	color: #111214 !important;
+}
+body.cetrus-black-2026 .wpgb-facet .wpgb-apply:hover {
+	background-color: #fff !important;
 }

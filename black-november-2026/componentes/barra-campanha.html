@@ -7,6 +7,9 @@
   - Um link so (sem link dentro de link), largura total, mesma altura em todas as paginas.
   - Nas paginas de curso o CTA vira "Ver condição" e rola ate o card de inscricao
     (seletor de unidade/turma); nas demais leva para /vitrine/.
+  - Curso sem seletor de turma (fellowship, Sanar Pos, EAD, pacote, graduacao; 02/11): rola ate o
+    primeiro "Quero me inscrever/matricular" do conteudo (ou ate o destino dele, se for ancora, como
+    o #form do pacote); se o botao so existir no header ou numa barra fixa, abre o mesmo formulario.
   - Sem cronometro e sem porcentagem (regras de copy do Artifact).
 -->
 <style>
@@ -43,11 +46,35 @@
 		barra.querySelector('.cbn-barra__txt').textContent = 'Black November no ar. Condições exclusivas para as turmas deste curso.';
 		barra.querySelector('.cbn-barra__cta').textContent = 'Ver condição';
 		barra.setAttribute('href', '#inscricao');
+		// sem seletor de turma: o botao de inscricao da pagina
+		var botoes = function () {
+			return [].slice.call(document.querySelectorAll('a.elementor-button, button.elementor-button, a.lyceum-course-btn')).filter(function (e) {
+				return e.offsetParent !== null && /quero me (inscrever|matricular)|inscreva-se/i.test(e.textContent) && !e.closest('.cbn-barra, .elementor-location-popup');
+			});
+		};
+		// botao no header ou numa barra fixa (o "Quero me inscrever" do rodape no celular) nao tem para onde rolar: abre
+		var noConteudo = function (e) {
+			if (e.closest('[data-elementor-type="header"], [data-elementor-type="footer"]')) return false;
+			for (var x = e; x && x !== document.body; x = x.parentElement) if (getComputedStyle(x).position === 'fixed') return false;
+			return true;
+		};
 		barra.addEventListener('click', function (ev) {
 			var a = alvo();
-			if (!a) return;
-			ev.preventDefault();
-			a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			if (a) {
+				ev.preventDefault();
+				a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
+			var b = botoes(), c = b.filter(noConteudo)[0];
+			if (c) {
+				var h = c.getAttribute('href') || '';
+				var destino = /^#[\w-]+$/.test(h) ? document.getElementById(h.slice(1)) : null;
+				ev.preventDefault();
+				(destino && destino.offsetParent !== null ? destino : c).scrollIntoView({ behavior: 'smooth', block: 'center' });
+			} else if (b[0]) {
+				ev.preventDefault();
+				b[0].click();
+			}
 		});
 	}
 })();

@@ -14,8 +14,9 @@
   Hero sem overflow:hidden (31/10): a lista de sugestoes da busca (.cetrus-ac-painel) era cortada no fim
   do hero. O corte das fotos ficou no .cbh__fotos e o z-index poe a lista por cima da secao seguinte.
 
-  Busca no celular (04/11, pedido do Paulo Miranda): sobe para logo abaixo do subtitulo, antes da foto.
-  Antes ficava depois da foto e dos botoes, fora da primeira tela. No computador nao muda.
+  Busca no celular (04/11, pedido do Paulo Miranda, cenario B): primeira coisa do hero, logo abaixo da
+  faixa da Lista VIP e antes de "Condicoes exclusivas". A barra da campanha sai da Home no celular
+  (regra no barra-campanha.html). No computador nao muda.
 
   Busca: mesmo formulario da home atual (GET / ?s=) e mesma classe .search-input-cetrus, entao o
   mu-plugin cetrus-busca-autocomplete continua sugerindo cursos.
@@ -80,7 +81,7 @@
 	.cbh__ctas{order:5;margin:12px 20px 20px;flex-wrap:nowrap;gap:8px}
 	.cbh__btn{min-height:48px;padding:0 14px;font-size:12px;letter-spacing:.08em}
 	.cbh__btn--outline{flex:1 1 auto;white-space:normal;text-align:center}
-	.cbh__busca{order:3;z-index:3;margin:16px 20px 0;width:auto;padding:6px}
+	.cbh__busca{order:0;z-index:3;margin:20px 20px 4px;width:auto;padding:6px}
 	.cbh__busca input{min-height:44px;padding:0 10px}
 	.cbh__busca button{min-height:44px;padding:0 14px}
 }

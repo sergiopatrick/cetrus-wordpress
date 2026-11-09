@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - Carrossel dirigido por turma
  * Description: Substitui a selecao manual do carrossel da home por consulta viva as metas do Lyceum (janela de dias e ocupacao).
- * Version:     1.3.0
+ * Version:     1.4.0
  * Author:      Cetrus / Sanar
  *
  * REGRA (aprovada em 28/08/2026)
@@ -44,6 +44,11 @@
  * CETRUS_CARR_MIGRACOES poem codigos na FRENTE de 'fixos', uma vez cada, no primeiro request
  * depois do deploy. Acrescentam em vez de substituir: o deploy nao enxerga a option, e trocar a
  * lista inteira apagaria um fixo que ninguem pediu para tirar.
+ *
+ * CARDS DO MESMO TAMANHO (1.4.0, 09/11/2026)
+ * A linha "comeca em X dias" so existe quando o curso tem turma com data no Lyceum. Sem ela o card
+ * ficava 38 px mais baixo e a fileira saia em degraus. O CSS do fim do arquivo estica todo card ate
+ * a altura do mais alto e desce coordenador e local para o pe, alinhados com os cards que tem data.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -580,4 +585,35 @@ add_action('wp_enqueue_scripts', function () {
   .elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-prev{left:0}
   .elementor-element-' . CETRUS_CARR_WIDGET . ' .elementor-swiper-button-next{right:0}
 }');
+});
+
+/**
+ * Cards do carrossel da home com a mesma altura (09/11/2026).
+ * O shortcode da turma so imprime "comeca em X dias (dd/mm/aaaa)" quando o curso tem data no
+ * Lyceum. Sem essa linha o card ficava mais baixo (279 x 317 px no desktop, 262 x 300 px no
+ * celular). A altura passa do slide ate o corpo do card, o corpo cresce e a lista de
+ * coordenador/local vai para o pe com margin-top:auto. Assim o titulo continua colado na foto e
+ * o espaco que sobra fica no lugar da data, entre o titulo e o coordenador.
+ *
+ * Ids do modelo de card 11204. O clone da Black ([BLACK-2026] #11204 = 35969) tem os mesmos ids,
+ * porque a montagem copia os elementos sem trocar id. Por isso a regra vale nos dois modelos:
+ *   69be450 caixa externa, 82e794a card (.cetrus-card-product), 7ba0827 corpo de texto,
+ *   df122f9 lista de data, coordenador e local.
+ * Fica fora do cetrus_carr_ativo(): a altura desigual tambem acontece com a selecao manual.
+ */
+add_action('wp_enqueue_scripts', function () {
+    if (!is_front_page()) return;
+    $w = '.elementor-element-' . CETRUS_CARR_WIDGET;
+    wp_register_style('cetrus-carrossel-cards', false, [], '1.0.0');
+    wp_enqueue_style('cetrus-carrossel-cards');
+    wp_add_inline_style('cetrus-carrossel-cards', '
+/* o swiper fixa height:100% no slide, e isso impede o stretch da fileira */
+' . $w . ' .swiper-wrapper{align-items:stretch}
+' . $w . ' .swiper-slide.e-loop-item{height:auto;display:flex;flex-direction:column}
+' . $w . ' .e-loop-item > .elementor-element-69be450,
+' . $w . ' .elementor-element-69be450 > .e-con-inner,
+' . $w . ' .elementor-element.elementor-element-82e794a,
+' . $w . ' .elementor-element-82e794a > .e-con-inner,
+' . $w . ' .elementor-element.elementor-element-7ba0827{flex-grow:1}
+' . $w . ' .elementor-element.elementor-element-df122f9{margin-top:auto}');
 });

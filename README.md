@@ -63,6 +63,14 @@ resto da lista continua atrás como estava. A home mostra a nova ordem em até
 - Com SSH, `wp cetrus-carrossel status | fixos | vetados | total` continua sendo o
   caminho direto.
 
+**Cards do mesmo tamanho (09/11/2026):** o plugin também carrega, só na home, um
+CSS que deixa todos os cards do carrossel com a altura do mais alto. Antes, o card
+de curso sem turma com data no Lyceum (sem a linha "começa em X dias") ficava mais
+baixo. Agora o espaço da data fica vazio e o coordenador e o local descem para o
+pé do card, na mesma linha dos outros. Isso vale no desktop, no tablet e no
+celular, com o card normal (modelo 11204) e com o da Black (35969), e não depende
+da regra viva estar ligada.
+
 ### `wp-content/mu-plugins/cetrus-cursos-fm-cidade.php`
 
 Corrige a localização exibida nas páginas de curso cujo **SKU** (`_sku`) ou

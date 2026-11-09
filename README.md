@@ -71,6 +71,18 @@ pé do card, na mesma linha dos outros. Isso vale no desktop, no tablet e no
 celular, com o card normal (modelo 11204) e com o da Black (35969), e não depende
 da regra viva estar ligada.
 
+### `wp-content/mu-plugins/cetrus-lyceum-sync.php` › cards das vitrines
+
+Além de sincronizar as turmas, o plugin carrega o CSS do card de curso. Desde
+09/11/2026 esse CSS também deixa **todos os cards de uma vitrine com a mesma
+altura**: a do card mais alto da página que está na tela. Vale para a Vitrine
+(`/vitrine/`), a busca e os arquivos de modalidade (`/modalidades/…`) e de
+especialidade (`/especialidades/…`). A regra se prende ao card
+(`.cetrus-card-product`), não ao id de cada grade. Por isso continua valendo ao
+filtrar, ordenar ou paginar pelo WP Grid Builder, e em qualquer grade nova que
+use esse card. No card mais baixo, o espaço que sobra fica entre o título e o
+coordenador.
+
 ### `wp-content/mu-plugins/cetrus-cursos-fm-cidade.php`
 
 Corrige a localização exibida nas páginas de curso cujo **SKU** (`_sku`) ou

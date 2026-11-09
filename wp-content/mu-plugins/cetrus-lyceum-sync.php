@@ -406,6 +406,32 @@ add_action('wp_enqueue_scripts', function () {
 }';
     wp_add_inline_style('cetrus-lyceum-turma', $card);
 
+    /*
+     * Cards das vitrines com a mesma altura (09/11/2026). Vitrine (11768), busca, arquivos de
+     * modalidade e de especialidade usam Loop Grids diferentes (a62bd9c, b4f47b6, 4703c34,
+     * b1ab1c4), mas o mesmo card. Por isso a regra se prende ao card (.cetrus-card-product),
+     * nao ao id da grade. Antes, cada card tinha a altura do proprio conteudo: sem data
+     * 279 px, com data 317 px, com data e selo de vagas 330 a 346 px (desktop).
+     *
+     * - grid-auto-rows:1fr deixa todas as linhas da grade com a altura da linha mais alta.
+     *   A grade ja esticava cada celula, mas o card de dentro nao acompanhava.
+     * - flex-grow:1 passa essa altura da celula ate o corpo do card. margin-top:auto desce
+     *   coordenador e local para o pe; o titulo continua colado na foto.
+     * Ids iguais no card 11204 e no clone da Black (35969). O carrossel da home (Swiper, nao
+     * grade) tem regra propria em cetrus-carrossel-turmas.php. O WP Grid Builder troca os
+     * cards por AJAX ao filtrar, ordenar e paginar; como e so CSS, vale para os cards novos.
+     */
+    $g = '.elementor-widget-loop-grid ';
+    wp_add_inline_style('cetrus-lyceum-turma', '
+' . $g . '.elementor-loop-container:has(.cetrus-card-product){grid-auto-rows:1fr}
+' . $g . '.e-loop-item:has(.cetrus-card-product){display:flex;flex-direction:column}
+' . $g . '.e-loop-item > .elementor-element-69be450:has(.cetrus-card-product),
+' . $g . '.elementor-element-69be450:has(.cetrus-card-product) > .e-con-inner,
+' . $g . '.elementor-element.cetrus-card-product,
+' . $g . '.cetrus-card-product > .e-con-inner,
+' . $g . '.cetrus-card-product .elementor-element.elementor-element-7ba0827{flex-grow:1}
+' . $g . '.cetrus-card-product .elementor-element.elementor-element-df122f9{margin-top:auto}');
+
     // Facet 16 "Ordenar por" das vitrines. Sem isto ele ocupa a largura inteira
     // da coluna do grid (~810px), que e desproporcional para um controle de ordem.
     // Tokens Dende: #C3C6C6 ColorNeutralLight, #111212 ColorNeutralDarkest,

@@ -110,7 +110,10 @@ def main():
 
     # 3. todo apelido precisa ter lastro. Sem isto um apelido morto fica anos no
     #    codigo fingindo que ajuda.
-    feno_tudo = [normaliza(f"{c[0]} {c[2]} {c[3]}") for c in cursos]
+    # Mesmos campos que o painel casa (titulo, especialidade, coordenador,
+    # modalidade e cidades), com pontuacao virando espaco como no JS.
+    feno_tudo = [re.sub(r"[^a-z0-9]", " ", normaliza(f"{c[0]} {c[2]} {c[3]} {c[4]} {c[8] if len(c) > 8 else c[5]}"))
+                 for c in cursos]
     for chave, alvos in apelidos.items():
         for alvo in alvos:
             n = sum(1 for f in feno_tudo if prefixo(f, normaliza(alvo)))

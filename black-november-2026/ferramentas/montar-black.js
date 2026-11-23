@@ -61,7 +61,7 @@
 		{ orig: 11768, pagina: true, nome: 'Vitrine', montar: 'vitrine' },
 		{ orig: 27615, pagina: true, nome: 'Conteúdos Gratuitos', montar: 'conteudos' }
 	];
-	M.COMPONENTES = ['barra-campanha', 'home-hero', 'home-condicoes-formulario', 'home-legado', 'home-autoridade', 'home-depoimentos', 'home-conteudos-destaque', 'home-fechamento', 'vitrine-eyebrow', 'vitrine-faixa', 'vitrine-ajuda', 'conteudos-ponte'];
+	M.COMPONENTES = ['barra-campanha', 'home-hero', 'home-condicoes-formulario', 'home-legado', 'home-autoridade', 'home-depoimentos', 'home-conteudos-destaque', 'home-fechamento', 'home-barra-cronometro', 'vitrine-eyebrow', 'vitrine-faixa', 'vitrine-ajuda', 'conteudos-ponte'];
 
 	/* ---------------- acesso ao WordPress ---------------- */
 	var nonceRest = null;
@@ -250,10 +250,9 @@
 			var por = {}; els.forEach(function (e) { por[e.id] = e; });
 			var conhecidos = ['75c936f', '0fe805b', 'ddd2426', '287991c'];
 			exige(por, conhecidos, 'Home', ctx.rel);
-			// faixa Lista VIP (76b95fe, template 35597): fica no topo, logo abaixo da barra do header. A Lista VIP
-			// continua em novembro com "Garanta exclusividade na oferta" (decisao do Greg e do Sergio, 30/10).
-			var faixaVip = por['76b95fe'];
-			if (!faixaVip) ctx.rel.avisos.push('Home: faixa Lista VIP (76b95fe) nao achada; Home Black sem a faixa.');
+			// faixa Lista VIP (76b95fe, template 35597): ate 22/11 ficava no topo, logo abaixo da barra do header.
+			// Desde 23/11 (aprovado pelo usuario) sai, e no lugar entra a barra do cronometro + "Entre na Lista VIP"
+			// (componente home-barra-cronometro), presa no topo ao rolar. A 35597 continua na Home padrao.
 			// saem: hero e buscas antigos (5c98cd0, 317b4e0, d3db8d1: substituidos pelo hero do Artifact),
 			// newsletter (92454f4, pedido de 28/10), depoimentos originais (ddd2426: entram no formato do Artifact,
 			// com os mesmos textos) e numeros originais (f4ad350: no lugar entra a secao "Legado" do Artifact,
@@ -282,7 +281,7 @@
 				var vs = velho.settings || {};
 				cg.el.elements[0] = { id: uid(), elType: 'container', isInner: true, settings: { content_width: 'full', width: vs.width, width_tablet: vs.width_tablet, width_mobile: vs.width_mobile, padding: ZERO, margin: ZERO, _title: 'BLACK · destaque conteudos gratuitos', css_classes: 'cbn-home-cg-destaque' }, elements: [widgetHtml(comp['home-conteudos-destaque'], 'destaque conteudos gratuitos')] };
 			} else ctx.rel.avisos.push('Home: card de destaque de "Explore conteudos gratuitos" (dd26583) nao achado; ficou o original.');
-			return (faixaVip ? [faixaVip] : []).concat([caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), caixa('legado', comp['home-legado']),
+			return [caixa('barra do cronometro', comp['home-barra-cronometro'])].concat([caixa('hero', comp['home-hero']), por['75c936f'], caixa('condicoes', comp['home-condicoes-formulario']), caixa('legado', comp['home-legado']),
 				caixa('autoridade', comp['home-autoridade']), por['0fe805b'], caixa('depoimentos', depo.html), por['287991c']]
 				.concat(extras, [caixa('fechamento', comp['home-fechamento'])]));
 		},

@@ -1,0 +1,155 @@
+<!--
+  Cetrus · Black November 2026 · Home · barra do cronometro + Lista VIP, presa no topo (23/11, aprovada
+  e publicada na producao: widget HTML 7d3bb63 no container 76b95fe do modelo Black da Home, 36049, no lugar
+  do widget de modelo b962908 que mostrava a faixa Lista VIP 35597). A faixa 35597 e a Home padrao nao mudam.
+
+  - Fica logo abaixo da barra de campanha; ao rolar, prende logo abaixo do menu fixo do Elementor
+    (desktop 73 px, celular 64 px) ate o fim da pagina. O script tira a barra do container e a poe como
+    filha do body, logo depois do header (dentro do container o sticky so valeria enquanto ele estivesse
+    na tela), e esconde o container que sobrou. z-index 98 < 99 do menu: submenus abrem por cima.
+  - Cronometro DD:HH:MM:SS ate 01/12/2026 00:00 (Brasilia, -03:00); no fim a barra some sozinha.
+  - Link: /lista-vip-black/ com utm_source=site-cetrus&utm_medium=banner&utm_campaign=lista_vip2026,
+    nova guia, data-utm-decorated="1" (o script "UTM PERSISTENCE" nao reescreve o link).
+  - Visual da faixa Lista VIP (grafite, cimento, facho de luz). Bw Modelica so Light 300 + Medium 500.
+    Desktop: "A Black November termina em" + cronometro + botao; celular: cronometro + botao.
+  - Teste: aba em segundo plano nao roda requestAnimationFrame (a medida do menu so acontece com a aba visivel).
+-->
+<style>
+.cbs{
+	--cbs-txt:#f3f3f6;--cbs-lav:#8c8eb6;--cbs-lav2:#d4d5e8;
+	position:sticky;top:var(--cbs-topo,0px);z-index:98;display:block;overflow:hidden;isolation:isolate;
+	width:100%;
+	background:
+		radial-gradient(26% 240% at 80% -70%,rgba(255,255,255,.20) 0%,rgba(255,255,255,0) 62%),
+		linear-gradient(112deg,rgba(255,255,255,0) 52%,rgba(255,255,255,.045) 66%,rgba(255,255,255,0) 80%),
+		radial-gradient(40% 220% at 18% 170%,rgba(72,82,124,.24) 0%,rgba(72,82,124,0) 70%),
+		linear-gradient(180deg,#222327 0%,#17181b 100%);
+	border-bottom:1px solid rgba(255,255,255,.08);
+	font-family:BwModelica,"Bw Modelica","Helvetica Neue",Arial,sans-serif;
+	-webkit-font-smoothing:antialiased;
+	transition:box-shadow .2s ease;
+}
+.cbs.cbs--presa{box-shadow:0 10px 24px rgba(0,0,0,.38)}
+.cbs[hidden]{display:none!important}
+.cbs *,.cbs *::before,.cbs *::after{box-sizing:border-box}
+/* textura de cimento queimado (mesma da LP e da faixa Lista VIP) */
+.cbs::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
+	background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* facho de luz do KV */
+.cbs .cbs-luz{position:absolute;z-index:0;top:-170%;right:17%;width:190px;height:440%;transform:rotate(34deg);
+	background:linear-gradient(180deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.06) 50%,rgba(255,255,255,0) 80%);filter:blur(26px);pointer-events:none}
+.cbs a.cbs-a{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:28px;max-width:1218px;min-height:66px;margin:0 auto;padding:9px 24px;color:var(--cbs-txt);text-decoration:none}
+.cbs a.cbs-a:hover,.cbs a.cbs-a:focus{color:var(--cbs-txt);text-decoration:none}
+.cbs a.cbs-a:focus-visible{outline:2px solid var(--cbs-lav2);outline-offset:-4px}
+.cbs .cbs-lbl{font-size:15px;font-weight:300;line-height:1.25;color:rgba(243,243,246,.84);white-space:nowrap}
+.cbs .cbs-lbl b{font-weight:500;color:#fff}
+/* cronometro */
+.cbs .cbs-cd{display:flex;align-items:flex-start;gap:6px}
+.cbs .cbs-u{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cbs .cbs-n{display:block;min-width:1.42em;font-size:26px;font-weight:500;line-height:1;letter-spacing:.02em;text-align:center;font-variant-numeric:tabular-nums;
+	background-image:linear-gradient(100deg,var(--cbs-lav) 0%,var(--cbs-lav2) 55%,#f1f2f9 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.cbs .cbs-r{font-size:8.5px;font-weight:500;line-height:1;letter-spacing:.18em;text-transform:uppercase;color:rgba(233,234,240,.62)}
+.cbs .cbs-sep{font-style:normal;font-size:22px;font-weight:300;line-height:26px;height:26px;color:rgba(140,142,182,.9)}
+/* botao: pilula clara do KV (a mesma da tag Lista VIP) */
+.cbs .cbs-btn{flex:none;display:inline-flex;align-items:center;padding:13px 20px;border-radius:4px;
+	background:linear-gradient(100deg,#c9d3f1 0%,#f4f5fb 52%,#dde3f6 100%);color:#15161a;
+	font-size:12.5px;font-weight:500;line-height:1;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+	box-shadow:0 2px 10px rgba(0,0,0,.25);transition:background .2s ease,box-shadow .2s ease}
+.cbs a.cbs-a:hover .cbs-btn,.cbs a.cbs-a:focus-visible .cbs-btn{background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.32)}
+/* celular: cronometro a esquerda, botao a direita (sem o texto) */
+@media (max-width:767px){
+	.cbs a.cbs-a{justify-content:space-between;gap:12px;min-height:60px;padding:9px 14px}
+	.cbs .cbs-lbl{display:none}
+	.cbs .cbs-cd{gap:3px}
+	.cbs .cbs-n{font-size:22px}
+	.cbs .cbs-sep{font-size:18px;line-height:22px;height:22px}
+	.cbs .cbs-r{font-size:7.5px;letter-spacing:.14em}
+	.cbs .cbs-btn{padding:12px 13px;font-size:10.5px;letter-spacing:.1em}
+	.cbs .cbs-luz{right:-4%;width:130px}
+}
+@media (max-width:359px){
+	.cbs a.cbs-a{gap:8px;padding:9px 10px}
+	.cbs .cbs-cd{gap:2px}
+	.cbs .cbs-n{font-size:19px}
+	.cbs .cbs-sep{font-size:16px;line-height:19px;height:19px}
+	.cbs .cbs-r{font-size:7px;letter-spacing:.1em}
+	.cbs .cbs-btn{padding:11px 9px;font-size:9.5px;letter-spacing:.07em}
+}
+@media (prefers-reduced-motion:reduce){.cbs,.cbs .cbs-btn{transition:none}}
+</style>
+<div class="cbs" role="region" aria-label="Lista VIP Black November">
+	<span class="cbs-luz" aria-hidden="true"></span>
+	<a class="cbs-a" data-utm-decorated="1" href="https://cetrus.com.br/lista-vip-black/?utm_source=site-cetrus&amp;utm_medium=banner&amp;utm_campaign=lista_vip2026" target="_blank" rel="noopener" aria-label="Black November termina em 1º de dezembro. Entre na Lista VIP (abre em nova guia).">
+		<span class="cbs-lbl">A <b>Black November</b> termina em</span>
+		<span class="cbs-cd" aria-hidden="true">
+			<span class="cbs-u"><span class="cbs-n" data-cbs="d">00</span><span class="cbs-r">dias</span></span>
+			<i class="cbs-sep">:</i>
+			<span class="cbs-u"><span class="cbs-n" data-cbs="h">00</span><span class="cbs-r">horas</span></span>
+			<i class="cbs-sep">:</i>
+			<span class="cbs-u"><span class="cbs-n" data-cbs="m">00</span><span class="cbs-r">min</span></span>
+			<i class="cbs-sep">:</i>
+			<span class="cbs-u"><span class="cbs-n" data-cbs="s">00</span><span class="cbs-r">seg</span></span>
+		</span>
+		<span class="cbs-btn">Entre na Lista VIP</span>
+	</a>
+</div>
+<script>
+(function () {
+	var barra = document.querySelector('.cbs');
+	if (!barra) return;
+	/* fim da Black: 01/12/2026 00:00 em Brasilia (-03:00) */
+	var FIM = Date.UTC(2026, 11, 1, 3, 0, 0);
+	var raiz = document.documentElement;
+
+	/* Sai do container do Elementor e vira filha do body, logo depois do header: assim o sticky vale
+	   para a pagina inteira (dentro do container ela so prenderia enquanto o container estivesse na tela).
+	   Fica no mesmo lugar visual (o container era o primeiro da Home), entao nada pula. */
+	var header = document.querySelector('[data-elementor-type="header"]');
+	if (header && header.parentNode === document.body) {
+		var origem = barra.closest('.e-con.e-parent');
+		document.body.insertBefore(barra, header.nextSibling);
+		/* o container que sobrou so tem este widget (o <style> continua valendo mesmo oculto) */
+		if (origem && origem.querySelectorAll('.elementor-widget').length === 1) origem.style.display = 'none';
+	}
+
+	/* cronometro */
+	var campos = {};
+	['d', 'h', 'm', 's'].forEach(function (k) { campos[k] = barra.querySelector('[data-cbs="' + k + '"]'); });
+	function dois(n) { return (n < 10 ? '0' : '') + n; }
+	function tique() {
+		var falta = FIM - Date.now();
+		if (falta <= 0) { barra.hidden = true; return; }
+		var t = Math.floor(falta / 1000);
+		campos.d.textContent = dois(Math.floor(t / 86400));
+		campos.h.textContent = dois(Math.floor(t % 86400 / 3600));
+		campos.m.textContent = dois(Math.floor(t % 3600 / 60));
+		campos.s.textContent = dois(t % 60);
+		setTimeout(tique, 1000 - (Date.now() % 1000) + 10);
+	}
+	tique();
+	if (barra.hidden) return;
+
+	/* prende logo abaixo do menu fixo do Elementor (desktop e celular tem menus diferentes) */
+	var agendado = false;
+	function medir() {
+		agendado = false;
+		var topo = 0;
+		if (header) {
+			[].forEach.call(header.querySelectorAll('.elementor-sticky--active'), function (e) {
+				if (getComputedStyle(e).position !== 'fixed') return;
+				var r = e.getBoundingClientRect();
+				if (r.height > 0 && r.top <= 1) topo = Math.max(topo, r.bottom);
+			});
+		}
+		raiz.style.setProperty('--cbs-topo', Math.round(topo) + 'px');
+		barra.classList.toggle('cbs--presa', window.pageYOffset > 0 && barra.getBoundingClientRect().top <= topo + 1);
+	}
+	function agendar() { if (!agendado) { agendado = true; (window.requestAnimationFrame || setTimeout)(medir); } }
+	medir();
+	window.addEventListener('scroll', agendar, { passive: true });
+	window.addEventListener('resize', agendar);
+	window.addEventListener('load', agendar);
+	/* o sticky do Elementor so liga depois que o script dele roda */
+	setTimeout(agendar, 300); setTimeout(agendar, 1500);
+})();
+</script>

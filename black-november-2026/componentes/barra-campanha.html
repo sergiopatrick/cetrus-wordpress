@@ -13,7 +13,7 @@
   - Curso sem seletor de turma (fellowship, Sanar Pos, EAD, pacote, graduacao; 02/11): rola ate o
     primeiro "Quero me inscrever/matricular" do conteudo (ou ate o destino dele, se for ancora, como
     o #form do pacote); se o botao so existir no header ou numa barra fixa, abre o mesmo formulario.
-  - Celular: pilula em cima, texto embaixo, botao a direita. Home no celular sem a barra (cenario B, 04/11).
+  - Celular: pilula em cima, texto embaixo, botao a direita. Home no celular COM a barra desde 23/11 (a faixa Lista VIP do topo saiu; ate 22/11 valia o cenario B de 04/11, sem a barra).
   - Sem porcentagem (regras de copy do Artifact). O cronometro fica na barra da Home (home-barra-cronometro.html).
 -->
 <style>
@@ -37,9 +37,6 @@
 	.cbn-barra__cta{grid-area:cta;padding:8px 11px;font-size:10.5px;letter-spacing:.1em}
 }
 @media (max-width:359px){.cbn-barra{padding-left:12px;padding-right:12px;gap:6px 10px}.cbn-barra__txt{font-size:11.5px}.cbn-barra__cta{padding:8px 9px;font-size:10px;letter-spacing:.08em}}
-/* Home no celular (04/11, cenario B escolhido pelo Paulo e pela Linei): sem a barra. A regra fica aqui, antes do HTML
-   da barra, para ela nunca aparecer e sumir (CLS). */
-@media (max-width:767px){body.home .elementor-widget-template:has(.cbn-barra){display:none}}
 </style>
 <a class="cbn-barra" href="/vitrine/" aria-label="Black November: condições exclusivas até 30 de novembro. Ver cursos.">
 	<span class="cbn-barra__tag"><span class="cbn-barra__black">Black</span><span class="cbn-barra__nov">November</span></span>

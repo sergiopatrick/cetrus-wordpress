@@ -4,19 +4,35 @@
   (producao: 35965, widget addad97), que o clone do header usa no lugar da faixa sazonal (template 34626).
   Referencia: Artifact, componente "BARRA DE CAMPANHA" (Home, Busca, Produto, Material).
 
-  v2 (23/11, aprovada e publicada na producao): "BLACK NOVEMBER" na mesma pilula da faixa Lista VIP
-  (BLACK Medium com gradiente + NOVEMBER Light) | "Condições exclusivas até 30 de novembro" | VER CURSOS.
+  v3 (23/11 a tarde, pedido do usuario, publicada na producao): o widget tem DUAS barras e o CSS
+  escolhe pela classe do body (sem piscar, sem depender do script):
 
-  - Um link so (sem link dentro de link), largura total, mesma altura em todas as paginas.
-  - Nas paginas de curso o CTA vira "Ver condição" e rola ate o card de inscricao
-    (seletor de unidade/turma); nas demais leva para /vitrine/ (sem UTM).
-  - Curso sem seletor de turma (fellowship, Sanar Pos, EAD, pacote, graduacao; 02/11): rola ate o
-    primeiro "Quero me inscrever/matricular" do conteudo (ou ate o destino dele, se for ancora, como
-    o #form do pacote); se o botao so existir no header ou numa barra fixa, abre o mesmo formulario.
-  - Celular: pilula em cima, texto embaixo, botao a direita. Home no celular COM a barra desde 23/11 (a faixa Lista VIP do topo saiu; ate 22/11 valia o cenario B de 04/11, sem a barra).
-  - Sem porcentagem (regras de copy do Artifact). O cronometro fica na barra da Home (home-barra-cronometro.html).
+  1) .cbn-barra = v2 aprovada de manha, IGUAL, fora das paginas de curso (Home, vitrine, conteudos...):
+     "BLACK NOVEMBER" na pilula da faixa Lista VIP (BLACK Medium com gradiente + NOVEMBER Light) |
+     "Condições exclusivas até 30 de novembro" | VER CURSOS -> /vitrine/ (sem UTM).
+     Celular: pilula em cima, texto embaixo, botao a direita.
+
+  2) .cbu = so em body.single-product (paginas de curso): pilula BLACK NOVEMBER | "ÚLTIMAS VAGAS com
+     condições exclusivas" | cronometro DD:HH:MM:SS igual ao da barra da Home (home-barra-cronometro.html,
+     ate 01/12/2026 00:00 -03; no fim a barra some) | VER CONDIÇÃO (pilula clara do KV).
+     Fundo grafite + textura + facho de luz da barra da Home. Desktop numa linha (64 px);
+     ate 1023 px: tag + chamada / cronometro + botao; celular (~85 px): chamada em 2 linhas a direita.
+     - "Ver condição" abre o MESMO formulario do "Quero me inscrever" do curso, com o curso ja escolhido:
+       elementorProFrontend.modules.popup.showPopup({ id }) com o id lido da propria pagina
+       (pos/intensivo: data-popup-inscricao-id, ex. 35981 com a Black; fellowship: data-elementor-popup-id,
+       ex. 35985). O pop-up preenche o curso sozinho (courseCode) e a unidade/turma escolhidas.
+       Sem id de pop-up (pacote): clica no "Quero me inscrever" da pagina, que leva ao formulario #form.
+       Nenhum id fixo no codigo -> vale com a Black ligada (clones) ou desligada (originais).
+     - Contagem de cadastros: o formulario aberto pela barra recebe "barra-black-ultimas-vagas" no campo
+       oculto contact__gn_ab_test ("[GN] Teste A/B - Site", copiado para o negocio em deal__gn_ab_test).
+       UTMs intocadas. So preenche campo vazio (as paginas -a/-b do teste A/B mantem o valor delas).
+       O "Quero me inscrever" continua sem marca. Clique tambem vai para o dataLayer:
+       { event: 'MM_click_barra_black', barra: 'ultimas-vagas', curso } (sem tag no GTM ainda).
+
+  - Sem porcentagem (regras de copy do Artifact).
 -->
 <style>
+/* ===== barra atual (fora das paginas de curso): igual a v2 aprovada em 23/11 ===== */
 .cbn-barra{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px 16px;width:calc(100vw - var(--cbn-sbw,0px));margin-left:calc(50% - 50vw + var(--cbn-sbw,0px) / 2);min-height:52px;padding:10px 20px;background:#0E0F12;border-bottom:1px solid rgba(255,255,255,.10);color:#F3F3F6!important;text-decoration:none!important;font-family:Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.3;text-align:left;-webkit-font-smoothing:antialiased}
 .cbn-barra *{box-sizing:border-box}
 .cbn-barra__tag{flex:none;display:inline-flex;align-items:center;gap:.42em;height:26px;padding:0 12px 0 14px;border:1px solid rgba(212,213,232,.42);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.015) 100%);font-family:"BwModelica","Bw Modelica",Montserrat,sans-serif;font-size:11px;line-height:1;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
@@ -28,7 +44,6 @@
 .cbn-barra__cta{flex:none;display:inline-flex;align-items:center;padding:6px 14px;border:1px solid rgba(255,255,255,.45);border-radius:4px;font-family:"BwModelica","Bw Modelica",Montserrat,sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#FFFFFF;white-space:nowrap;transition:background .2s}
 .cbn-barra:hover .cbn-barra__cta,.cbn-barra:focus-visible .cbn-barra__cta{background:rgba(255,255,255,.08)}
 .cbn-barra:focus-visible{outline:2px solid #D4D5E8;outline-offset:-2px}
-/* celular: pilula em cima, texto embaixo, botao a direita (2 linhas) */
 @media (max-width:767px){
 	.cbn-barra{display:grid;grid-template-columns:minmax(0,max-content) auto;grid-template-areas:"tag cta" "txt cta";justify-content:center;align-items:center;gap:6px 14px;padding:9px 16px 10px;font-size:13px}
 	.cbn-barra__tag{grid-area:tag;justify-self:start;height:20px;padding:0 8px 0 9px;font-size:8.5px;letter-spacing:.14em}
@@ -37,6 +52,88 @@
 	.cbn-barra__cta{grid-area:cta;padding:8px 11px;font-size:10.5px;letter-spacing:.1em}
 }
 @media (max-width:359px){.cbn-barra{padding-left:12px;padding-right:12px;gap:6px 10px}.cbn-barra__txt{font-size:11.5px}.cbn-barra__cta{padding:8px 9px;font-size:10px;letter-spacing:.08em}}
+
+/* ===== pagina de curso: "Ultimas vagas" + cronometro + Ver condicao (abre o formulario do curso) ===== */
+.cbu{display:none}
+body.single-product .cbn-barra{display:none!important}
+body.single-product .cbu{display:block}
+.cbu[hidden]{display:none!important}
+.cbu{
+	--cbu-txt:#f3f3f6;--cbu-lav:#8c8eb6;--cbu-lav2:#d4d5e8;
+	position:relative;overflow:hidden;isolation:isolate;box-sizing:border-box;
+	width:calc(100vw - var(--cbn-sbw,0px));margin-left:calc(50% - 50vw + var(--cbn-sbw,0px) / 2);
+	background:
+		radial-gradient(26% 240% at 80% -70%,rgba(255,255,255,.20) 0%,rgba(255,255,255,0) 62%),
+		linear-gradient(112deg,rgba(255,255,255,0) 52%,rgba(255,255,255,.045) 66%,rgba(255,255,255,0) 80%),
+		radial-gradient(40% 220% at 18% 170%,rgba(72,82,124,.24) 0%,rgba(72,82,124,0) 70%),
+		linear-gradient(180deg,#222327 0%,#17181b 100%);
+	border-bottom:1px solid rgba(255,255,255,.08);
+	font-family:BwModelica,"Bw Modelica","Helvetica Neue",Arial,sans-serif;text-align:left;
+	-webkit-font-smoothing:antialiased;
+}
+.cbu *,.cbu *::before,.cbu *::after{box-sizing:border-box}
+/* textura de cimento queimado (mesma da barra do cronometro da Home) */
+.cbu::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
+	background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.cbu .cbu-luz{position:absolute;z-index:0;top:-170%;right:17%;width:190px;height:440%;transform:rotate(34deg);
+	background:linear-gradient(180deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.06) 50%,rgba(255,255,255,0) 80%);filter:blur(26px);pointer-events:none}
+.cbu a.cbu-a{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:18px;max-width:1218px;min-height:64px;margin:0 auto;padding:9px 24px;color:var(--cbu-txt)!important;text-decoration:none!important;cursor:pointer}
+.cbu a.cbu-a:focus-visible{outline:2px solid var(--cbu-lav2);outline-offset:-4px}
+/* tag Black November (a mesma da barra atual) */
+.cbu .cbu-tag{grid-area:tag;flex:none;display:inline-flex;align-items:center;gap:.42em;height:26px;padding:0 12px 0 14px;border:1px solid rgba(212,213,232,.42);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.015) 100%);font-size:11px;line-height:1;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.cbu .cbu-black,.cbu .cbu-nov{display:inline-block;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.cbu .cbu-black{font-weight:500;background-image:linear-gradient(100deg,#7d80a8 0%,#8C8EB6 24%,#D4D5E8 72%,#f1f2f9 100%)}
+.cbu .cbu-nov{font-weight:300;background-image:linear-gradient(90deg,#F3F3F6 0%,#F3F3F6 55%,rgba(243,243,246,.62) 100%)}
+.cbu .cbu-traco{flex:none;width:1px;height:22px;background:rgba(255,255,255,.22)}
+/* chamada */
+.cbu .cbu-txt{grid-area:txt;font-size:13px;line-height:1.3;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;color:rgba(243,243,246,.84);font-weight:300}
+.cbu .cbu-txt b{font-weight:500;color:#fff}
+/* cronometro (mesmo desenho da Home) */
+.cbu .cbu-cd{grid-area:cd;display:flex;align-items:flex-start;gap:5px;margin-left:10px}
+.cbu .cbu-u{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cbu .cbu-n{display:block;min-width:1.42em;font-size:23px;font-weight:500;line-height:1;letter-spacing:.02em;text-align:center;font-variant-numeric:tabular-nums;
+	background-image:linear-gradient(100deg,var(--cbu-lav) 0%,var(--cbu-lav2) 55%,#f1f2f9 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.cbu .cbu-r{font-size:8px;font-weight:500;line-height:1;letter-spacing:.18em;text-transform:uppercase;color:rgba(233,234,240,.62)}
+.cbu .cbu-sep{font-style:normal;font-size:20px;font-weight:300;line-height:23px;height:23px;color:rgba(140,142,182,.9)}
+/* botao: pilula clara do KV (a mesma da Home) */
+.cbu .cbu-btn{grid-area:btn;flex:none;display:inline-flex;align-items:center;margin-left:6px;padding:12px 18px;border-radius:4px;
+	background:linear-gradient(100deg,#c9d3f1 0%,#f4f5fb 52%,#dde3f6 100%);color:#15161a;
+	font-size:12px;font-weight:500;line-height:1;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+	box-shadow:0 2px 10px rgba(0,0,0,.25);transition:background .2s ease,box-shadow .2s ease}
+.cbu a.cbu-a:hover .cbu-btn,.cbu a.cbu-a:focus-visible .cbu-btn{background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.32)}
+/* tablet: 2 linhas (tag + chamada / cronometro + botao) */
+@media (max-width:1023px){
+	.cbu a.cbu-a{display:grid;grid-template-columns:auto auto;grid-template-areas:"tag txt" "cd btn";justify-content:center;align-items:center;gap:10px 28px;padding:10px 24px 11px}
+	.cbu .cbu-traco{display:none}
+	.cbu .cbu-tag{justify-self:start}
+	.cbu .cbu-txt{justify-self:end}
+	.cbu .cbu-cd{margin-left:0;justify-self:start}
+	.cbu .cbu-btn{margin-left:0;justify-self:end}
+}
+/* celular: tag + chamada em 2 linhas / cronometro + botao */
+@media (max-width:767px){
+	.cbu a.cbu-a{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch;gap:7px 12px;padding:8px 14px 9px}
+	.cbu .cbu-tag{height:20px;padding:0 8px 0 9px;font-size:8.5px;letter-spacing:.14em}
+	.cbu .cbu-txt{font-size:10px;line-height:1.35;letter-spacing:.08em;text-align:right}
+	.cbu .cbu-txt b,.cbu .cbu-txt span{display:block}
+	.cbu .cbu-cd{gap:3px}
+	.cbu .cbu-n{font-size:21px}
+	.cbu .cbu-sep{font-size:17px;line-height:21px;height:21px}
+	.cbu .cbu-r{font-size:7.5px;letter-spacing:.14em}
+	.cbu .cbu-btn{padding:11px 13px;font-size:10.5px;letter-spacing:.1em}
+	.cbu .cbu-luz{right:-4%;width:130px}
+}
+@media (max-width:359px){
+	.cbu a.cbu-a{gap:8px 8px;padding:9px 10px 10px}
+	.cbu .cbu-tag{padding:0 7px 0 8px;font-size:8px;letter-spacing:.12em}
+	.cbu .cbu-txt{font-size:9.5px;letter-spacing:.06em}
+	.cbu .cbu-cd{gap:2px}
+	.cbu .cbu-n{font-size:18px}
+	.cbu .cbu-sep{font-size:15px;line-height:18px;height:18px}
+	.cbu .cbu-r{font-size:7px;letter-spacing:.1em}
+	.cbu .cbu-btn{padding:11px 9px;font-size:9.5px;letter-spacing:.07em}
+}
+@media (prefers-reduced-motion:reduce){.cbu .cbu-btn{transition:none}}
 </style>
 <a class="cbn-barra" href="/vitrine/" aria-label="Black November: condições exclusivas até 30 de novembro. Ver cursos.">
 	<span class="cbn-barra__tag"><span class="cbn-barra__black">Black</span><span class="cbn-barra__nov">November</span></span>
@@ -44,55 +141,128 @@
 	<span class="cbn-barra__txt">Condições exclusivas até 30 de novembro</span>
 	<span class="cbn-barra__cta">Ver cursos</span>
 </a>
+<div class="cbu" role="region" aria-label="Black November">
+	<span class="cbu-luz" aria-hidden="true"></span>
+	<a class="cbu-a" href="#inscricao" role="button" aria-haspopup="dialog" data-utm-decorated="1" aria-label="Black November: últimas vagas com condições exclusivas. Ver condição deste curso (abre o formulário de inscrição).">
+		<span class="cbu-tag"><span class="cbu-black">Black</span><span class="cbu-nov">November</span></span>
+		<span class="cbu-traco" aria-hidden="true"></span>
+		<span class="cbu-txt"><b>Últimas vagas</b> <span>com condições exclusivas</span></span>
+		<span class="cbu-cd" aria-hidden="true">
+			<span class="cbu-u"><span class="cbu-n" data-cbu="d">00</span><span class="cbu-r">dias</span></span>
+			<i class="cbu-sep">:</i>
+			<span class="cbu-u"><span class="cbu-n" data-cbu="h">00</span><span class="cbu-r">horas</span></span>
+			<i class="cbu-sep">:</i>
+			<span class="cbu-u"><span class="cbu-n" data-cbu="m">00</span><span class="cbu-r">min</span></span>
+			<i class="cbu-sep">:</i>
+			<span class="cbu-u"><span class="cbu-n" data-cbu="s">00</span><span class="cbu-r">seg</span></span>
+		</span>
+		<span class="cbu-btn">Ver condição</span>
+	</a>
+</div>
 <script>
 (function () {
-	var barra = document.querySelector('.cbn-barra');
-	if (!barra) return;
+	var raiz = document.documentElement;
 	// largura total sem rolagem horizontal (mesmo truque da faixa sazonal)
-	function sbw() { document.documentElement.style.setProperty('--cbn-sbw', (window.innerWidth - document.documentElement.clientWidth) + 'px'); }
-	// a barra de rolagem so existe depois que a pagina cresce: medir de novo no load e a cada mudanca de tamanho
+	function sbw() { raiz.style.setProperty('--cbn-sbw', (window.innerWidth - raiz.clientWidth) + 'px'); }
 	sbw(); window.addEventListener('resize', sbw); window.addEventListener('load', sbw);
 	if ('ResizeObserver' in window) new ResizeObserver(sbw).observe(document.body);
-	// pagina de curso: "Ver condição" leva ao card de inscricao
-	if (document.body.classList.contains('single-product')) {
-		// o template tem um card para desktop e outro para mobile: usa o que estiver visivel
-		var alvo = function () {
-			var c = [].slice.call(document.querySelectorAll('.course-selection, .unit-select'));
-			return c.filter(function (e) { return e.offsetParent !== null; })[0] || null;
-		};
-		barra.querySelector('.cbn-barra__cta').textContent = 'Ver condição';
-		barra.setAttribute('aria-label', 'Black November: condições exclusivas até 30 de novembro. Ver condição deste curso.');
-		barra.setAttribute('href', '#inscricao');
-		// sem seletor de turma: o botao de inscricao da pagina
-		var botoes = function () {
-			return [].slice.call(document.querySelectorAll('a.elementor-button, button.elementor-button, a.lyceum-course-btn')).filter(function (e) {
-				return e.offsetParent !== null && /quero me (inscrever|matricular)|inscreva-se/i.test(e.textContent) && !e.closest('.cbn-barra, .elementor-location-popup');
+
+	if (!document.body.classList.contains('single-product')) return;
+	var barra = document.querySelector('.cbu');
+	if (!barra) return;
+
+	/* cronometro: fim da Black = 01/12/2026 00:00 em Brasilia (-03:00), o mesmo da Home */
+	var FIM = Date.UTC(2026, 11, 1, 3, 0, 0);
+	var campos = {};
+	['d', 'h', 'm', 's'].forEach(function (k) { campos[k] = barra.querySelector('[data-cbu="' + k + '"]'); });
+	function dois(n) { return (n < 10 ? '0' : '') + n; }
+	function tique() {
+		var falta = FIM - Date.now();
+		if (falta <= 0) { barra.hidden = true; return; }
+		var t = Math.floor(falta / 1000);
+		campos.d.textContent = dois(Math.floor(t / 86400));
+		campos.h.textContent = dois(Math.floor(t % 86400 / 3600));
+		campos.m.textContent = dois(Math.floor(t % 3600 / 60));
+		campos.s.textContent = dois(t % 60);
+		setTimeout(tique, 1000 - (Date.now() % 1000) + 10);
+	}
+	tique();
+
+	/* Ver condicao: abre o MESMO pop-up de inscricao do "Quero me inscrever" deste curso
+	   (pos/intensivo = formulario HubSpot do curso; fellowship e pacote = o pop-up proprio de cada um).
+	   O id vem da propria pagina, entao vale com a Black ligada (clones) e desligada (originais). */
+	var fora = function (e) { return !e.closest('.cbu, .elementor-location-popup'); };
+	var visivel = function (e) { var r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+	function idPopup() {
+		var grupos = [
+			['[data-lyceum-enrollment-form][data-popup-inscricao-id]', 'data-popup-inscricao-id'],
+			['[data-lyceum-course-btn-standalone][data-popup-inscricao-id]', 'data-popup-inscricao-id'],
+			['[data-lyceum-enrollment-btn][data-popup-target]', 'data-popup-target'],
+			['.lyceum-fellowship-btn[data-elementor-popup-id], [data-elementor-popup-id]', 'data-elementor-popup-id']
+		];
+		for (var i = 0; i < grupos.length; i++) {
+			var els = [].filter.call(document.querySelectorAll(grupos[i][0]), fora);
+			var el = els.filter(visivel)[0] || els[0];
+			var id = el ? parseInt(el.getAttribute(grupos[i][1]) || '', 10) : 0;
+			if (id) return id;
+		}
+		return 0;
+	}
+	function botaoDaPagina() {
+		return [].filter.call(document.querySelectorAll('[data-lyceum-enrollment-btn], .lyceum-fellowship-btn, a.elementor-button'), function (e) {
+			return fora(e) && /quero me (inscrever|matricular)|inscreva-se/i.test(e.textContent);
+		}).sort(function (a, b) { return visivel(b) - visivel(a); })[0] || null;
+	}
+	/* Contagem de cadastros: o formulario aberto PELA BARRA leva MARCA no campo oculto
+	   "[GN] Teste A/B - Site" (contact__gn_ab_test), que o HubSpot copia para o negocio (deal__gn_ab_test).
+	   As UTMs nao mudam. So preenche campo vazio: as paginas -a/-b do teste A/B mantem "A"/"B". */
+	var MARCA = 'barra-black-ultimas-vagas';
+	var pedido = { id: 0, em: 0 }, popupDaBarra = 0, alvoDaBarra = null;
+	function marcar() {
+		// pop-up aberto pela barra (pos, intensivo, fellowship) ou formulario na pagina (pacote: "#form")
+		[popupDaBarra && document.querySelector('[data-elementor-id="' + popupDaBarra + '"]'), alvoDaBarra].forEach(function (raiz) {
+			if (!raiz) return;
+			[].forEach.call(raiz.querySelectorAll('input[name="contact__gn_ab_test"]'), function (c) {
+				if (c.value) return;
+				var d = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(c), 'value');
+				if (d && d.set) d.set.call(c, MARCA); else c.value = MARCA;
+				c.dispatchEvent(new Event('input', { bubbles: true }));
+				c.dispatchEvent(new Event('change', { bubbles: true }));
 			});
-		};
-		// botao no header ou numa barra fixa (o "Quero me inscrever" do rodape no celular) nao tem para onde rolar: abre
-		var noConteudo = function (e) {
-			if (e.closest('[data-elementor-type="header"], [data-elementor-type="footer"]')) return false;
-			for (var x = e; x && x !== document.body; x = x.parentElement) if (getComputedStyle(x).position === 'fixed') return false;
-			return true;
-		};
-		barra.addEventListener('click', function (ev) {
-			var a = alvo();
-			if (a) {
-				ev.preventDefault();
-				a.scrollIntoView({ behavior: 'smooth', block: 'center' });
-				return;
-			}
-			var b = botoes(), c = b.filter(noConteudo)[0];
-			if (c) {
-				var h = c.getAttribute('href') || '';
-				var destino = /^#[\w-]+$/.test(h) ? document.getElementById(h.slice(1)) : null;
-				ev.preventDefault();
-				(destino && destino.offsetParent !== null ? destino : c).scrollIntoView({ behavior: 'smooth', block: 'center' });
-			} else if (b[0]) {
-				ev.preventDefault();
-				b[0].click();
-			}
 		});
 	}
+	window.addEventListener('message', function (e) {
+		var d = e.data;
+		if (d && d.type === 'hsFormCallback' && (d.eventName === 'onFormReady' || d.eventName === 'onFormSubmit')) marcar();
+	});
+	if (window.jQuery) {
+		// so conta como "da barra" o pop-up que abriu logo depois do clique nela (o "Quero me inscrever" zera)
+		jQuery(document).on('elementor/popup/show', function (e, id) {
+			popupDaBarra = (+id === pedido.id && Date.now() - pedido.em < 2000) ? pedido.id : 0;
+			pedido.id = 0;
+			if (popupDaBarra) { marcar(); setTimeout(marcar, 1500); }
+		});
+		jQuery(document).on('elementor/popup/hide', function () { popupDaBarra = 0; });
+	}
+
+	barra.querySelector('.cbu-a').addEventListener('click', function (ev) {
+		ev.preventDefault();
+		var id = idPopup();
+		window.dataLayer = window.dataLayer || [];
+		window.dataLayer.push({ event: 'MM_click_barra_black', barra: 'ultimas-vagas', curso: typeof courseCode !== 'undefined' ? courseCode : '' });
+		var mod = window.elementorProFrontend && elementorProFrontend.modules && elementorProFrontend.modules.popup;
+		if (id && mod && typeof mod.showPopup === 'function') { pedido = { id: id, em: Date.now() }; mod.showPopup({ id: id }); return; }
+		var b = botaoDaPagina();
+		if (b) {
+			// pacote: o "Quero me inscrever" leva ao formulario da propria pagina (#form) -> marca esse formulario
+			var h = b.getAttribute('href') || '';
+			var t = /^#[\w-]+$/.test(h) ? document.getElementById(h.slice(1)) : null;
+			if (t && t.querySelector('input[name="contact__gn_ab_test"]')) { alvoDaBarra = t; marcar(); }
+			b.click();
+			return;
+		}
+		var card = document.querySelector('.course-selection');
+		if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	});
 })();
 </script>

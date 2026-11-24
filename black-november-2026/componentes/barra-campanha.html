@@ -27,7 +27,17 @@
        oculto contact__gn_ab_test ("[GN] Teste A/B - Site", copiado para o negocio em deal__gn_ab_test).
        UTMs intocadas. So preenche campo vazio (as paginas -a/-b do teste A/B mantem o valor delas).
        O "Quero me inscrever" continua sem marca. Clique tambem vai para o dataLayer:
-       { event: 'MM_click_barra_black', barra: 'ultimas-vagas', curso } (sem tag no GTM ainda).
+       { event: 'MM_click_barra_black', barra: 'ultimas-vagas', curso } -> GTM v232 (evento GA4).
+     - 24/11: a marca vale SO para o formulario aberto pela barra. Pop-up aberto por outro caminho tem a
+       marca removida (o pop-up fechado sem o X guardava o formulario ja marcado; o HubSpot pode preencher
+       o campo oculto com o valor que o contato ainda tem). Pacote: clique de verdade (isTrusted) no
+       "Quero me inscrever" depois da barra tira a marca do formulario #form.
+     - O workflow do HubSpot "[GN] Contact - Prop: Teste A/B - Site" copia o valor para o negocio e
+       APAGA o campo no contato ~30 min depois: listas/relatorios devem filtrar pelo NEGOCIO
+       (lista 56093 = contatos com negocio deal__gn_ab_test = marca e data de MQL).
+     - Depois de publicar mudanca neste modelo, limpar o "Cache de borda global" do WordPress.com
+       (my.wordpress.com/sites/cetrus.com.br/settings/caching); senao a 1a visita de cada pagina
+       recebe a versao anterior (x-ac STALE).
 
   - Sem porcentagem (regras de copy do Artifact).
 -->
@@ -218,32 +228,53 @@ body.single-product .cbu{display:block}
 	   As UTMs nao mudam. So preenche campo vazio: as paginas -a/-b do teste A/B mantem "A"/"B". */
 	var MARCA = 'barra-black-ultimas-vagas';
 	var pedido = { id: 0, em: 0 }, popupDaBarra = 0, alvoDaBarra = null;
+	function poe(c, v) {
+		var d = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(c), 'value');
+		if (d && d.set) d.set.call(c, v); else c.value = v;
+		c.dispatchEvent(new Event('input', { bubbles: true }));
+		c.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+	// pop-up aberto pela barra (pos, intensivo, fellowship) ou formulario na pagina (pacote: "#form")
+	function raizesDaBarra() {
+		return [popupDaBarra && document.querySelector('[data-elementor-id="' + popupDaBarra + '"]'), alvoDaBarra].filter(Boolean);
+	}
 	function marcar() {
-		// pop-up aberto pela barra (pos, intensivo, fellowship) ou formulario na pagina (pacote: "#form")
-		[popupDaBarra && document.querySelector('[data-elementor-id="' + popupDaBarra + '"]'), alvoDaBarra].forEach(function (raiz) {
-			if (!raiz) return;
-			[].forEach.call(raiz.querySelectorAll('input[name="contact__gn_ab_test"]'), function (c) {
-				if (c.value) return;
-				var d = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(c), 'value');
-				if (d && d.set) d.set.call(c, MARCA); else c.value = MARCA;
-				c.dispatchEvent(new Event('input', { bubbles: true }));
-				c.dispatchEvent(new Event('change', { bubbles: true }));
-			});
+		raizesDaBarra().forEach(function (raiz) {
+			[].forEach.call(raiz.querySelectorAll('input[name="contact__gn_ab_test"]'), function (c) { if (!c.value) poe(c, MARCA); });
 		});
 	}
+	// formulario aberto por outro caminho NAO leva a marca: o pop-up fechado sem o X guarda o formulario
+	// ja marcado, e o HubSpot pode preencher o campo oculto com o valor que o contato ainda tem
+	function desmarcarFora() {
+		var dentro = raizesDaBarra();
+		[].forEach.call(document.querySelectorAll('input[name="contact__gn_ab_test"]'), function (c) {
+			if (c.value !== MARCA) return;
+			for (var i = 0; i < dentro.length; i++) if (dentro[i].contains(c)) return;
+			poe(c, '');
+		});
+	}
+	function acertar() { desmarcarFora(); marcar(); }
 	window.addEventListener('message', function (e) {
 		var d = e.data;
-		if (d && d.type === 'hsFormCallback' && (d.eventName === 'onFormReady' || d.eventName === 'onFormSubmit')) marcar();
+		if (d && d.type === 'hsFormCallback' && (d.eventName === 'onFormReady' || d.eventName === 'onFormSubmit')) acertar();
 	});
 	if (window.jQuery) {
 		// so conta como "da barra" o pop-up que abriu logo depois do clique nela (o "Quero me inscrever" zera)
 		jQuery(document).on('elementor/popup/show', function (e, id) {
 			popupDaBarra = (+id === pedido.id && Date.now() - pedido.em < 2000) ? pedido.id : 0;
 			pedido.id = 0;
-			if (popupDaBarra) { marcar(); setTimeout(marcar, 1500); }
+			acertar(); setTimeout(acertar, 1500);
 		});
 		jQuery(document).on('elementor/popup/hide', function () { popupDaBarra = 0; });
 	}
+	// pacote: clique de verdade no "Quero me inscrever" depois da barra -> o envio passa a ser do botao
+	document.addEventListener('click', function (ev) {
+		if (!ev.isTrusted || !alvoDaBarra) return;
+		var b = ev.target && ev.target.closest ? ev.target.closest('a, button') : null;
+		if (!b || b.closest('.cbu') || !/quero me (inscrever|matricular)|inscreva-se/i.test(b.textContent)) return;
+		alvoDaBarra = null;
+		desmarcarFora();
+	}, true);
 
 	barra.querySelector('.cbu-a').addEventListener('click', function (ev) {
 		ev.preventDefault();

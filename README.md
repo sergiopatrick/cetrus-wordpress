@@ -43,6 +43,45 @@ Cursos cuja **única** turma visível era a `.VENDAS` passam a exibir o botão d
 **fila de espera** em vez do formulário de inscrição, o correto enquanto não
 houver turma real cadastrada no Lyceum.
 
+### `wp-content/mu-plugins/cetrus-lyceum-vagas-esgotadas.php` (27/11/2026)
+
+**Turmas com 100% das vagas ocupadas** continuam no seletor "Selecione a turma",
+com **" - Vagas esgotadas"** ao lado da data, e não podem ser escolhidas. Antes, o
+`Lyceum_CourseProcessor` do `integracao-lyceum-main` descartava a turma lotada e ela
+sumia da página.
+
+- **Regra:** turma `ACTIVE` com `seats.amount > 0` e `seats.sold >= seats.amount`
+  (inclui vendida acima da capacidade). Capacidade zerada continua escondida, como antes.
+  Ajustável pelo filtro `cetrus_lyceum_turma_esgotada`.
+- **Onde:** no `plugins_loaded`, o processador `COURSE_` do registro do plugin vira um
+  envelope do próprio `Lyceum_CourseProcessor`; só a cópia em memória da resposta é
+  ajustada para a turma lotada passar pelo filtro de vagas, e as vagas reais voltam no
+  resultado (`lyceum_course_vars.turmas[].esgotada`). As demais regras do plugin
+  (course.id, `MV_`, `FE_`, status) continuam valendo. Nada muda no Lyceum nem no cache.
+- **Página:** opção `disabled` + selo **VAGAS ESGOTADAS** (tokens de alerta do Dendê)
+  abaixo dos seletores. O botão "Quero me inscrever" não abre o pop-up se a turma
+  escolhida estiver esgotada ou se todas as turmas (da unidade ou do curso) estiverem;
+  com o curso inteiro esgotado, o botão passa a dizer "Vagas esgotadas".
+- **Envio:** o formulário HubSpot do pop-up só segue depois de confirmar a turma do
+  campo `contact__ct__class_site` **ao vivo** em `POST /wp-json/cetrus/v1/turma-vagas`
+  (consulta a products-api sem ler o cache de 15 min do
+  `cetrus-lyceum-api-cache.php`, que ganhou `cetrus_lyapi_leitura_fresca()` na 1.1.0).
+  Se a API falhar, vale o dado da página (turma com vaga nunca é travada por erro de rede).
+- **Limite de datas por curso** (`cetrus_vagas_limites`, filtro
+  `cetrus_lyceum_limite_turmas`): Pós Intervenção em Dor (`PG_DOR2`, produto 12588),
+  **UNIDADE SÃO PAULO = 3** turmas com vaga mais próximas; esgotada anterior continua
+  visível; o resto sai. Validado com o comercial em 27/11/2026: 14/03, 23/05 e 04/07/2027
+  selecionáveis + 02/02/2027 esgotada; 05/09/2027 sai. É automático: quando uma turma
+  começa, a próxima entra.
+- **Fellowship (`FE_`)** não tem seletor de datas: a página mostra só a próxima turma
+  com vaga e, sem nenhuma, a fila de espera. Isso não mudou.
+- **Medição:** `dataLayer` `inscricao_bloqueada_vagas_esgotadas` {curso, turma,
+  motivo: turma|unidade|todas, etapa: selecao|botao|formulario}.
+- **Limite conhecido:** o lead vai do navegador direto para o HubSpot; um envio forjado
+  direto na API do HubSpot não passa pelo WordPress.
+- **Teste:** `tests/qa/lyceum/vagas-esgotadas-harness.js` (PHP 8.3 em WebAssembly com as
+  classes reais do plugin). Reverter = apagar o arquivo (o plugin volta a esconder as lotadas).
+
 ### `wp-content/mu-plugins/cetrus-carrossel-turmas.php`
 
 Monta o carrossel **"Cursos em destaque no mês"** da home (widget `df02ba9`):

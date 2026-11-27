@@ -696,15 +696,16 @@ function cetrus_vagas_js() {
 	function atualizar() {
 		forms().forEach(function (f) {
 			var s = sel(f);
-			var unidade = s.u ? s.u.value : '';
+			var escolhida = s.u ? s.u.value : '';
 			var unidades = s.u ? [].filter.call(s.u.options, function (o) { return o.value; }) : [];
-			if (!unidade && unidades.length === 1) unidade = unidades[0].value;
+			var unidade = escolhida || (unidades.length === 1 ? unidades[0].value : '');
 			var lista = unidade ? turmasDa(unidade) : (todasEsgotadas(C.turmas) ? C.turmas : []);
 			var nota = caixa(f, 'cetrus-vagas-nota');
+			var alerta = f.querySelector('.cetrus-vagas-alerta');
 			var quais = datas(lista);
-			if (!quais) { nota.hidden = true; return; }
+			if (!quais || (alerta && !alerta.hidden)) { nota.hidden = true; return; }
 			nota.innerHTML = TAG + (todasEsgotadas(lista)
-				? (unidade ? 'em todas as turmas desta unidade.' : 'em todas as turmas deste curso.')
+				? (escolhida && unidades.length > 1 ? 'em todas as turmas desta unidade.' : 'em todas as turmas deste curso.')
 				: (quais.indexOf(' e ') > -1 ? 'nas turmas de ' : 'na turma de ') + quais + '. Garanta sua vaga nas próximas datas.');
 			nota.hidden = false;
 		});
@@ -731,12 +732,19 @@ function cetrus_vagas_js() {
 			var a = caixa(x, 'cetrus-vagas-alerta');
 			a.innerHTML = textoMotivo(m);
 			a.hidden = false;
+			var n = x.querySelector('.cetrus-vagas-nota');
+			if (n) n.hidden = true;
 		});
 		var al = f.querySelectorAll('.alert-submit-btn');
 		[].forEach.call(al, function (a) { a.classList.add('hidden'); });
 	}
 	function limparAlerta() {
-		[].forEach.call(document.querySelectorAll('[data-lyceum-enrollment-form] .cetrus-vagas-alerta'), function (a) { a.hidden = true; });
+		var havia = false;
+		[].forEach.call(document.querySelectorAll('[data-lyceum-enrollment-form] .cetrus-vagas-alerta'), function (a) {
+			if (!a.hidden) havia = true;
+			a.hidden = true;
+		});
+		if (havia) atualizar();
 	}
 	function rolar(f) {
 		var top = f.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - (window.innerWidth < 768 ? 200 : 100);

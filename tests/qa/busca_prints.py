@@ -106,7 +106,7 @@ def main():
             b.js("window.__campo.focus(); window.__campo.value=''; window.__campo.dispatchEvent(new Event('input',{bubbles:true}));")
             time.sleep(0.3)
             b.cmd("Input.insertText", {"text": termo})
-            time.sleep(2.2)
+            time.sleep(4)
             if os.environ.get("DEBUG"):
                 print(b.js("(function(){var c=window.__campo;var p=c.closest('.position-relative');return [c.value, document.activeElement===c, p?p.querySelectorAll('.cetrus-ac-painel').length:-1, p&&p.querySelector('.cetrus-ac-painel')?p.querySelector('.cetrus-ac-painel').outerHTML.slice(0,200):''];})()"))
             info = b.js("""(function(){

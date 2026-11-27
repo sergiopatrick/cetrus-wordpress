@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cetrus - cache HTTP da products-api (Lyceum)
  * Description: Cacheia por 15 minutos as respostas GET da products-api usadas no render das paginas de curso, cortando 3 a 9s de TTFB em cache MISS. Nao altera nenhum dado: apenas evita repetir a mesma chamada HTTP a cada pageview.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Cetrus / Sanar
  *
  * POR QUE ISTO EXISTE
@@ -104,6 +104,23 @@ function &cetrus_lyapi_memo() {
 }
 
 /**
+ * Leitura fresca (1.1.0, 27/11/2026): enquanto ligada, nenhuma chamada le do cache
+ * (transient nem memo) e a resposta nova continua sendo gravada. Usada pela checagem
+ * de vagas no envio do formulario (cetrus-lyceum-vagas-esgotadas.php), que nao pode
+ * confiar em dado de ate 15 minutos. Ligar e desligar em volta de UMA chamada.
+ *
+ * @param bool|null $ligar true liga, false desliga, null so consulta.
+ * @return bool
+ */
+function cetrus_lyapi_leitura_fresca($ligar = null) {
+    static $fresca = false;
+    if ($ligar !== null) {
+        $fresca = (bool) $ligar;
+    }
+    return $fresca;
+}
+
+/**
  * Curto-circuito: serve do cache antes de abrir HTTP.
  */
 add_filter('pre_http_request', function ($preempt, $args, $url) {
@@ -111,7 +128,7 @@ add_filter('pre_http_request', function ($preempt, $args, $url) {
         return $preempt;
     }
     $chave = cetrus_lyapi_chave($url, $args);
-    if (!$chave) {
+    if (!$chave || cetrus_lyapi_leitura_fresca()) {
         return false;
     }
 

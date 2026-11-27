@@ -567,9 +567,11 @@ add_action('wp_enqueue_scripts', function () {
     }
     // Tokens Dende: #FBF3E6 ColorFeedbackSurfaceAlert, #7F5205 ColorFeedbackOnAlert,
     // 10em BorderRadiusPill (mesmo selo de "ultimas vagas" do card de curso).
+    // Seletor da opcao com especificidade 0,4,2: ganha do black.css da Black November
+    // (body.cetrus-black-2026.cetrus-black-conteudo .course-selection option = 0,3,2).
     $css = '
-[data-lyceum-course-select] option.cetrus-turma-esgotada,
-[data-lyceum-course-select] option[data-cetrus-esgotada]{color:#7F5205;background:#FBF3E6;font-weight:600}
+body .course-selection [data-lyceum-course-select] option.cetrus-turma-esgotada[data-cetrus-esgotada],
+body [data-lyceum-enrollment-form] [data-lyceum-course-select] option.cetrus-turma-esgotada[data-cetrus-esgotada]{color:#7F5205;background:#FBF3E6;font-weight:600}
 .cetrus-vagas-tag{display:inline-block;padding:3px 8px;border-radius:10em;background:#FBF3E6;color:#7F5205;
   font-size:.75rem;font-weight:600;line-height:1.3;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
 .cetrus-vagas-nota,.cetrus-vagas-alerta{display:block;margin:8px 0 0;font-size:.8125rem;line-height:1.45}
@@ -577,6 +579,7 @@ add_action('wp_enqueue_scripts', function () {
 .cetrus-vagas-alerta{font-weight:500}
 .cetrus-vagas-alerta[hidden],.cetrus-vagas-nota[hidden]{display:none}
 .hs-form .cetrus-vagas-alerta{margin:0 0 12px}
+.hs-form [type="submit"][aria-busy="true"]{opacity:.7;cursor:progress}
 [data-lyceum-enrollment-btn].cetrus-btn-esgotado{cursor:not-allowed;opacity:.85}';
     wp_register_style('cetrus-lyceum-vagas', false, array(), CETRUS_VAGAS_VERSAO);
     wp_enqueue_style('cetrus-lyceum-vagas');
@@ -620,6 +623,7 @@ function cetrus_vagas_js() {
 	var esg = {};
 	var vivo = {};
 	var liberado = [];
+	var pendentes = [];
 
 	function up(v) { return String(v || '').trim().toUpperCase(); }
 	function norm(v) { return String(v || '').normalize('NFD').replace(ACENTOS, '').toUpperCase().replace(/\s+/g, ' ').trim(); }
@@ -832,7 +836,12 @@ function cetrus_vagas_js() {
 		a.innerHTML = textoMotivo(m);
 		a.hidden = false;
 	}
+	function semAviso(form) {
+		var a = form.querySelector('.cetrus-vagas-alerta');
+		if (a) a.hidden = true;
+	}
 	function reenviar(form, botao) {
+		semAviso(form);
 		liberado.push(form);
 		if (form.requestSubmit) {
 			try { form.requestSubmit(botao && botao.form === form ? botao : undefined); return; } catch (err) { /* segue */ }
@@ -846,6 +855,8 @@ function cetrus_vagas_js() {
 		if (!campo) return;
 		var i = liberado.indexOf(form);
 		if (i > -1) { liberado.splice(i, 1); return; }
+		/* Clique repetido enquanto a checagem roda: segura, para nao enviar duas vezes. */
+		if (pendentes.indexOf(form) > -1) { e.preventDefault(); e.stopImmediatePropagation(); return; }
 
 		var turma = up(campo.value);
 		var u = form.querySelector('input[name="contact__ct__unit_site"]');
@@ -857,7 +868,7 @@ function cetrus_vagas_js() {
 			dl({ turma: turma, motivo: m, etapa: 'formulario' });
 			return;
 		}
-		if (!turma) return;
+		if (!turma) { semAviso(form); return; }
 
 		var v = vivo[turma];
 		if (v && v.r !== undefined && Date.now() - v.em < 60000) {
@@ -866,7 +877,9 @@ function cetrus_vagas_js() {
 				e.stopImmediatePropagation();
 				aviso(form, 'turma');
 				dl({ turma: turma, motivo: 'turma', etapa: 'formulario' });
+				return;
 			}
+			semAviso(form);
 			return;
 		}
 
@@ -874,7 +887,9 @@ function cetrus_vagas_js() {
 		e.stopImmediatePropagation();
 		var botao = e.submitter || form.querySelector('[type="submit"]');
 		if (botao) botao.setAttribute('aria-busy', 'true');
+		pendentes.push(form);
 		checar(turma).then(function (r) {
+			pendentes.splice(pendentes.indexOf(form), 1);
 			if (botao) botao.removeAttribute('aria-busy');
 			if ((r && r.esgotada) || eEsgotada(turma)) {
 				aviso(form, 'turma');
@@ -892,6 +907,12 @@ function cetrus_vagas_js() {
 		} catch (err) { /* iframe de outra origem */ }
 	}
 	proteger(window);
+	/* Comecou a preencher o formulario: adianta a checagem ao vivo (o envio quase nunca espera). */
+	window.addEventListener('focusin', function (e) {
+		var form = e.target && e.target.form;
+		var campo = form && form.querySelector ? form.querySelector('input[name="contact__ct__class_site"]') : null;
+		if (campo && campo.value) checar(campo.value);
+	}, true);
 	/* Formulario HubSpot dentro de iframe da mesma origem (embed legado). */
 	function iframes() {
 		[].forEach.call(document.querySelectorAll('.hbspt-form iframe, .hubspot-forms iframe, iframe.hs-form-iframe'), function (fr) {

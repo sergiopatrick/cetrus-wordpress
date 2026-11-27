@@ -13,10 +13,11 @@
      Celular: pilula em cima, texto embaixo, botao a direita.
 
   2) .cbu = so em body.single-product (paginas de curso): pilula BLACK NOVEMBER | "ÚLTIMAS VAGAS com
-     condições exclusivas" | cronometro DD:HH:MM:SS igual ao da barra da Home (home-barra-cronometro.html,
-     ate 01/12/2026 00:00 -03; no fim a barra some) | VER CONDIÇÃO (pilula clara do KV).
-     Fundo grafite + textura + facho de luz da barra da Home. Desktop numa linha (64 px);
-     ate 1023 px: tag + chamada / cronometro + botao; celular (~85 px): chamada em 2 linhas a direita.
+     condições exclusivas" | VER CONDIÇÃO (pilula clara do KV). Em 01/12/2026 00:00 -03 a barra some.
+     Fundo grafite + textura + facho de luz. Desktop numa linha (64 px);
+     ate 1023 px: tag em cima e chamada embaixo, botao a direita; celular (~72 px): chamada em 2 linhas.
+     - 27/11/2026 (Black Friday): o cronometro DD:HH:MM:SS saiu (HTML, CSS e JS), pedido do Gregorio.
+       Publicado na producao antes deste commit; o conteudo abaixo e igual ao widget addad97 publicado.
      - "Ver condição" abre o MESMO formulario do "Quero me inscrever" do curso, com o curso ja escolhido:
        elementorProFrontend.modules.popup.showPopup({ id }) com o id lido da propria pagina
        (pos/intensivo: data-popup-inscricao-id, ex. 35981 com a Black; fellowship: data-elementor-popup-id,
@@ -98,38 +99,26 @@ body.single-product .cbu{display:block}
 /* chamada */
 .cbu .cbu-txt{grid-area:txt;font-size:13px;line-height:1.3;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;color:rgba(243,243,246,.84);font-weight:300}
 .cbu .cbu-txt b{font-weight:500;color:#fff}
-/* cronometro (mesmo desenho da Home) */
-.cbu .cbu-cd{grid-area:cd;display:flex;align-items:flex-start;gap:5px;margin-left:10px}
-.cbu .cbu-u{display:flex;flex-direction:column;align-items:center;gap:4px}
-.cbu .cbu-n{display:block;min-width:1.42em;font-size:23px;font-weight:500;line-height:1;letter-spacing:.02em;text-align:center;font-variant-numeric:tabular-nums;
-	background-image:linear-gradient(100deg,var(--cbu-lav) 0%,var(--cbu-lav2) 55%,#f1f2f9 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-.cbu .cbu-r{font-size:8px;font-weight:500;line-height:1;letter-spacing:.18em;text-transform:uppercase;color:rgba(233,234,240,.62)}
-.cbu .cbu-sep{font-style:normal;font-size:20px;font-weight:300;line-height:23px;height:23px;color:rgba(140,142,182,.9)}
 /* botao: pilula clara do KV (a mesma da Home) */
 .cbu .cbu-btn{grid-area:btn;flex:none;display:inline-flex;align-items:center;margin-left:6px;padding:12px 18px;border-radius:4px;
 	background:linear-gradient(100deg,#c9d3f1 0%,#f4f5fb 52%,#dde3f6 100%);color:#15161a;
 	font-size:12px;font-weight:500;line-height:1;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
 	box-shadow:0 2px 10px rgba(0,0,0,.25);transition:background .2s ease,box-shadow .2s ease}
 .cbu a.cbu-a:hover .cbu-btn,.cbu a.cbu-a:focus-visible .cbu-btn{background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.32)}
-/* tablet: 2 linhas (tag + chamada / cronometro + botao) */
+/* tablet: tag em cima e chamada embaixo, botao a direita (sem cronometro desde 27/11) */
 @media (max-width:1023px){
-	.cbu a.cbu-a{display:grid;grid-template-columns:auto auto;grid-template-areas:"tag txt" "cd btn";justify-content:center;align-items:center;gap:10px 28px;padding:10px 24px 11px}
+	.cbu a.cbu-a{display:grid;grid-template-columns:auto auto;grid-template-areas:"tag btn" "txt btn";justify-content:center;align-items:center;gap:8px 28px;padding:10px 24px 11px}
 	.cbu .cbu-traco{display:none}
 	.cbu .cbu-tag{justify-self:start}
-	.cbu .cbu-txt{justify-self:end}
-	.cbu .cbu-cd{margin-left:0;justify-self:start}
+	.cbu .cbu-txt{justify-self:start}
 	.cbu .cbu-btn{margin-left:0;justify-self:end}
 }
-/* celular: tag + chamada em 2 linhas / cronometro + botao */
+/* celular: tag + chamada em 2 linhas a esquerda, botao a direita */
 @media (max-width:767px){
 	.cbu a.cbu-a{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch;gap:7px 12px;padding:8px 14px 9px}
 	.cbu .cbu-tag{height:20px;padding:0 8px 0 9px;font-size:8.5px;letter-spacing:.14em}
-	.cbu .cbu-txt{font-size:10px;line-height:1.35;letter-spacing:.08em;text-align:right}
+	.cbu .cbu-txt{font-size:10px;line-height:1.35;letter-spacing:.08em;text-align:left}
 	.cbu .cbu-txt b,.cbu .cbu-txt span{display:block}
-	.cbu .cbu-cd{gap:3px}
-	.cbu .cbu-n{font-size:21px}
-	.cbu .cbu-sep{font-size:17px;line-height:21px;height:21px}
-	.cbu .cbu-r{font-size:7.5px;letter-spacing:.14em}
 	.cbu .cbu-btn{padding:11px 13px;font-size:10.5px;letter-spacing:.1em}
 	.cbu .cbu-luz{right:-4%;width:130px}
 }
@@ -137,10 +126,6 @@ body.single-product .cbu{display:block}
 	.cbu a.cbu-a{gap:8px 8px;padding:9px 10px 10px}
 	.cbu .cbu-tag{padding:0 7px 0 8px;font-size:8px;letter-spacing:.12em}
 	.cbu .cbu-txt{font-size:9.5px;letter-spacing:.06em}
-	.cbu .cbu-cd{gap:2px}
-	.cbu .cbu-n{font-size:18px}
-	.cbu .cbu-sep{font-size:15px;line-height:18px;height:18px}
-	.cbu .cbu-r{font-size:7px;letter-spacing:.1em}
 	.cbu .cbu-btn{padding:11px 9px;font-size:9.5px;letter-spacing:.07em}
 }
 @media (prefers-reduced-motion:reduce){.cbu .cbu-btn{transition:none}}
@@ -157,15 +142,6 @@ body.single-product .cbu{display:block}
 		<span class="cbu-tag"><span class="cbu-black">Black</span><span class="cbu-nov">November</span></span>
 		<span class="cbu-traco" aria-hidden="true"></span>
 		<span class="cbu-txt"><b>Últimas vagas</b> <span>com condições exclusivas</span></span>
-		<span class="cbu-cd" aria-hidden="true">
-			<span class="cbu-u"><span class="cbu-n" data-cbu="d">00</span><span class="cbu-r">dias</span></span>
-			<i class="cbu-sep">:</i>
-			<span class="cbu-u"><span class="cbu-n" data-cbu="h">00</span><span class="cbu-r">horas</span></span>
-			<i class="cbu-sep">:</i>
-			<span class="cbu-u"><span class="cbu-n" data-cbu="m">00</span><span class="cbu-r">min</span></span>
-			<i class="cbu-sep">:</i>
-			<span class="cbu-u"><span class="cbu-n" data-cbu="s">00</span><span class="cbu-r">seg</span></span>
-		</span>
 		<span class="cbu-btn">Ver condição</span>
 	</a>
 </div>
@@ -181,22 +157,9 @@ body.single-product .cbu{display:block}
 	var barra = document.querySelector('.cbu');
 	if (!barra) return;
 
-	/* cronometro: fim da Black = 01/12/2026 00:00 em Brasilia (-03:00), o mesmo da Home */
-	var FIM = Date.UTC(2026, 11, 1, 3, 0, 0);
-	var campos = {};
-	['d', 'h', 'm', 's'].forEach(function (k) { campos[k] = barra.querySelector('[data-cbu="' + k + '"]'); });
-	function dois(n) { return (n < 10 ? '0' : '') + n; }
-	function tique() {
-		var falta = FIM - Date.now();
-		if (falta <= 0) { barra.hidden = true; return; }
-		var t = Math.floor(falta / 1000);
-		campos.d.textContent = dois(Math.floor(t / 86400));
-		campos.h.textContent = dois(Math.floor(t % 86400 / 3600));
-		campos.m.textContent = dois(Math.floor(t % 3600 / 60));
-		campos.s.textContent = dois(t % 60);
-		setTimeout(tique, 1000 - (Date.now() % 1000) + 10);
-	}
-	tique();
+	/* fim da Black = 01/12/2026 00:00 em Brasilia (-03:00): depois disso a barra some.
+	   O cronometro saiu em 27/11/2026 (a barra fica so com a chamada e o "Ver condicao"). */
+	if (Date.now() >= Date.UTC(2026, 11, 1, 3, 0, 0)) { barra.hidden = true; return; }
 
 	/* Ver condicao: abre o MESMO pop-up de inscricao do "Quero me inscrever" deste curso
 	   (pos/intensivo = formulario HubSpot do curso; fellowship e pacote = o pop-up proprio de cada um).
